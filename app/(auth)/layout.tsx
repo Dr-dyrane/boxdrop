@@ -22,7 +22,7 @@ export default function AuthLayout({
                 initial={{ y: 0 }}
                 animate={{ y: isHidden ? -120 : 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                className="sticky top-0 z-50 glass-heavy h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-4 flex items-center"
+                className="fixed top-0 left-0 right-0 z-50 glass-heavy h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-4 flex items-center"
             >
                 <Link
                     href="/"
@@ -36,7 +36,7 @@ export default function AuthLayout({
             </motion.header>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col items-center justify-center p-4">
+            <main className="flex-1 flex flex-col items-center justify-center p-4 pt-[calc(4rem+env(safe-area-inset-top)+1rem)]">
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}

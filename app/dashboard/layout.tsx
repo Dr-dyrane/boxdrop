@@ -116,7 +116,7 @@ export default function MainLayout({
                 initial={{ y: 0 }}
                 animate={{ y: isCollapsed ? -120 : 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                className="md:hidden sticky top-0 z-40 glass-heavy h-[calc(3.5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)]"
+                className="md:hidden fixed top-0 left-0 right-0 z-40 glass-heavy h-[calc(3.5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)]"
             >
                 <div className="flex items-center justify-between h-14 px-4">
                     {/* Left: Dynamic Branding / Back */}
@@ -304,7 +304,7 @@ export default function MainLayout({
             </motion.aside>
 
             {/* ── Content Area ──────────────────────────── */}
-            <div className="md:pl-[72px] lg:pl-60 pb-24 md:pb-0">
+            <div className="md:pl-[72px] lg:pl-60 pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-0 pb-24 md:pb-0">
                 <Suspense fallback={null}>
                     {children}
                 </Suspense>

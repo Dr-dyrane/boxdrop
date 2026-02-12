@@ -311,14 +311,8 @@ body {
    PWA VIEWPORT — Safe area insets
    ───────────────────────────────────────────────────── */
 
-@supports (padding-top: env(safe-area-inset-top)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-}
+/* NOTE: Safe areas are handled on a per-layout basis to prevent duplication 
+   (e.g. Header + Body both applying inset). No global body padding. */
 
 /* ─────────────────────────────────────────────────────
    UTILITIES
