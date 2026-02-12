@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | Pre-Development — Architecture Defined |
+| **Status** | Phase 2 — Core Experience Implementation |
 | **Type** | Progressive Web App (PWA) |
 | **Stack** | Next.js 15 · Supabase · Gluestack UI · Zustand |
 | **License** | Proprietary |
@@ -24,6 +24,7 @@
 - [Getting Started](#-getting-started)
 - [Environment Variables](#-environment-variables)
 - [Roadmap](#-roadmap)
+- [Documentation Hub](./docs/index.md) 🏛️
 
 ---
 
@@ -341,14 +342,14 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 ### Phase 1 — Foundation
 
-- [ ] Project setup (Next.js 15, Tailwind, Gluestack, Supabase)
-- [ ] Design system implementation (GlassCard, ScreenShell, theme tokens)
-- [ ] Auth flow (Email/Phone OTP, protected routes)
-- [ ] Database schema + seed data (5 vendors, 20 products)
+- [x] Project setup (Next.js 15, Tailwind, Gluestack, Supabase)
+- [x] Design system implementation (GlassCard, ScreenShell, theme tokens)
+- [x] Auth flow (Email/Phone OTP, protected routes)
+- [x] Database schema + seed data (5 vendors, 20 products)
 
 ### Phase 2 — Core Experience
 
-- [ ] Marketplace home (vendor grid, search, categories)
+- [x] Marketplace home (adaptive navigation, search droplet, categories)
 - [ ] Product detail view with add-to-cart interaction
 - [ ] Cart management (Zustand store, optimistic UI)
 - [ ] Order creation and confirmation flow
