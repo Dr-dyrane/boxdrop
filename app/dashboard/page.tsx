@@ -3,41 +3,41 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, MapPin, Clock, TrendingUp, Search, X, Star } from "lucide-react";
+import { Package, MapPin, Clock, TrendingUp, X, Star, ArrowRight } from "lucide-react";
 import { ScreenShell } from "@/components/layout/screen-shell";
 import { useVendors, useAuth, useNearbyVendors } from "@/core/hooks";
-import { getGreeting, calculateDeliveryTime, formatDistance } from "@/core/utils";
-import { Skeleton, SkeletonText, SkeletonCard, SkeletonAvatar, SkeletonPill, SkeletonBento, MapView, Button } from "@/components/ui";
+import { getGreeting, calculateDeliveryTime, formatDistance, cn } from "@/core/utils";
+import { Skeleton, SkeletonCard, SkeletonBento, MapView, Button } from "@/components/ui";
 
 /* ─────────────────────────────────────────────────────
    DASHBOARD / HOME — Marketplace
-   Shows featured vendors & nearby results via PostGIS.
+   Modernized Bento Discovery Hub.
+   Implements Spotlight featured grid and immersive 
+   category tiles following the Alexander UI Canon.
    ───────────────────────────────────────────────────── */
 
 const CATEGORIES = [
-    { name: "Restaurant", icon: "🍳" },
-    { name: "Groceries", icon: "🍎" },
-    { name: "Pharmacy", icon: "💊" },
-    { name: "Retail", icon: "🛍️" },
-    { name: "Coffee", icon: "☕" },
-    { name: "Beauty", icon: "💄" },
-    { name: "Pets", icon: "🐾" },
+    { name: "Restaurant", icon: "🍳", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
+    { name: "Groceries", icon: "🍎", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80" },
+    { name: "Pharmacy", icon: "💊", image: "https://images.unsplash.com/photo-1576091160550-217359f4fdb2?auto=format&fit=crop&w=400&q=80" },
+    { name: "Retail", icon: "🛍️", image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80" },
+    { name: "Coffee", icon: "☕", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80" },
 ];
 
 const container = {
     hidden: { opacity: 0 },
     show: {
         opacity: 1,
-        transition: { staggerChildren: 0.06 },
+        transition: { staggerChildren: 0.08, delayChildren: 0.1 },
     },
 };
 
-const item = {
-    hidden: { opacity: 0, y: 12 },
+const staggerItem = {
+    hidden: { opacity: 0, y: 16 },
     show: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
+        transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
     },
 } as const;
 
@@ -81,38 +81,21 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="space-y-8">
-                        {/* Mobile sidebar placeholder */}
                         <div className="xl:hidden">
                             {loadingSidebar}
                         </div>
 
-                        <div className="flex gap-2 overflow-x-auto scrollbar-none mask-fade-right">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <SkeletonPill key={i} className="shrink-0" />
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <Skeleton className="h-32 rounded-[2rem]" key={i} />
                             ))}
                         </div>
 
                         <div className="space-y-6">
                             <Skeleton className="h-6 w-32 ml-1" />
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
-                                <SkeletonCard className="h-64" />
-                                <SkeletonCard className="h-64" />
-                                <SkeletonCard className="h-64 hidden 2xl:block" />
-                            </div>
-                        </div>
-
-                        <div className="space-y-6">
-                            <Skeleton className="h-6 w-48 ml-1" />
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
-                                {Array.from({ length: 6 }).map((_, i) => (
-                                    <div key={i} className="glass-heavy p-4 rounded-[2rem] flex items-center gap-4">
-                                        <Skeleton className="h-20 w-20 rounded-[1.5rem]" />
-                                        <div className="flex-1 space-y-2">
-                                            <Skeleton className="h-4 w-1/2" />
-                                            <Skeleton className="h-3 w-1/3" />
-                                        </div>
-                                    </div>
-                                ))}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-8">
+                                <SkeletonCard className="h-80" />
+                                <SkeletonCard className="h-80" />
                             </div>
                         </div>
                     </div>
@@ -123,7 +106,6 @@ export default function DashboardPage() {
 
     const featuredVendors = allVendors?.filter((v) => v.is_featured).slice(0, 6) ?? [];
 
-    // If we have coordinates, prioritized vendors found via PostGIS RPC
     const displayVendors = lat !== undefined && lng !== undefined
         ? nearbyVendors?.filter(v => !v.is_featured) ?? []
         : allVendors?.filter((v) => !v.is_featured) ?? [];
@@ -146,19 +128,18 @@ export default function DashboardPage() {
 
     const DashboardSidebar = (
         <div className="space-y-8">
-            {/* ── Context Signals ───────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
                 {stats.map((stat) => (
                     <div
                         key={stat.label}
-                        className="glass-heavy p-5 rounded-3xl space-y-4 group hover:translate-y-[1px] transition-all duration-300 cursor-default"
+                        className="glass-heavy p-5 rounded-[2rem] space-y-4 group hover:translate-y-[1px] transition-all duration-300 cursor-default"
                     >
                         <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                             <stat.icon className="h-5 w-5" />
                         </div>
                         <div>
                             <p className="text-2xl font-black tracking-tighter leading-none">{stat.value}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mt-1.5 leading-none">
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mt-1.5 leading-none opacity-50">
                                 {stat.label}
                             </p>
                         </div>
@@ -166,27 +147,25 @@ export default function DashboardPage() {
                 ))}
             </div>
 
-            {/* ── Active Location Banner ─────────────────── */}
             {address && (
-                <div className="px-4 py-4 glass-heavy rounded-[2rem] flex items-center gap-3">
+                <div className="px-5 py-4 glass-heavy rounded-[2rem] flex items-center gap-4">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                         <MapPin className="h-5 w-5 text-primary" />
                     </div>
                     <div className="min-w-0 flex-1">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Current Address</p>
-                        <p className="text-sm font-bold truncate">{address}</p>
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black opacity-50">Deliver to</p>
+                        <p className="text-xs font-bold truncate leading-tight mt-0.5">{address}</p>
                     </div>
                 </div>
             )}
 
-            {/* ── Visual Map Coverage ───────────────────── */}
             {lat && lng && (
-                <div className="glass-heavy rounded-[2.5rem] overflow-hidden h-80">
+                <div className="glass-heavy rounded-[2.5rem] overflow-hidden h-80 relative group">
                     <MapView
                         center={{ lat, lng }}
                         markers={mapMarkers}
                         zoom={14}
-                        className="h-full w-full grayscale opacity-80"
+                        className="h-full w-full grayscale contrast-[1.1] transition-all duration-1000 group-hover:grayscale-0"
                         interactive={false}
                     />
                 </div>
@@ -197,17 +176,17 @@ export default function DashboardPage() {
     return (
         <ScreenShell side={DashboardSidebar}>
             <motion.div
-                className="space-y-12"
+                className="space-y-12 lg:space-y-16 pb-20"
                 variants={container}
                 initial="hidden"
                 animate="show"
             >
-                {/* ── Header ─────────────────────────────────── */}
-                <motion.div variants={item} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                {/* ── Command Header ─────────────────────────── */}
+                <motion.div variants={staggerItem} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
-                        <p className="text-sm text-muted-foreground font-medium uppercase tracking-[0.1em] opacity-60">{greeting}, {displayName}</p>
-                        <h1 className="text-4xl font-black tracking-tighter mt-1">
-                            {lat ? "Stores near you" : "BoxDrop Hub."}
+                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40 mb-2">{greeting}, {displayName}</p>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
+                            {lat ? "Discovery Hub" : "Marketplace Center."}
                         </h1>
                     </div>
                     {lat && (
@@ -215,145 +194,138 @@ export default function DashboardPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => router.push('/dashboard')}
-                            className="glass px-4 rounded-full"
+                            className="glass px-5 rounded-full h-10 gap-2 text-[10px] font-black uppercase tracking-widest"
                         >
-                            <X className="h-4 w-4 mr-2" />
-                            Clear Location
+                            <X className="h-3 w-3" />
+                            Reset View
                         </Button>
                     )}
                 </motion.div>
 
-                <div className="space-y-12">
-                    {/* ── Mobile Context Signals (Visible only on mobile/tablet) ── */}
-                    <div className="xl:hidden">
-                        {DashboardSidebar}
-                    </div>
+                {/* ── Bento Categories (Discovery Grid) ──────── */}
+                <motion.div variants={staggerItem} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {CATEGORIES.map((cat, idx) => (
+                        <button
+                            key={cat.name}
+                            onClick={() => router.push(`/dashboard/search?category=${cat.name}`)}
+                            className={cn(
+                                "group relative h-36 rounded-[2.2rem] overflow-hidden glass hover:scale-[0.98] transition-all duration-500",
+                                idx === 0 && "col-span-2 sm:col-span-1 lg:col-span-1"
+                            )}
+                        >
+                            <Image
+                                src={cat.image}
+                                alt={cat.name}
+                                fill
+                                className="object-cover opacity-50 group-hover:opacity-80 group-hover:scale-110 transition-all duration-1000 grayscale group-hover:grayscale-0"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                            <div className="absolute bottom-5 left-5">
+                                <span className="text-2xl mb-1 block group-hover:scale-125 group-hover:rotate-12 transition-transform duration-500 origin-left">{cat.icon}</span>
+                                <h3 className="text-[10px] font-black text-white uppercase tracking-[0.15em]">{cat.name}</h3>
+                            </div>
+                        </button>
+                    ))}
+                </motion.div>
 
-                    {/* ── Quick Categories ──────────────────────── */}
-                    <motion.div variants={item} className="space-y-4">
-                        <h2 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 opacity-50">Quick Categories</h2>
-                        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none mask-fade-right">
-                            {CATEGORIES.map((cat) => (
-                                <motion.button
-                                    key={cat.name}
-                                    whileTap={{ scale: 0.96 }}
-                                    onClick={() => router.push(`/dashboard/search?category=${cat.name}`)}
-                                    className="
-                                        flex items-center gap-2.5 px-6 py-3
-                                        glass rounded-full shrink-0 
-                                        hover:bg-foreground hover:text-background transition-all duration-300
-                                        cursor-pointer
-                                        group
-                                    "
-                                >
-                                    <span className="text-xl group-hover:scale-110 transition-transform">{cat.icon}</span>
-                                    <span className="text-xs font-black tracking-tight uppercase tracking-[0.05em]">{cat.name}</span>
-                                </motion.button>
-                            ))}
+                {/* ── Featured Spotlight ─────────────────────── */}
+                {!lat && featuredVendors.length > 0 && (
+                    <motion.div variants={staggerItem} className="space-y-6">
+                        <div className="flex items-center justify-between px-1">
+                            <h2 className="text-2xl font-black tracking-tighter">Spotlight</h2>
+                            <button
+                                onClick={() => router.push('/dashboard/search?featured=true')}
+                                className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all flex items-center gap-2 group"
+                            >
+                                Browse All
+                                <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                            </button>
                         </div>
-                    </motion.div>
-
-                    {/* ── Featured Showcase ──────────────────────── */}
-                    {!lat && featuredVendors.length > 0 && (
-                        <motion.div variants={item} className="space-y-6">
-                            <div className="flex items-center justify-between px-1">
-                                <h2 className="text-xl font-black tracking-tight">Featured</h2>
-                                <button
-                                    onClick={() => router.push('/dashboard/search?featured=true')}
-                                    className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                                >
-                                    View all
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
-                                {featuredVendors.map((vendor) => (
-                                    <motion.div
-                                        key={vendor.id}
-                                        whileHover={{ y: -4 }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                        className="relative h-64 rounded-[2.5rem] overflow-hidden group cursor-pointer"
-                                        onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
-                                    >
-                                        {/* Full Photo */}
-                                        {vendor.cover_url ? (
-                                            <Image
-                                                src={vendor.cover_url}
-                                                alt={vendor.name}
-                                                fill
-                                                className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
-                                            />
-                                        ) : (
-                                            <div className="absolute inset-0 bg-accent flex items-center justify-center">
-                                                <Package className="h-10 w-10 text-muted-foreground/10" />
-                                            </div>
-                                        )}
-
-                                        {/* Scrim */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-
-                                        {/* Floating Info Plate */}
-                                        <div className="absolute bottom-3 left-3 right-3 glass-heavy p-4 rounded-[1.8rem] space-y-2 border border-white/10 group-hover:translate-y-[-2px] transition-transform duration-500">
-                                            <div className="flex items-center justify-between gap-2">
-                                                <div className="min-w-0 flex-1">
-                                                    <h3 className="text-sm font-black text-foreground truncate tracking-tight">{vendor.name}</h3>
-                                                    <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">{vendor.category}</p>
-                                                </div>
-                                                <div className="glass px-2.5 py-1 rounded-full flex items-center gap-1">
-                                                    <Star className="h-2.5 w-2.5 text-warning fill-warning" />
-                                                    <span className="text-[10px] font-black">{vendor.rating}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* ── Exploration Grid ─────────────────── */}
-                    <motion.div variants={item} className="space-y-6">
-                        <h2 className="text-xl font-black tracking-tight px-1">{lat ? "Available Nearby" : "Explore More"}</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 3xl:grid-cols-3 gap-6">
-                            {displayVendors.map((vendor) => (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-8">
+                            {featuredVendors.map((vendor) => (
                                 <motion.div
                                     key={vendor.id}
-                                    whileHover={{ y: -2 }}
+                                    whileHover={{ y: -8, scale: 1.01 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                    className="relative h-[26rem] rounded-[3rem] overflow-hidden group cursor-pointer shadow-2xl shadow-black/5"
                                     onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
-                                    className="group glass-heavy p-4 rounded-[2rem] flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-all duration-300"
                                 >
-                                    <div className="h-20 w-20 rounded-[1.5rem] overflow-hidden glass shrink-0 relative">
-                                        {vendor.logo_url ? (
-                                            <Image
-                                                src={vendor.logo_url}
-                                                alt={vendor.name}
-                                                width={80}
-                                                height={80}
-                                                className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                            />
-                                        ) : (
-                                            <div className="h-full w-full bg-primary/5 flex items-center justify-center">
-                                                <Package className="h-7 w-7 text-muted-foreground/20" />
-                                            </div>
-                                        )}
+                                    {vendor.cover_url ? (
+                                        <Image src={vendor.cover_url} alt={vendor.name} fill className="object-cover transition-transform duration-[2s] group-hover:scale-110" />
+                                    ) : (
+                                        <div className="absolute inset-0 bg-accent" />
+                                    )}
+
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+
+                                    <div className="absolute top-6 right-6">
+                                        <div className="glass px-3.5 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10">
+                                            <Star className="h-2.5 w-2.5 text-warning fill-warning" />
+                                            <span className="text-[10px] font-black text-white">{vendor.rating}</span>
+                                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <h3 className="font-black text-sm truncate tracking-tight">{vendor.name}</h3>
-                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">{vendor.rating} ★</span>
+
+                                    <div className="absolute bottom-8 left-8 right-8 space-y-4">
+                                        <div className="space-y-1">
+                                            <p className="text-[9px] text-white/50 font-black uppercase tracking-[0.2em]">{vendor.category}</p>
+                                            <h3 className="text-2xl font-black text-white tracking-tighter leading-tight">{vendor.name}</h3>
                                         </div>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <span className="text-[9px] text-muted-foreground font-black uppercase tracking-widest">{calculateDeliveryTime((vendor as any).dist_meters)}</span>
-                                            <span className="text-[8px] text-muted-foreground/30">•</span>
-                                            <span className="text-[9px] text-muted-foreground font-black uppercase tracking-widest">{formatDistance((vendor as any).dist_meters)}</span>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2 text-white/70">
+                                                <Clock className="h-3 w-3" />
+                                                <span className="text-[10px] font-bold uppercase tracking-wider">25-35m</span>
+                                            </div>
+                                            <div className="h-1 w-1 rounded-full bg-white/20" />
+                                            <div className="flex items-center gap-2 text-white/70">
+                                                <TrendingUp className="h-3 w-3" />
+                                                <span className="text-[10px] font-bold uppercase tracking-wider">Top rated</span>
+                                            </div>
                                         </div>
-                                        <p className="text-[10px] text-muted-foreground mt-2 line-clamp-1 font-medium">{vendor.category} • {vendor.description}</p>
                                     </div>
                                 </motion.div>
                             ))}
                         </div>
                     </motion.div>
-                </div>
+                )}
+
+                {/* ── Selection Grid ─────────────────────────── */}
+                <motion.div variants={staggerItem} className="space-y-6">
+                    <h2 className="text-2xl font-black tracking-tighter px-1">{lat ? "Available Selection" : "Local Favorites"}</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 3xl:grid-cols-3 gap-6">
+                        {displayVendors.map((vendor) => (
+                            <motion.div
+                                key={vendor.id}
+                                whileHover={{ x: 4 }}
+                                onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
+                                className="group glass-heavy p-6 rounded-[2.5rem] flex items-center gap-6 cursor-pointer hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10"
+                            >
+                                <div className="h-20 w-20 rounded-[1.8rem] overflow-hidden glass shrink-0 relative">
+                                    {vendor.logo_url ? (
+                                        <Image src={vendor.logo_url} alt={vendor.name} width={80} height={80} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                    ) : (
+                                        <div className="h-full w-full bg-primary/5 flex items-center justify-center">
+                                            <Package className="h-7 w-7 text-muted-foreground/20" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <h3 className="font-black text-sm truncate tracking-tight">{vendor.name}</h3>
+                                        <span className="text-[9px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">{vendor.rating} ★</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 mt-3">
+                                        <span className="text-[9px] text-muted-foreground font-black uppercase tracking-widest leading-none">{calculateDeliveryTime((vendor as any).dist_meters)}</span>
+                                        <div className="h-0.5 w-0.5 rounded-full bg-muted-foreground/30" />
+                                        <span className="text-[9px] text-muted-foreground font-black uppercase tracking-widest leading-none">{formatDistance((vendor as any).dist_meters)}</span>
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground/40 mt-3 line-clamp-1 font-bold uppercase tracking-tight">{vendor.category} • {vendor.description}</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.div>
             </motion.div>
         </ScreenShell>
     );
 }
+

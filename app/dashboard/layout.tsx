@@ -10,6 +10,7 @@ import { useScrollDirection } from "@/core/hooks/use-scroll-direction";
 import { useAuth } from "@/core/hooks";
 import { useCartStore, useThemeStore } from "@/core/store";
 import { Logo } from "@/components/ui";
+import { PersistentCart } from "@/components/shared/persistent-cart";
 
 /* ─────────────────────────────────────────────────────
    MAIN LAYOUT — Apple Store-Inspired Adaptive Nav
@@ -30,7 +31,6 @@ const sidebarTabs = [
     { href: "/dashboard", label: "Shop", icon: Home },
     { href: "/dashboard/search", label: "Explore", icon: Compass },
     { href: "/dashboard/orders", label: "Products", icon: Package },
-    { href: "/dashboard/cart", label: "Bag", icon: ShoppingBag },
 ];
 
 export default function MainLayout({
@@ -308,6 +308,8 @@ export default function MainLayout({
                 <Suspense fallback={null}>
                     {children}
                 </Suspense>
+
+                <PersistentCart />
             </div>
 
             {/* ── Mobile Bottom Pill (scroll-aware) ─────── */}
