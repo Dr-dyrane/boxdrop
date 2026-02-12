@@ -55,7 +55,7 @@ export default function LandingPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const { direction, isScrolled } = useScrollDirection(80);
+  const { direction, isScrolled } = useScrollDirection(10);
   const isHidden = direction === "down" && isScrolled;
 
   // ── Address Autocomplete Logic ──────────────────────

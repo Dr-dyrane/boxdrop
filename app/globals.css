@@ -156,8 +156,6 @@
   --radius-lg: var(--radius-lg);
   --radius-xl: var(--radius-xl);
   --radius-squircle: var(--radius-squircle);
-
-  --breakpoint-2xl: 1400px;
 }
 
 /* ─────────────────────────────────────────────────────

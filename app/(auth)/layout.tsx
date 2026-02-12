@@ -12,7 +12,7 @@ export default function AuthLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { direction, isScrolled } = useScrollDirection(20);
+    const { direction, isScrolled } = useScrollDirection(10);
     const isHidden = direction === "down" && isScrolled;
 
     return (

@@ -39,10 +39,9 @@ export default function MainLayout({
 }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { direction, isScrolled } = useScrollDirection(48);
+    const { direction, isScrolled } = useScrollDirection(10);
     const { profile, user } = useAuth();
     const cartCount = useCartStore((s) => s.items.length);
-
     const isCollapsed = direction === "down" && isScrolled;
 
     // ── Navigation Logic ─────────────────────────
@@ -157,7 +156,11 @@ export default function MainLayout({
             </motion.header>
 
             {/* ── Tablet Side Rail (md only) ────────────── */}
-            <aside className="hidden md:flex lg:hidden fixed top-0 left-0 bottom-0 z-50 w-[72px] flex-col items-center py-6 gap-2 glass-heavy">
+            <motion.aside
+                animate={{ x: isCollapsed ? -80 : 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                className="hidden md:flex lg:hidden fixed top-0 left-0 bottom-0 z-50 w-[72px] flex-col items-center py-6 gap-2 glass-heavy"
+            >
                 <Link
                     href="/dashboard"
                     className="h-10 w-10 flex items-center justify-center mb-4 cursor-pointer"
@@ -206,10 +209,14 @@ export default function MainLayout({
                         <span className="text-xs font-bold text-muted-foreground">{initials}</span>
                     )}
                 </button>
-            </aside>
+            </motion.aside>
 
             {/* ── Desktop Sidebar (lg+) ─────────────────── */}
-            <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy">
+            <motion.aside
+                animate={{ x: isCollapsed ? -240 : 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy"
+            >
                 <Link
                     href="/dashboard"
                     className="flex items-center gap-3 px-3 h-10 mb-4 cursor-pointer"
@@ -271,7 +278,7 @@ export default function MainLayout({
                         </p>
                     </div>
                 </button>
-            </aside>
+            </motion.aside>
 
             {/* ── Content Area ──────────────────────────── */}
             <div className="md:pl-[72px] lg:pl-60 pb-24 md:pb-0">
