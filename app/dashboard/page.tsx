@@ -121,7 +121,7 @@ export default function DashboardPage() {
         );
     }
 
-    const featuredVendors = allVendors?.filter((v) => v.is_featured) ?? [];
+    const featuredVendors = allVendors?.filter((v) => v.is_featured).slice(0, 6) ?? [];
 
     // If we have coordinates, prioritized vendors found via PostGIS RPC
     const displayVendors = lat !== undefined && lng !== undefined

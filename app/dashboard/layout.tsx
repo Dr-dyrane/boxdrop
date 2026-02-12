@@ -274,30 +274,32 @@ export default function MainLayout({
                         </button>
                     </div>
 
-                    <button
-                        onClick={() => router.push("/dashboard/profile")}
-                        className={`
-                            flex items-center gap-3 px-3 h-12 rounded-[var(--radius-md)]
-                            hover:bg-accent transition-colors text-left
-                            ${pathname === "/dashboard/profile" ? "bg-primary/10" : ""}
-                        `}
-                    >
-                        <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
-                            {avatarUrl ? (
-                                <Image src={avatarUrl} alt="Profile" width={32} height={32} className="h-full w-full object-cover" />
-                            ) : (
-                                <User className="h-4 w-4 text-muted-foreground" />
-                            )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium truncate">
-                                {profile?.full_name || user?.email?.split("@")[0] || "Profile"}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground truncate">
-                                {user?.email || "Not signed in"}
-                            </p>
-                        </div>
-                    </button>
+                    <div className="px-3">
+                        <button
+                            onClick={() => router.push("/dashboard/profile")}
+                            className={`
+                                flex items-center gap-3 w-full px-3 h-12 rounded-[var(--radius-md)]
+                                hover:bg-accent transition-colors text-left
+                                ${pathname === "/dashboard/profile" ? "bg-primary/10" : ""}
+                            `}
+                        >
+                            <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
+                                {avatarUrl ? (
+                                    <Image src={avatarUrl} alt="Profile" width={32} height={32} className="h-full w-full object-cover" />
+                                ) : (
+                                    <User className="h-4 w-4 text-muted-foreground" />
+                                )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-black uppercase tracking-tight truncate leading-tight">
+                                    {profile?.full_name || user?.email?.split("@")[0] || "Profile"}
+                                </p>
+                                <p className="text-[9px] text-muted-foreground truncate tabular-nums">
+                                    {user?.email || "Not signed in"}
+                                </p>
+                            </div>
+                        </button>
+                    </div>
                 </div>
             </motion.aside>
 
