@@ -111,7 +111,12 @@ export default function MainLayout({
     return (
         <div className="min-h-[100dvh]">
             {/* ── Mobile Header ──────────────────────────── */}
-            <header className="md:hidden sticky top-0 z-40 glass-heavy h-14">
+            <motion.header
+                initial={{ y: 0 }}
+                animate={{ y: isCollapsed ? -64 : 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                className="md:hidden sticky top-0 z-40 glass-heavy h-14"
+            >
                 <div className="flex items-center justify-between h-full px-4">
                     {/* Left: Dynamic Branding / Back */}
                     <div className="flex items-center gap-3">
@@ -149,7 +154,7 @@ export default function MainLayout({
                         </button>
                     </div>
                 </div>
-            </header>
+            </motion.header>
 
             {/* ── Tablet Side Rail (md only) ────────────── */}
             <aside className="hidden md:flex lg:hidden fixed top-0 left-0 bottom-0 z-50 w-[72px] flex-col items-center py-6 gap-2 glass-heavy">

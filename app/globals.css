@@ -53,11 +53,11 @@
   --glass-border: 0 0% 0% / 0.08;
   --glass-blur: 16px;
 
-  /* Balanced Depth — Middle Ground */
-  --shadow-sm: inset 0 1px 1px 0 rgb(0 0 0 / 0.02), 0 1px 2px 0 rgb(0 0 0 / 0.02);
-  --shadow-md: inset 0 1px 1px 0 rgb(0 0 0 / 0.03), 0 4px 10px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: inset 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 10px 20px -5px rgb(0 0 0 / 0.08);
-  --shadow-xl: inset 0 1px 4px 0 rgb(0 0 0 / 0.05), 0 20px 40px -10px rgb(0 0 0 / 0.12);
+  /* Balanced Depth — Zeroed out for Pure UI */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
 
   /* Spacing Scale */
   --radius-sm: 0.5rem;
@@ -113,11 +113,11 @@
   --glass-border: 0 0% 100% / 0.06;
   --glass-blur: 24px;
 
-  /* Dark Mode Balanced Depth */
-  --shadow-sm: inset 0 1px 1px 0 rgb(0 0 0 / 0.3), 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: inset 0 1px 2px 0 rgb(0 0 0 / 0.4), 0 4px 12px -4px rgb(0 0 0 / 0.5);
-  --shadow-lg: inset 0 1px 4px 0 rgb(0 0 0 / 0.4), 0 8px 24px -8px rgb(0 0 0 / 0.6);
-  --shadow-xl: inset 0 1px 8px 0 rgb(0 0 0 / 0.5), 0 20px 48px -12px rgb(0 0 0 / 0.8);
+  /* Dark Mode Balanced Depth — Zeroed out for Pure UI */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
 }
 
 /* ─────────────────────────────────────────────────────
@@ -252,16 +252,12 @@ body {
   background: hsl(0 0% 100% / 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow:
-    var(--shadow-sm),
-    inset 0 1px 1px 0 hsl(0 0% 100% / 0.3);
+  box-shadow: inset 0 1px 1px 0 hsl(0 0% 100% / 0.3);
 }
 
 .dark .glass {
   background: hsl(0 0% 100% / 0.04);
-  box-shadow:
-    var(--shadow-sm),
-    inset 0 1px 0.5px 0 hsl(0 0% 100% / 0.05);
+  box-shadow: inset 0 1px 0.5px 0 hsl(0 0% 100% / 0.05);
 }
 
 .glass-subtle {
@@ -274,16 +270,12 @@ body {
   background: hsl(var(--background) / 0.85);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
-  box-shadow:
-    var(--shadow-lg),
-    inset 0 1px 1px 0 hsl(0 0% 100% / 0.2);
+  box-shadow: inset 0 1px 1px 0 hsl(0 0% 100% / 0.2);
 }
 
 .dark .glass-heavy {
   background: hsl(var(--background) / 0.9);
-  box-shadow:
-    var(--shadow-lg),
-    inset 0 1px 0.5px 0 hsl(0 0% 100% / 0.05);
+  box-shadow: inset 0 1px 0.5px 0 hsl(0 0% 100% / 0.05);
 }
 
 .glass-interactive {
@@ -293,13 +285,10 @@ body {
 .glass-interactive:hover {
   background: hsl(0 0% 100% / 0.65);
   transform: scale(0.995);
-  /* Sink slightly instead of raising */
-  box-shadow: inset 0 4px 6px 0 rgb(0 0 0 / 0.1);
 }
 
 .dark .glass-interactive:hover {
   background: hsl(0 0% 100% / 0.06);
-  box-shadow: inset 0 4px 12px 0 rgb(0 0 0 / 0.9);
 }
 
 /* ─────────────────────────────────────────────────────

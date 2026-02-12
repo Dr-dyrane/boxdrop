@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Footer } from "@/components/layout/footer";
 import { geocodingService, type GeocodeResult } from "@/core/services";
+import { useScrollDirection } from "@/core/hooks/use-scroll-direction";
 
 /* ─────────────────────────────────────────────────────
    LANDING PAGE
@@ -54,6 +55,9 @@ export default function LandingPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  const { direction, isScrolled } = useScrollDirection(80);
+  const isHidden = direction === "down" && isScrolled;
+
   // ── Address Autocomplete Logic ──────────────────────
   useEffect(() => {
     const handler = setTimeout(async () => {
@@ -91,7 +95,12 @@ export default function LandingPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col">
       {/* ── Header ─────────────────────────────────── */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass-heavy">
+      <motion.header
+        initial={{ y: 0 }}
+        animate={{ y: isHidden ? -80 : 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 40 }}
+        className="fixed top-0 left-0 right-0 z-50 glass-heavy"
+      >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Logo className="h-6" />
@@ -113,7 +122,7 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* ── Hero ───────────────────────────────────── */}
       <motion.section

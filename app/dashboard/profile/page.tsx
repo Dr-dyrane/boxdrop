@@ -33,7 +33,7 @@ export default function ProfilePage() {
                 <div className="md:hidden h-2" /> {/* Mobile spacer */}
 
                 {/* ── User Card ──────────────────────────────── */}
-                <GlassCard elevation="md" className="flex items-center gap-4">
+                <GlassCard className="flex items-center gap-4">
                     <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                         {profile?.avatar_url ? (
                             <img src={profile.avatar_url} alt={profile.full_name || ""} className="h-full w-full object-cover" />
@@ -56,7 +56,6 @@ export default function ProfilePage() {
 
                     <GlassCard
                         interactive
-                        elevation="sm"
                         className="flex items-center justify-between cursor-pointer"
                         onClick={() =>
                             setTheme(theme === "dark" ? "light" : "dark")

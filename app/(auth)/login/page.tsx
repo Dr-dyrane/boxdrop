@@ -60,7 +60,7 @@ export default function LoginPage() {
                 </p>
             </div>
 
-            <GlassCard elevation="lg" className="space-y-6">
+            <GlassCard className="space-y-6">
                 {sent ? (
                     <motion.div
                         className="text-center py-4 space-y-3"

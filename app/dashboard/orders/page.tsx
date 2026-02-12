@@ -1,7 +1,7 @@
 "use client";
 
 import { ScreenShell } from "@/components/layout/screen-shell";
-import { GlassCard, SkeletonCard, SkeletonText } from "@/components/ui";
+import { GlassCard, Skeleton, SkeletonCard, SkeletonText } from "@/components/ui";
 import { useOrders } from "@/core/hooks";
 import { formatCurrency, timeAgo } from "@/core/utils";
 import { ShoppingBag, Package, ChevronRight } from "lucide-react";
@@ -11,11 +11,27 @@ export default function OrdersPage() {
 
     if (isLoading) {
         return (
-            <ScreenShell loading>
-                <div className="space-y-4">
-                    <SkeletonText lines={1} />
-                    <SkeletonCard />
-                    <SkeletonCard />
+            <ScreenShell>
+                <div className="space-y-6">
+                    <div className="md:hidden h-2" />
+                    <Skeleton className="h-8 w-32 ml-1" />
+                    <div className="space-y-3">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="glass-heavy p-4 rounded-[2rem] flex items-center gap-4">
+                                <Skeleton className="h-12 w-12 rounded-[var(--radius-md)] shrink-0" />
+                                <div className="flex-1 space-y-3">
+                                    <div className="flex justify-between">
+                                        <Skeleton className="h-4 w-1/3" />
+                                        <Skeleton className="h-4 w-16 rounded-full" />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Skeleton className="h-3 w-20" />
+                                        <Skeleton className="h-3 w-12" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </ScreenShell>
         );
@@ -42,7 +58,6 @@ export default function OrdersPage() {
                             <GlassCard
                                 key={order.id}
                                 interactive
-                                elevation="sm"
                                 className="flex items-center gap-4 cursor-pointer"
                             >
                                 <div className="h-12 w-12 rounded-[var(--radius-md)] bg-primary/5 flex items-center justify-center shrink-0">
