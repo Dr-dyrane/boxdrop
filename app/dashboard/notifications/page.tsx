@@ -2,7 +2,7 @@
 
 import { ScreenShell } from "@/components/layout/screen-shell";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Truck, Tag, Info, CheckCircle2, ChevronRight, X } from "lucide-react";
+import { Bell, Truck, Tag, Info, CheckCircle2, ChevronRight, X, CheckCheck } from "lucide-react";
 import { GlassCard, Button } from "@/components/ui";
 import { useState } from "react";
 import { cn } from "@/core/utils";
@@ -109,11 +109,12 @@ export default function NotificationsPage() {
                     {notifications.some(n => !n.read) && (
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             onClick={markAllRead}
-                            className="text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/5"
+                            className="h-12 w-12 rounded-full glass hover:bg-white/10 text-primary active:scale-95 transition-all"
+                            title="Mark all as read"
                         >
-                            Mark all read
+                            <CheckCheck className="h-6 w-6" />
                         </Button>
                     )}
                 </motion.div>

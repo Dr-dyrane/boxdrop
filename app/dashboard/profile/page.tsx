@@ -52,10 +52,18 @@ export default function ProfilePage() {
                         <motion.div variants={item} className="glass-heavy p-8 rounded-[3rem] text-center space-y-6 border border-white/5 relative overflow-hidden group">
                             <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-                            <div className="relative mx-auto h-32 w-32 rounded-full bg-zinc-900 flex items-center justify-center border-4 border-white/5 shadow-2xl">
-                                <span className="text-4xl font-black text-white">
-                                    {profile?.email?.[0].toUpperCase() || "U"}
-                                </span>
+                            <div className="relative mx-auto h-32 w-32 rounded-full bg-zinc-900 flex items-center justify-center border-4 border-white/5 shadow-2xl overflow-hidden">
+                                {profile?.avatar_url ? (
+                                    <img
+                                        src={profile.avatar_url}
+                                        alt="Profile"
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-4xl font-black text-white">
+                                        {profile?.email?.[0].toUpperCase() || "U"}
+                                    </span>
+                                )}
                             </div>
 
                             <div className="space-y-2">

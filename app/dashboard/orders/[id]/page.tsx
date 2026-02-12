@@ -169,7 +169,7 @@ export default function OrderTrackingPage() {
     }
 
     // 3. Vendor Location
-    if (vendor) {
+    if (vendor && (vendor.location as any)?.coordinates) {
         markers.push({
             id: "vendor",
             lat: (vendor.location as any).coordinates[1],
