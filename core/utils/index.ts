@@ -47,3 +47,22 @@ export function getGreeting(): string {
     if (hour < 17) return "Good afternoon";
     return "Good evening";
 }
+
+/* ─────────────────────────────────────────────────────
+   UTILITY: Logistics Calculation
+   ───────────────────────────────────────────────────── */
+
+export function calculateDeliveryTime(distMeters: number | null | undefined): string {
+    if (distMeters === undefined || distMeters === null) return "25-35m";
+    // Avg speed 30km/h = 500m/min. + 10m prep time.
+    const travelMins = Math.ceil(distMeters / 500);
+    const totalMins = travelMins + 10;
+    return `${totalMins}-${totalMins + 10}m`;
+}
+
+export function formatDistance(distMeters: number | null | undefined): string {
+    if (distMeters === undefined || distMeters === null) return "Nearby";
+    if (distMeters < 1000) return `${Math.round(distMeters)}m`;
+    return `${(distMeters / 1000).toFixed(1)}km`;
+}
+

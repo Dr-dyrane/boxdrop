@@ -45,11 +45,16 @@ create policy "Users can update own profile"
 create or replace function handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, email, full_name)
+  insert into public.profiles (id, email, full_name, avatar_url)
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data->>'full_name', '')
+    coalesce(new.raw_user_meta_data->>'full_name', ''),
+    coalesce(
+      new.raw_user_meta_data->>'avatar_url',
+      new.raw_user_meta_data->>'picture',
+      ''
+    )
   );
   return new;
 end;
@@ -236,3 +241,46 @@ as $$
     )
   order by dist_meters asc;
 $$;
+
+-- ──────────────────────────────────────────────────
+-- STORAGE SETUP
+-- ──────────────────────────────────────────────────
+
+-- 1. Create Buckets
+insert into storage.buckets (id, name, public)
+values 
+  ('avatars', 'avatars', true),
+  ('products', 'products', true),
+  ('vendors', 'vendors', true)
+on conflict (id) do nothing;
+
+-- 2. Avatars RLS
+create policy "Avatar images are publicly accessible."
+  on storage.objects for select
+  using ( bucket_id = 'avatars' );
+
+create policy "Users can upload their own avatar."
+  on storage.objects for insert
+  with check ( bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text );
+
+create policy "Users can update their own avatar."
+  on storage.objects for update
+  using ( bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text );
+
+-- 3. Products RLS
+create policy "Product images are publicly accessible."
+  on storage.objects for select
+  using ( bucket_id = 'products' );
+
+create policy "Vendors can upload product images."
+  on storage.objects for insert
+  with check ( bucket_id = 'products' ); -- Simplified for now, can be narrowed to vendor_id
+
+-- 4. Vendors RLS
+create policy "Vendor assets are publicly accessible."
+  on storage.objects for select
+  using ( bucket_id = 'vendors' );
+
+create policy "Vendors can upload their own assets."
+  on storage.objects for insert
+  with check ( bucket_id = 'vendors' );

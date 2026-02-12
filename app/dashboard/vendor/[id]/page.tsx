@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Star, Clock, MapPin, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useVendor, useVendorProducts } from "@/core/hooks";
 import { useCartStore } from "@/core/store";
-import { GlassCard, Button, SkeletonCard, SkeletonText } from "@/components/ui";
+import { GlassCard, Button, SkeletonCard, SkeletonText, MapView } from "@/components/ui";
 import { ScreenShell } from "@/components/layout/screen-shell";
-import { formatCurrency } from "@/core/utils";
+import { formatCurrency, calculateDeliveryTime } from "@/core/utils";
 import { useState } from "react";
 
 /* ─────────────────────────────────────────────────────
@@ -45,112 +45,164 @@ export default function VendorDetailPage() {
 
     return (
         <ScreenShell>
-            <div className="space-y-6 pb-24">
-                <div className="md:hidden h-2" /> {/* Mobile space below header */}
+            <div className="space-y-8 pb-24">
+                <div className="md:hidden h-2" /> {/* Mobile spacer */}
 
-                {/* ── Cover ──────────────────────────────────── */}
-                <div className="relative h-48 rounded-[var(--radius-lg)] overflow-hidden glass shadow-[var(--shadow-md)]">
-                    {vendor.cover_url ? (
-                        <img
-                            src={vendor.cover_url}
-                            alt={vendor.name}
-                            className="h-full w-full object-cover"
-                        />
-                    ) : (
-                        <div className="h-full w-full bg-primary/5 flex items-center justify-center">
-                            <ShoppingBag className="h-12 w-12 text-muted-foreground/20" />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* ── Left Column: Menu Items ────────────────── */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* ── Cover ──────────────────────────────────── */}
+                        <div className="relative h-64 rounded-[var(--radius-xl)] overflow-hidden glass shadow-md group">
+                            {vendor.cover_url ? (
+                                <img
+                                    src={vendor.cover_url}
+                                    alt={vendor.name}
+                                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                />
+                            ) : (
+                                <div className="h-full w-full bg-primary/5 flex items-center justify-center">
+                                    <ShoppingBag className="h-12 w-12 text-muted-foreground/20" />
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+                            <div className="absolute bottom-6 left-6 right-6">
+                                <p className="text-xs font-bold uppercase tracking-widest glass-subtle px-3 py-1.5 rounded-full w-fit mb-3 shadow-sm">
+                                    {vendor.category || "Vendor"}
+                                </p>
+                                <h1 className="text-4xl font-black tracking-tight">{vendor.name}</h1>
+                            </div>
                         </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                        <div>
-                            <p className="text-sm font-medium flex items-center gap-1.5 glass-subtle px-2 py-1 rounded-full w-fit">
-                                <Star className="h-3 w-3 text-warning fill-warning" />
-                                {vendor.rating}
-                            </p>
-                            <h2 className="text-2xl font-bold mt-2">{vendor.name}</h2>
-                        </div>
-                    </div>
-                </div>
 
-                {/* ── Info ───────────────────────────────────── */}
-                <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                        <Clock className="h-4 w-4" />
-                        <span>25-35 min</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <MapPin className="h-4 w-4" />
-                        <span>{vendor.location}</span>
-                    </div>
-                </div>
+                        {/* ── Menu Section ───────────────────────────── */}
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between px-1">
+                                <h3 className="font-bold text-xl">Menu</h3>
+                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{products?.length || 0} items</p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                {products?.map((product) => {
+                                    const cartItem = items.find((i) => i.product.id === product.id);
+                                    return (
+                                        <motion.div
+                                            key={product.id}
+                                            whileHover={{ y: -4 }}
+                                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                            className="relative h-[420px] rounded-[2.5rem] overflow-hidden group cursor-pointer shadow-md"
+                                            onClick={() => setSelectedProduct(product)}
+                                        >
+                                            {/* Full Width/Height Image */}
+                                            {product.image_url ? (
+                                                <img
+                                                    src={product.image_url}
+                                                    alt={product.name}
+                                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 bg-accent flex items-center justify-center">
+                                                    <ShoppingBag className="h-12 w-12 text-muted-foreground/10" />
+                                                </div>
+                                            )}
 
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-lg">Menu</h3>
-                        <p className="text-xs text-muted-foreground">{products?.length || 0} items available</p>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4">
-                        {products?.map((product) => {
-                            const cartItem = items.find((i) => i.product.id === product.id);
-                            return (
-                                <GlassCard
-                                    key={product.id}
-                                    className="flex items-center gap-4 p-4 cursor-pointer active:scale-[0.99] transition-transform"
-                                    elevation="sm"
-                                    onClick={() => setSelectedProduct(product)}
-                                >
-                                    <div className="h-20 w-20 rounded-[var(--radius-md)] bg-primary/5 shrink-0 overflow-hidden">
-                                        {product.image_url && (
-                                            <img
-                                                src={product.image_url}
-                                                alt={product.name}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-semibold">{product.name}</p>
-                                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                                            {product.description}
-                                        </p>
-                                        <p className="font-bold mt-2">
-                                            {formatCurrency(product.price)}
-                                        </p>
-                                    </div>
-                                    <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                                        {cartItem ? (
-                                            <div className="flex items-center gap-1.5 glass rounded-full px-1.5 py-1 shadow-sm">
+                                            {/* Gradient Scrim */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+                                            {/* Floating Info Plate (Apple Style) */}
+                                            <div className="absolute bottom-4 left-4 right-4 glass-heavy p-5 rounded-[2rem] space-y-3 shadow-2xl border border-white/10 group-hover:translate-y-[-4px] transition-transform duration-500">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="text-sm font-black text-foreground tracking-tight leading-tight line-clamp-1">{product.name}</p>
+                                                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">{product.category}</p>
+                                                    </div>
+                                                    <div className="glass px-3 py-1 rounded-full shadow-sm">
+                                                        <p className="text-xs font-black">{formatCurrency(product.price)}</p>
+                                                    </div>
+                                                </div>
+
                                                 <button
-                                                    onClick={() => updateQuantity(product.id, cartItem.quantity - 1)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-primary/10 active:scale-90 transition-transform"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        addItem(product);
+                                                    }}
+                                                    className={`
+                                                        w-full h-11 rounded-2xl flex items-center justify-center gap-2 font-bold text-xs transition-all duration-300
+                                                        ${cartItem
+                                                            ? "bg-foreground text-background"
+                                                            : "bg-primary/10 hover:bg-primary/20 text-foreground"
+                                                        }
+                                                    `}
                                                 >
-                                                    <Minus className="h-3 w-3" />
-                                                </button>
-                                                <span className="text-sm font-bold w-4 text-center">
-                                                    {cartItem.quantity}
-                                                </span>
-                                                <button
-                                                    onClick={() => addItem(product)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-primary/10 active:scale-90 transition-transform"
-                                                >
-                                                    <Plus className="h-3 w-3" />
+                                                    {cartItem ? (
+                                                        <><Plus className="h-3 w-3" /> {cartItem.quantity} in Bag</>
+                                                    ) : (
+                                                        <><Plus className="h-3 w-3" /> Add to Bag</>
+                                                    )}
                                                 </button>
                                             </div>
-                                        ) : (
-                                            <Button
-                                                size="sm"
-                                                variant="secondary"
-                                                className="rounded-full h-10 w-10 p-0 shadow-sm"
-                                                onClick={() => addItem(product)}
-                                            >
-                                                <Plus className="h-4 w-4" />
-                                            </Button>
-                                        )}
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ── Right Column: Info Bento ────────────────── */}
+                    <div className="space-y-6">
+                        <div className="glass-heavy p-6 rounded-[var(--radius-xl)] space-y-6 shadow-sm sticky top-24">
+                            <h3 className="font-bold text-lg">Store Info</h3>
+
+                            <div className="space-y-5">
+                                <div className="flex items-center gap-4 group">
+                                    <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                                        <Clock className="h-5 w-5" />
                                     </div>
-                                </GlassCard>
-                            );
-                        })}
+                                    <div>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Delivery Time</p>
+                                        <p className="text-sm font-bold">{calculateDeliveryTime((vendor as any).dist_meters)}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 group">
+                                    <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                                        <Star className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Rating</p>
+                                        <p className="text-sm font-bold">{vendor.rating} · High Reliability</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 group">
+                                    <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                                        <MapPin className="h-5 w-5" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Address</p>
+                                        <p className="text-sm font-bold truncate">{vendor.address || "Hemet, CA"}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* ── Vendor Map ────────────────────────────── */}
+                            <div className="h-48 rounded-2xl overflow-hidden glass shadow-inner mt-4">
+                                {(vendor.location as any)?.coordinates && (
+                                    <MapView
+                                        center={{
+                                            lat: (vendor.location as any).coordinates[1],
+                                            lng: (vendor.location as any).coordinates[0]
+                                        }}
+                                        markers={[{
+                                            id: vendor.id,
+                                            lat: (vendor.location as any).coordinates[1],
+                                            lng: (vendor.location as any).coordinates[0],
+                                            label: vendor.name
+                                        }]}
+                                        zoom={14}
+                                        className="h-full w-full"
+                                        interactive={false}
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
