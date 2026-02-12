@@ -347,12 +347,12 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 - [x] Auth flow (Email/Phone OTP, protected routes)
 - [x] Database schema + seed data (5 vendors, 20 products)
 
-### Phase 2 — Core Experience
+### Phase 2 — Core Experience ✅
 
 - [x] Marketplace home (adaptive navigation, search droplet, categories)
-- [ ] Product detail view with add-to-cart interaction
-- [ ] Cart management (Zustand store, optimistic UI)
-- [ ] Order creation and confirmation flow
+- [x] Product detail view (premium glide-up interaction)
+- [x] Cart management (Zustand store, optimistic UI)
+- [x] Order creation and confirmation flow (Success interactions)
 
 ### Phase 3 — Real-time & Delivery
 

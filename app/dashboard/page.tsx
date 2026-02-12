@@ -123,7 +123,7 @@ export default function DashboardPage() {
                 {/* ── Active Location Banner ─────────────────── */}
                 {address && (
                     <motion.div variants={item}>
-                        <div className="px-4 py-3 glass rounded-2xl flex items-center gap-3 ring-1 ring-white/5">
+                        <div className="px-4 py-3 glass rounded-2xl flex items-center gap-3 shadow-sm">
                             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                                 <MapPin className="h-4 w-4 text-primary" />
                             </div>
@@ -175,42 +175,42 @@ export default function DashboardPage() {
                     </button>
                 </motion.div> */}
 
-                {/* ── Quick Categories ──────────────────────── */}
-                <motion.div variants={item} className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <motion.div variants={item} className="flex gap-2.5 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
                     {CATEGORIES.map((cat) => (
-                        <button
+                        <motion.button
                             key={cat.name}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => router.push(`/dashboard/search?category=${cat.name}`)}
                             className="
-                                flex items-center gap-2 px-4 py-3 
+                                flex items-center gap-3 px-5 py-3 
                                 glass rounded-2xl shrink-0 
-                                hover:bg-white/[0.05] transition-colors
+                                hover:bg-foreground hover:text-background transition-all duration-500
+                                shadow-sm
+                                group
                             "
                         >
-                            <span className="text-lg">{cat.icon}</span>
-                            <span className="text-xs font-semibold">{cat.name}</span>
-                        </button>
+                            <span className="text-xl group-hover:scale-110 transition-transform">{cat.icon}</span>
+                            <span className="text-sm font-semibold tracking-tight">{cat.name}</span>
+                        </motion.button>
                     ))}
                 </motion.div>
 
-                {/* ── Quick Stats ───────────────────────────── */}
                 <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {stats.map((stat) => (
-                        <GlassCard
+                        <div
                             key={stat.label}
-                            elevation="sm"
-                            className="flex items-center gap-3 p-3"
+                            className="glass-heavy p-4 rounded-3xl space-y-3 shadow-sm group hover:translate-y-[-2px] transition-transform duration-300"
                         >
-                            <div className="h-9 w-9 rounded-[var(--radius-md)] bg-primary/5 flex items-center justify-center shrink-0">
-                                <stat.icon className="h-4 w-4 text-muted-foreground" />
+                            <div className="h-8 w-8 rounded-xl bg-primary/5 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                                <stat.icon className="h-4 w-4" />
                             </div>
-                            <div className="min-w-0">
-                                <p className="text-lg font-semibold leading-tight">{stat.value}</p>
-                                <p className="text-[11px] text-muted-foreground truncate">
+                            <div>
+                                <p className="text-2xl font-black tracking-tighter leading-none">{stat.value}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mt-1">
                                     {stat.label}
                                 </p>
                             </div>
-                        </GlassCard>
+                        </div>
                     ))}
                 </motion.div>
 
@@ -291,9 +291,10 @@ export default function DashboardPage() {
                                 </GlassCard>
                             ))
                         ) : (
-                            <p className="text-sm text-muted-foreground py-12 text-center col-span-full glass rounded-3xl">
-                                No vendors found in this area.
-                            </p>
+                            <div className="py-20 text-center col-span-full glass-heavy rounded-3xl shadow-sm">
+                                <p className="text-sm font-medium text-muted-foreground">No vendors found in this area.</p>
+                                <p className="text-xs text-muted-foreground/50 mt-1">Try expanding your search or clearing filters.</p>
+                            </div>
                         )}
                     </div>
                 </motion.div>

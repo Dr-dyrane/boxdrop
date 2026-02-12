@@ -1,13 +1,14 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Star, Clock, MapPin, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useVendor, useVendorProducts } from "@/core/hooks";
 import { useCartStore } from "@/core/store";
 import { GlassCard, Button, SkeletonCard, SkeletonText } from "@/components/ui";
 import { ScreenShell } from "@/components/layout/screen-shell";
 import { formatCurrency } from "@/core/utils";
+import { useState } from "react";
 
 /* ─────────────────────────────────────────────────────
    VENDOR DETAIL PAGE
@@ -20,7 +21,8 @@ export default function VendorDetailPage() {
     const router = useRouter();
     const { data: vendor, isLoading: vLoading } = useVendor(id);
     const { data: products, isLoading: pLoading } = useVendorProducts(id);
-    const { addItem, items, getItemCount, getTotal } = useCartStore();
+    const { addItem, updateQuantity, items, getItemCount, getTotal } = useCartStore();
+    const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
     const isLoading = vLoading || pLoading;
 
@@ -44,16 +46,7 @@ export default function VendorDetailPage() {
     return (
         <ScreenShell>
             <div className="space-y-6 pb-24">
-                {/* ── Header ─────────────────────────────────── */}
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => router.back()}
-                        className="h-10 w-10 flex items-center justify-center glass rounded-full"
-                    >
-                        <ArrowLeft className="h-5 w-5" />
-                    </button>
-                    <h1 className="text-xl font-bold truncate">{vendor.name}</h1>
-                </div>
+                <div className="md:hidden h-2" /> {/* Mobile space below header */}
 
                 {/* ── Cover ──────────────────────────────────── */}
                 <div className="relative h-48 rounded-[var(--radius-lg)] overflow-hidden glass shadow-[var(--shadow-md)]">
@@ -92,17 +85,20 @@ export default function VendorDetailPage() {
                     </div>
                 </div>
 
-                {/* ── Product List ───────────────────────────── */}
                 <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">Menu</h3>
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-lg">Menu</h3>
+                        <p className="text-xs text-muted-foreground">{products?.length || 0} items available</p>
+                    </div>
                     <div className="grid grid-cols-1 gap-4">
                         {products?.map((product) => {
                             const cartItem = items.find((i) => i.product.id === product.id);
                             return (
                                 <GlassCard
                                     key={product.id}
-                                    className="flex items-center gap-4 p-4"
+                                    className="flex items-center gap-4 p-4 cursor-pointer active:scale-[0.99] transition-transform"
                                     elevation="sm"
+                                    onClick={() => setSelectedProduct(product)}
                                 >
                                     <div className="h-20 w-20 rounded-[var(--radius-md)] bg-primary/5 shrink-0 overflow-hidden">
                                         {product.image_url && (
@@ -122,12 +118,12 @@ export default function VendorDetailPage() {
                                             {formatCurrency(product.price)}
                                         </p>
                                     </div>
-                                    <div className="shrink-0">
+                                    <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
                                         {cartItem ? (
-                                            <div className="flex items-center gap-3 glass rounded-full px-2 py-1">
+                                            <div className="flex items-center gap-1.5 glass rounded-full px-1.5 py-1 shadow-sm">
                                                 <button
-                                                    onClick={() => useCartStore.getState().updateQuantity(product.id, cartItem.quantity - 1)}
-                                                    className="h-7 w-7 flex items-center justify-center rounded-full hover:bg-primary/10"
+                                                    onClick={() => updateQuantity(product.id, cartItem.quantity - 1)}
+                                                    className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-primary/10 active:scale-90 transition-transform"
                                                 >
                                                     <Minus className="h-3 w-3" />
                                                 </button>
@@ -136,7 +132,7 @@ export default function VendorDetailPage() {
                                                 </span>
                                                 <button
                                                     onClick={() => addItem(product)}
-                                                    className="h-7 w-7 flex items-center justify-center rounded-full hover:bg-primary/10"
+                                                    className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-primary/10 active:scale-90 transition-transform"
                                                 >
                                                     <Plus className="h-3 w-3" />
                                                 </button>
@@ -144,7 +140,8 @@ export default function VendorDetailPage() {
                                         ) : (
                                             <Button
                                                 size="sm"
-                                                className="rounded-full h-9 w-9 p-0"
+                                                variant="secondary"
+                                                className="rounded-full h-10 w-10 p-0 shadow-sm"
                                                 onClick={() => addItem(product)}
                                             >
                                                 <Plus className="h-4 w-4" />
@@ -158,31 +155,62 @@ export default function VendorDetailPage() {
                 </div>
             </div>
 
-            {/* ── Cart Bar ───────────────────────────────── */}
-            {getItemCount() > 0 && (
-                <div className="fixed bottom-[calc(var(--tab-bar-height)+1rem)] left-4 right-4 z-40">
-                    <motion.button
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        onClick={() => router.push("/dashboard/cart")}
-                        className="
-              w-full h-14 bg-primary text-primary-foreground 
-              rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)]
-              flex items-center justify-between px-6 font-bold
-            "
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="h-6 w-6 rounded-full bg-primary-foreground/20 flex items-center justify-center text-xs">
-                                {getItemCount()}
+            {/* ── Product Detail Glide-up ──────────────── */}
+            <AnimatePresence>
+                {selectedProduct && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedProduct(null)}
+                            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
+                        />
+                        <motion.div
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="fixed bottom-0 left-0 right-0 z-[70] max-w-2xl mx-auto"
+                        >
+                            <div className="glass-heavy rounded-t-[var(--radius-xl)] shadow-[0_-20px_50px_rgba(0,0,0,0.3)] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] space-y-6">
+                                <div className="h-1.5 w-12 bg-muted rounded-full mx-auto" />
+
+                                <div className="h-64 sm:h-80 w-full rounded-[var(--radius-lg)] overflow-hidden bg-primary/5">
+                                    {selectedProduct.image_url && (
+                                        <img
+                                            src={selectedProduct.image_url}
+                                            alt={selectedProduct.name}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <h2 className="text-2xl font-bold">{selectedProduct.name}</h2>
+                                        <p className="text-xl font-black">{formatCurrency(selectedProduct.price)}</p>
+                                    </div>
+                                    <p className="text-muted-foreground leading-relaxed">
+                                        {selectedProduct.description}
+                                    </p>
+                                </div>
+
+                                <Button
+                                    size="lg"
+                                    className="w-full py-7 text-lg font-bold rounded-[var(--radius-lg)]"
+                                    onClick={() => {
+                                        addItem(selectedProduct);
+                                        setSelectedProduct(null);
+                                    }}
+                                >
+                                    Add to Bag · {formatCurrency(selectedProduct.price)}
+                                </Button>
                             </div>
-                            <span>View Cart</span>
-                        </div>
-                        <span>
-                            {formatCurrency(getTotal())}
-                        </span>
-                    </motion.button>
-                </div>
-            )}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </ScreenShell>
     );
 }
