@@ -59,6 +59,8 @@ export interface Order {
     user_id: string;
     vendor_id: string;
     courier_id: string | null;
+    courier_lat: number | null; // For live tracking
+    courier_lng: number | null; // For live tracking
     status: OrderStatus;
     total: number;
     delivery_location: string | null;

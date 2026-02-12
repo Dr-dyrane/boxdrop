@@ -11,6 +11,7 @@ import { formatCurrency, timeAgo } from "@/core/utils";
 import { useLocation } from "@/core/hooks/use-location";
 import { useState, useEffect, useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { advanceOrderSimulation } from "@/core/actions/courier-simulator";
 
 /* ─────────────────────────────────────────────────────
    ORDER TRACKING PAGE
@@ -33,52 +34,42 @@ export default function OrderTrackingPage() {
     const { data: vendor, isLoading: isVendorLoading } = useVendor(order?.vendor_id || "");
     const { location: userLocation } = useLocation();
 
-    // Simulation State for Courier & Status
-    const [courierProgress, setCourierProgress] = useState(0);
-    const [simulatedStatus, setSimulatedStatus] = useState<string | null>(null);
-
-    // Sync initial status
+    // Backend-Driven Simulation Polling
     useEffect(() => {
-        if (order?.status && simulatedStatus === null) {
-            setSimulatedStatus(order.status);
-        }
-    }, [order?.status, simulatedStatus]);
+        if (!order || !vendor || order.status === 'delivered') return;
 
-    // Auto-Advance Status (Seeding the "Auto-Courier" System)
-    useEffect(() => {
-        if (!simulatedStatus) return;
+        // If we are in a simulatable state, poll the backend "courier"
+        const isSimulatable = ['pending', 'confirmed', 'preparing', 'picked_up'].includes(order.status);
 
-        let timeout: NodeJS.Timeout;
+        if (isSimulatable) {
+            const interval = setInterval(async () => {
+                try {
+                    // Call Server Action to advance the "courier"
+                    await advanceOrderSimulation(
+                        order.id,
+                        order.status,
+                        {
+                            lat: (vendor.location as any).coordinates[1],
+                            lng: (vendor.location as any).coordinates[0]
+                        },
+                        { lat: order.delivery_lat!, lng: order.delivery_lng! },
+                        // Estimate current progress based on distance if needed, but for now we let backend manage abstract progress
+                        // We actually need to store progress in DB to match perfect resumption, 
+                        // but for this "seeding" demo, the backend action will handle incremental updates based on state.
+                        0
+                    );
+                    // The useOrder hook's realtime subscription will pick up the DB changes 
+                    // and update 'order' prop, which triggers re-render.
+                } catch (e) {
+                    console.error("Simulation tick failed", e);
+                }
+            }, 3000); // Tick every 3 seconds
 
-        if (simulatedStatus === 'pending') {
-            timeout = setTimeout(() => setSimulatedStatus('confirmed'), 4000);
-        } else if (simulatedStatus === 'confirmed') {
-            timeout = setTimeout(() => setSimulatedStatus('preparing'), 4000);
-        } else if (simulatedStatus === 'preparing') {
-            timeout = setTimeout(() => setSimulatedStatus('picked_up'), 6000);
-        }
-
-        return () => clearTimeout(timeout);
-    }, [simulatedStatus]);
-
-    // Simulate Courier Movement if In Transit
-    useEffect(() => {
-        if (simulatedStatus === 'picked_up') {
-            const interval = setInterval(() => {
-                setCourierProgress(prev => {
-                    const next = prev + 0.005; // Slow movement
-                    return next > 1 ? 1 : next;
-                });
-            }, 100);
             return () => clearInterval(interval);
-        } else if (simulatedStatus === 'delivered') {
-            setCourierProgress(1);
-        } else {
-            setCourierProgress(0);
         }
-    }, [simulatedStatus]);
+    }, [order, vendor]);
 
-    const activeStatus = simulatedStatus || order?.status || 'pending';
+    const activeStatus = order?.status || 'pending';
     const isLoading = isOrderLoading || (order && isVendorLoading);
 
     // Generate Route Polyline (Simple Linear Interpolation for MVP)
@@ -99,17 +90,9 @@ export default function OrderTrackingPage() {
         return { coordinates: points, color: '#22c55e' }; // Green route
     }, [vendor, order]);
 
-    // Calculate Courier Position
-    const courierPosition = useMemo(() => {
-        if (!route || courierProgress <= 0) return null;
-        const index = Math.floor(courierProgress * (route.coordinates.length - 1));
-        const pos = route.coordinates[index];
-        return { lng: pos[0], lat: pos[1] };
-    }, [route, courierProgress]);
-
-    // Use simulated courier position or vendor position as generic "center" logic if no user location
-    const activeCenter = courierPosition
-        ? { lat: courierPosition.lat, lng: courierPosition.lng }
+    // Use REAL courier position from DB (seeded) or vendor position
+    const activeCenter = (order?.courier_lat && order?.courier_lng)
+        ? { lat: order.courier_lat, lng: order.courier_lng }
         : order?.delivery_lat
             ? { lat: order.delivery_lat, lng: order.delivery_lng! }
             : userLocation || undefined;
@@ -178,12 +161,12 @@ export default function OrderTrackingPage() {
         });
     }
 
-    // 4. Courier (Simulated)
-    if (courierPosition && activeStatus !== 'delivered' && activeStatus !== 'pending') {
+    // 4. Courier (Live from DB)
+    if (order.courier_lat && order.courier_lng && activeStatus !== 'delivered' && activeStatus !== 'pending') {
         markers.push({
             id: "courier",
-            lat: courierPosition.lat,
-            lng: courierPosition.lng,
+            lat: order.courier_lat,
+            lng: order.courier_lng,
             type: "courier",
             active: true
         });

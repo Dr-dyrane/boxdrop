@@ -148,7 +148,7 @@ export default function VendorDetailPage() {
                             <div>
                                 <h2 className="text-3xl font-black tracking-tighter">Current Selection</h2>
                                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-2 opacity-40">
-                                    Inventory / {products?.length || 0} Specialties
+                                    Inventory / {products?.length || 0} Products
                                 </p>
                             </div>
                         </div>
