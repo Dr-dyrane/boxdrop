@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -27,7 +28,9 @@ export default function MainLayout({
     return (
         <div className="min-h-[100dvh] pb-20">
             {/* Page content */}
-            {children}
+            <Suspense fallback={null}>
+                {children}
+            </Suspense>
 
             {/* ── Glassmorphism Tab Bar ────────────────── */}
             <nav className="fixed bottom-0 left-0 right-0 z-50">
@@ -49,8 +52,8 @@ export default function MainLayout({
                                     <div className="relative">
                                         <tab.icon
                                             className={`h-5 w-5 transition-colors duration-200 ${isActive
-                                                    ? "text-foreground"
-                                                    : "text-muted-foreground"
+                                                ? "text-foreground"
+                                                : "text-muted-foreground"
                                                 }`}
                                         />
                                         {isActive && (
@@ -67,8 +70,8 @@ export default function MainLayout({
                                     </div>
                                     <span
                                         className={`text-[10px] font-medium transition-colors duration-200 ${isActive
-                                                ? "text-foreground"
-                                                : "text-muted-foreground"
+                                            ? "text-foreground"
+                                            : "text-muted-foreground"
                                             }`}
                                     >
                                         {tab.label}

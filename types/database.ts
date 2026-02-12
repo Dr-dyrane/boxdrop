@@ -31,7 +31,8 @@ export interface Vendor {
     owner_id: string;
     name: string;
     description: string | null;
-    location: string | null;
+    address: string | null;     // Physical address text
+    location: any;               // ST_Point geography
     rating: number;
     category: string | null;
     is_featured: boolean;
@@ -116,7 +117,16 @@ export type Database = {
             };
         };
         Views: Record<string, any>;
-        Functions: Record<string, any>;
+        Functions: {
+            get_nearby_vendors: {
+                Args: {
+                    user_lat: number;
+                    user_long: number;
+                    radius_meters?: number;
+                };
+                Returns: (Vendor & { dist_meters: number })[];
+            };
+        };
         Enums: {
             user_role: UserRole;
             order_status: OrderStatus;

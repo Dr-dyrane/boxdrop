@@ -1,15 +1,18 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowRight, Zap, Shield, MapPin } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Zap, Shield, MapPin, Search, Loader2 } from "lucide-react";
 import { Button, Logo } from "@/components/ui";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Footer } from "@/components/layout/footer";
+import { geocodingService, GeocodeResult } from "@/core/services/geocoding-service";
 
 /* ─────────────────────────────────────────────────────
    LANDING PAGE
    The first impression. Premium. Minimal. Confident.
-   One dominant action: Get Started.
+   One dominant action: Geolocation-based browsing.
    ───────────────────────────────────────────────────── */
 
 const features = [
@@ -44,6 +47,47 @@ const item = {
 } as const;
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<GeocodeResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // ── Address Autocomplete Logic ──────────────────────
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      if (query.length > 2) {
+        setLoading(true);
+        const data = await geocodingService.search(query);
+        setResults(data);
+        setLoading(false);
+        setShowDropdown(true);
+      } else {
+        setResults([]);
+        setShowDropdown(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [query]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (res: GeocodeResult) => {
+    const [lng, lat] = res.center;
+    router.push(`/dashboard?lat=${lat}&lng=${lng}&address=${encodeURIComponent(res.text)}`);
+  };
+
   return (
     <div className="min-h-[100dvh] flex flex-col">
       {/* ── Header ─────────────────────────────────── */}
@@ -116,18 +160,26 @@ export default function LandingPage() {
           Real-time tracking, instant dispatch, seamless experience.
         </motion.p>
 
+        {/* ── Search Experience ───────────────────────── */}
         <motion.div
-          className="mt-10 w-full max-w-md"
+          ref={searchRef}
+          className="mt-10 w-full max-w-md relative z-40"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] as const }}
         >
           <div className="relative group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <MapPin className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              {loading ? (
+                <Loader2 className="h-5 w-5 text-primary animate-spin" />
+              ) : (
+                <MapPin className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              )}
             </div>
             <input
               type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder="Enter your delivery address..."
               className="
                 w-full h-16 pl-12 pr-32
@@ -139,13 +191,40 @@ export default function LandingPage() {
                 focus:scale-[1.02]
               "
             />
-            <Link href="/dashboard" className="absolute right-2 top-2 bottom-2">
-              <Button className="h-full rounded-[var(--radius-squircle)] px-6 gap-2 bg-foreground text-background hover:bg-foreground/90 transition-all active:scale-95">
-                <span className="hidden sm:inline">Browse Nearby</span>
-                <ArrowRight className="h-4 w-4" />
+            <div className="absolute right-2 top-2 bottom-2">
+              <Button
+                onClick={() => query.length > 0 && setShowDropdown(true)}
+                className="h-full rounded-[var(--radius-squircle)] px-6 gap-2 bg-foreground text-background hover:bg-foreground/90 transition-all active:scale-95"
+              >
+                <span className="hidden sm:inline">Browse</span>
+                <Search className="h-4 w-4" />
               </Button>
-            </Link>
+            </div>
           </div>
+
+          {/* ── Autocomplete Results ─────────────────── */}
+          <AnimatePresence>
+            {showDropdown && results.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                className="absolute top-full left-0 right-0 mt-3 glass-heavy rounded-[var(--radius-lg)] shadow-[var(--shadow-xl)] border border-white/10 overflow-hidden"
+              >
+                {results.map((res) => (
+                  <button
+                    key={res.id}
+                    onClick={() => handleSelect(res)}
+                    className="w-full text-left px-5 py-3 hover:bg-primary/5 transition-colors flex flex-col gap-0.5"
+                  >
+                    <span className="text-sm font-semibold text-foreground">{res.text}</span>
+                    <span className="text-[11px] text-muted-foreground truncate">{res.place_name}</span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <p className="mt-4 text-[11px] text-muted-foreground/60 font-medium uppercase tracking-[0.2em]">
             No account required to browse
           </p>

@@ -1,16 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Package, MapPin, Clock, TrendingUp, Search } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Package, MapPin, Clock, TrendingUp, Search, X } from "lucide-react";
 import { ScreenShell } from "@/components/layout/screen-shell";
-import { useVendors, useAuth } from "@/core/hooks";
+import { useVendors, useAuth, useNearbyVendors } from "@/core/hooks";
 import { getGreeting } from "@/core/utils";
-import { GlassCard, SkeletonCard, SkeletonText } from "@/components/ui";
+import { GlassCard, SkeletonCard, SkeletonText, MapView, Button } from "@/components/ui";
 
 /* ─────────────────────────────────────────────────────
    DASHBOARD / HOME — Marketplace
-   Shows featured vendors & quick stats.
+   Shows featured vendors & nearby results via PostGIS.
    ───────────────────────────────────────────────────── */
 
 const CATEGORIES = [
@@ -18,13 +18,6 @@ const CATEGORIES = [
     { name: "Groceries", icon: "🍎" },
     { name: "Pharmacy", icon: "💊" },
     { name: "Retail", icon: "🛍️" },
-];
-
-const stats = [
-    { label: "Active Orders", value: "0", icon: Package },
-    { label: "Nearby Vendors", value: "5", icon: MapPin },
-    { label: "Avg. Delivery", value: "28m", icon: Clock },
-    { label: "This Month", value: "₦0", icon: TrendingUp },
 ];
 
 const container = {
@@ -45,10 +38,19 @@ const item = {
 } as const;
 
 export default function DashboardPage() {
-    const { data: vendors, isLoading } = useVendors();
-    const { profile, user } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
 
+    // ── Location Context ───────────────────────────────
+    const lat = searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : undefined;
+    const lng = searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : undefined;
+    const address = searchParams.get("address");
+
+    const { data: allVendors, isLoading: loadingAll } = useVendors();
+    const { data: nearbyVendors, isLoading: loadingNearby } = useNearbyVendors(lat, lng);
+    const { profile, user } = useAuth();
+
+    const isLoading = loadingAll || (lat !== undefined && loadingNearby);
     const greeting = getGreeting();
     const displayName = profile?.full_name || user?.email?.split('@')[0] || "Friend";
 
@@ -67,8 +69,28 @@ export default function DashboardPage() {
         );
     }
 
-    const featuredVendors = vendors?.filter((v) => v.is_featured) ?? [];
-    const nearbyVendors = vendors?.filter((v) => !v.is_featured) ?? [];
+    const featuredVendors = allVendors?.filter((v) => v.is_featured) ?? [];
+
+    // If we have coordinates, prioritized vendors found via PostGIS RPC
+    const displayVendors = lat !== undefined && lng !== undefined
+        ? nearbyVendors?.filter(v => !v.is_featured) ?? []
+        : allVendors?.filter((v) => !v.is_featured) ?? [];
+
+    const stats = [
+        { label: "Active Orders", value: "0", icon: Package },
+        { label: "Nearby Vendors", value: displayVendors.length.toString(), icon: MapPin },
+        { label: "Avg. Delivery", value: "28m", icon: Clock },
+        { label: "This Month", value: "₦0", icon: TrendingUp },
+    ];
+
+    const mapMarkers = displayVendors
+        .filter(v => v.location)
+        .map(v => ({
+            id: v.id,
+            lat: (v.location as any).coordinates[1],
+            lng: (v.location as any).coordinates[0],
+            label: v.name
+        }));
 
     return (
         <ScreenShell>
@@ -78,12 +100,60 @@ export default function DashboardPage() {
                 initial="hidden"
                 animate="show"
             >
-                <motion.div variants={item}>
-                    <p className="text-sm text-muted-foreground">{greeting}, {displayName}</p>
-                    <h1 className="text-2xl font-bold tracking-tight mt-0.5">
-                        What are you looking for?
-                    </h1>
+                <motion.div variants={item} className="flex items-center justify-between">
+                    <div>
+                        <p className="text-sm text-muted-foreground">{greeting}, {displayName}</p>
+                        <h1 className="text-2xl font-bold tracking-tight mt-0.5">
+                            {lat ? "Stores near you" : "What are you looking for?"}
+                        </h1>
+                    </div>
+                    {lat && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => router.push('/dashboard')}
+                            className="text-muted-foreground"
+                        >
+                            <X className="h-4 w-4 mr-2" />
+                            Clear Location
+                        </Button>
+                    )}
                 </motion.div>
+
+                {/* ── Active Location Banner ─────────────────── */}
+                {address && (
+                    <motion.div variants={item}>
+                        <div className="px-4 py-3 glass rounded-2xl flex items-center gap-3 border border-white/5">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <MapPin className="h-4 w-4 text-primary" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Current Address</p>
+                                <p className="text-sm font-medium truncate">{address}</p>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* ── Visual Map Coverage ───────────────────── */}
+                <AnimatePresence>
+                    {lat && lng && (
+                        <motion.div
+                            variants={item}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                        >
+                            <MapView
+                                center={{ lat, lng }}
+                                markers={mapMarkers}
+                                zoom={14}
+                                className="h-64 sm:h-80"
+                                interactive={false}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* ── Search Entry ───────────────────────────── */}
                 <motion.div variants={item}>
@@ -144,7 +214,7 @@ export default function DashboardPage() {
                 </motion.div>
 
                 {/* ── Featured Vendors ──────────────────────── */}
-                {featuredVendors.length > 0 && (
+                {!lat && featuredVendors.length > 0 && (
                     <motion.div variants={item}>
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="font-semibold">Featured</h2>
@@ -161,7 +231,6 @@ export default function DashboardPage() {
                                     className="flex items-center gap-4 cursor-pointer"
                                     onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
                                 >
-                                    {/* Avatar placeholder */}
                                     <div className="h-12 w-12 rounded-[var(--radius-md)] bg-primary/5 flex items-center justify-center shrink-0">
                                         <span className="text-lg font-bold text-muted-foreground">
                                             {vendor.name[0]}
@@ -171,7 +240,7 @@ export default function DashboardPage() {
                                         <p className="font-medium text-sm truncate">{vendor.name}</p>
                                         <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                                             <MapPin className="h-3 w-3" />
-                                            {vendor.location}
+                                            {vendor.address || "Universal"}
                                         </p>
                                     </div>
                                     <div className="text-right shrink-0">
@@ -186,12 +255,12 @@ export default function DashboardPage() {
                     </motion.div>
                 )}
 
-                {/* ── All Vendors ───────────────────────────── */}
+                {/* ── All / Nearby Vendors ──────────────────── */}
                 <motion.div variants={item}>
-                    <h2 className="font-semibold mb-3">Nearby</h2>
+                    <h2 className="font-semibold mb-3">{lat ? "Available Nearby" : "Explore All"}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {nearbyVendors.length > 0 ? (
-                            nearbyVendors.map((vendor) => (
+                        {displayVendors.length > 0 ? (
+                            displayVendors.map((vendor) => (
                                 <GlassCard
                                     key={vendor.id}
                                     interactive
@@ -199,24 +268,30 @@ export default function DashboardPage() {
                                     className="cursor-pointer space-y-3"
                                     onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
                                 >
-                                    {/* Cover placeholder */}
                                     <div className="h-28 rounded-[var(--radius-md)] bg-primary/5 flex items-center justify-center">
                                         <Package className="h-8 w-8 text-muted-foreground/40" />
                                     </div>
                                     <div>
                                         <div className="flex items-center justify-between">
                                             <p className="font-medium text-sm">{vendor.name}</p>
-                                            <span className="text-xs font-medium">{vendor.rating} ★</span>
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-xs font-bold">{vendor.rating} ★</span>
+                                                {(vendor as any).dist_meters && (
+                                                    <span className="text-[10px] text-primary font-bold">
+                                                        {Math.round((vendor as any).dist_meters / 100) / 10}km
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                        <p className="text-xs text-muted-foreground mt-0.5">
-                                            {vendor.location} · {vendor.category || "Vendor"}
+                                        <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                                            {vendor.address || "Lagos"} · {vendor.category || "Vendor"}
                                         </p>
                                     </div>
                                 </GlassCard>
                             ))
                         ) : (
-                            <p className="text-sm text-muted-foreground py-8 text-center col-span-full">
-                                No vendors found in your area.
+                            <p className="text-sm text-muted-foreground py-12 text-center col-span-full glass rounded-3xl">
+                                No vendors found in this area.
                             </p>
                         )}
                     </div>

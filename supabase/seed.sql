@@ -7,12 +7,12 @@
 -- VENDORS (5 premium mock vendors)
 -- ──────────────────────────────────────────────────
 
-insert into vendors (id, name, description, location, rating, is_featured) values
-  ('a1000000-0000-0000-0000-000000000001', 'Cloud Kitchen', 'Premium cloud kitchen serving gourmet meals with express delivery.', 'Victoria Island, Lagos', 4.8, true),
-  ('a1000000-0000-0000-0000-000000000002', 'Fresh & Fast', 'Farm-to-door grocery delivery. Fresh produce, zero compromise.', 'Lekki Phase 1, Lagos', 4.6, true),
-  ('a1000000-0000-0000-0000-000000000003', 'Urban Bites', 'Street food elevated. Bold flavors, premium packaging.', 'Ikeja GRA, Lagos', 4.9, true),
-  ('a1000000-0000-0000-0000-000000000004', 'QuickMart', 'Convenience store essentials delivered in 30 minutes.', 'Surulere, Lagos', 4.5, false),
-  ('a1000000-0000-0000-0000-000000000005', 'The Grill House', 'Charcoal-grilled perfection. Steaks, burgers, and more.', 'Ikoyi, Lagos', 4.7, false);
+insert into vendors (id, name, description, address, location, rating, is_featured) values
+  ('a1000000-0000-0000-0000-000000000001', 'Cloud Kitchen', 'Premium cloud kitchen serving gourmet meals with express delivery.', 'Victoria Island, Lagos', st_point(3.4411, 6.4253)::geography, 4.8, true),
+  ('a1000000-0000-0000-0000-000000000002', 'Fresh & Fast', 'Farm-to-door grocery delivery. Fresh produce, zero compromise.', 'Lekki Phase 1, Lagos', st_point(3.4735, 6.4485)::geography, 4.6, true),
+  ('a1000000-0000-0000-0000-000000000003', 'Urban Bites', 'Street food elevated. Bold flavors, premium packaging.', 'Ikeja GRA, Lagos', st_point(3.3551, 6.5866)::geography, 4.9, true),
+  ('a1000000-0000-0000-0000-000000000004', 'QuickMart', 'Convenience store essentials delivered in 30 minutes.', 'Surulere, Lagos', st_point(3.3619, 6.5059)::geography, 4.5, false),
+  ('a1000000-0000-0000-0000-000000000005', 'The Grill House', 'Charcoal-grilled perfection. Steaks, burgers, and more.', 'Ikoyi, Lagos', st_point(3.4246, 6.4549)::geography, 4.7, false);
 
 -- ──────────────────────────────────────────────────
 -- PRODUCTS (4 per vendor = 20 products)

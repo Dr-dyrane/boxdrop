@@ -5,6 +5,8 @@
 
 -- Enable UUID generation
 create extension if not exists "uuid-ossp";
+-- Enable PostGIS for spatial queries
+create extension if not exists postgis;
 
 -- ──────────────────────────────────────────────────
 -- ENUMS
@@ -66,13 +68,17 @@ create table vendors (
   owner_id uuid references profiles(id) on delete cascade,
   name text not null,
   description text,
-  location text,
+  address text,                 -- Physical address text
+  location geography(POINT),    -- Lat/Lng point for spatial queries
   rating numeric(2,1) not null default 0.0,
   is_featured boolean not null default false,
   logo_url text,
   cover_url text,
   created_at timestamptz not null default now()
 );
+
+-- Spatial index for nearby searches
+create index vendors_location_idx on public.vendors using GIST (location);
 
 alter table vendors enable row level security;
 
@@ -184,3 +190,49 @@ create index idx_orders_user on orders(user_id);
 create index idx_orders_vendor on orders(vendor_id);
 create index idx_orders_status on orders(status);
 create index idx_order_items_order on order_items(order_id);
+
+-- ──────────────────────────────────────────────────
+-- FUNCTIONS (RPC)
+-- ──────────────────────────────────────────────────
+
+-- Find vendors within a radius of a lat/lng point
+create or replace function get_nearby_vendors(
+  user_lat float,
+  user_long float,
+  radius_meters int default 10000 -- Default 10km
+)
+returns table (
+  id uuid,
+  name text,
+  description text,
+  address text,
+  logo_url text,
+  cover_url text,
+  rating numeric,
+  is_featured boolean,
+  dist_meters float
+)
+language sql
+as $$
+  select 
+    id, 
+    name, 
+    description,
+    address,
+    logo_url,
+    cover_url,
+    rating,
+    is_featured,
+    st_distance(
+      location, 
+      st_point(user_long, user_lat)::geography
+    ) as dist_meters
+  from public.vendors
+  where 
+    st_dwithin(
+      location, 
+      st_point(user_long, user_lat)::geography, 
+      radius_meters
+    )
+  order by dist_meters asc;
+$$;
