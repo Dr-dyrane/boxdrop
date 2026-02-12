@@ -19,7 +19,7 @@ import { Skeleton, SkeletonCard, SkeletonBento, MapView, Button } from "@/compon
 const CATEGORIES = [
     { name: "Restaurant", icon: "🍳", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
     { name: "Groceries", icon: "🍎", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80" },
-    { name: "Pharmacy", icon: "💊", image: "https://images.unsplash.com/photo-1576091160550-217359f4fdb2?auto=format&fit=crop&w=400&q=80" },
+    { name: "Pharmacy", icon: "💊", image: "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=400&q=80" },
     { name: "Retail", icon: "🛍️", image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80" },
     { name: "Coffee", icon: "☕", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80" },
 ];
