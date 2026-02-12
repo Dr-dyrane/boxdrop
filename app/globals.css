@@ -359,3 +359,25 @@ a,
 .clickable-depth:active {
   transform: scale(0.97);
 }
+
+.scrollbar-none,
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.mask-fade-right {
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  contain: paint;
+}
+
+.mask-none {
+  mask-image: none;
+  -webkit-mask-image: none;
+}

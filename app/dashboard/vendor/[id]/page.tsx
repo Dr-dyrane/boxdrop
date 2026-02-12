@@ -3,9 +3,9 @@
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Star, Clock, MapPin, Plus, Minus, ShoppingBag } from "lucide-react";
-import { useVendor, useVendorProducts } from "@/core/hooks";
+import { useVendor, useVendorProducts, useAuth } from "@/core/hooks";
 import { useCartStore } from "@/core/store";
-import { GlassCard, Button, SkeletonCard, SkeletonText, MapView } from "@/components/ui";
+import { GlassCard, Button, Skeleton, SkeletonCard, SkeletonText, MapView } from "@/components/ui";
 import { ScreenShell } from "@/components/layout/screen-shell";
 import { formatCurrency, calculateDeliveryTime } from "@/core/utils";
 import { useState } from "react";
@@ -24,17 +24,60 @@ export default function VendorDetailPage() {
     const { addItem, updateQuantity, items, getItemCount, getTotal } = useCartStore();
     const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
-    const isLoading = vLoading || pLoading;
+    const { profile, loading: authLoading } = useAuth();
+    const isLoading = vLoading || pLoading || authLoading;
 
     if (isLoading) {
+        const loadingSidebar = (
+            <div className="space-y-6">
+                <div className="glass-heavy p-6 rounded-[var(--radius-xl)] space-y-6 shadow-sm border border-white/5">
+                    <Skeleton className="h-6 w-1/3" />
+                    <div className="space-y-4">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="flex items-center gap-4">
+                                <Skeleton className="h-10 w-10 rounded-xl" />
+                                <div className="flex-1 space-y-2">
+                                    <Skeleton className="h-2 w-1/4" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+
         return (
-            <ScreenShell loading>
-                <div className="space-y-6">
-                    <div className="h-48 skeleton rounded-[var(--radius-lg)]" />
-                    <SkeletonText lines={2} />
-                    <div className="grid grid-cols-1 gap-4">
-                        <SkeletonCard />
-                        <SkeletonCard />
+            <ScreenShell side={loadingSidebar}>
+                <div className="space-y-8">
+                    {/* Header Placeholder */}
+                    <div className="relative h-64 rounded-[var(--radius-xl)] overflow-hidden glass-heavy shadow-sm p-6 flex flex-col justify-end gap-3">
+                        <Skeleton className="h-6 w-24 rounded-full" />
+                        <Skeleton className="h-10 w-64" />
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between px-1">
+                            <Skeleton className="h-6 w-24" />
+                            <Skeleton className="h-3 w-16" />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <div key={i} className="h-[420px] glass-heavy rounded-[2.5rem] p-4 flex flex-col justify-end gap-4 shadow-sm">
+                                    <Skeleton className="flex-1 rounded-[2rem]" />
+                                    <div className="space-y-3 p-1">
+                                        <div className="flex justify-between items-start">
+                                            <div className="space-y-2">
+                                                <Skeleton className="h-4 w-32" />
+                                                <Skeleton className="h-3 w-20" />
+                                            </div>
+                                            <Skeleton className="h-6 w-16 rounded-full" />
+                                        </div>
+                                        <Skeleton className="h-11 w-full rounded-2xl" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </ScreenShell>

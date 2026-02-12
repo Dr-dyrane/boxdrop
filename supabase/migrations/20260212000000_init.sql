@@ -71,6 +71,7 @@ create table vendors (
   is_featured boolean not null default false,
   logo_url text,
   cover_url text,
+  category text,
   created_at timestamptz not null default now()
 );
 

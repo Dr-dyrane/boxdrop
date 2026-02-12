@@ -55,7 +55,13 @@ begin
       new.raw_user_meta_data->>'picture',
       ''
     )
-  );
+  )
+  on conflict (id) do update set
+    avatar_url = coalesce(
+      new.raw_user_meta_data->>'avatar_url',
+      new.raw_user_meta_data->>'picture',
+      public.profiles.avatar_url
+    );
   return new;
 end;
 $$ language plpgsql security definer;
@@ -79,6 +85,7 @@ create table vendors (
   is_featured boolean not null default false,
   logo_url text,
   cover_url text,
+  category text,                 -- Category for discovery (e.g., Restaurant, Retail)
   created_at timestamptz not null default now()
 );
 

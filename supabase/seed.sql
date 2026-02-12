@@ -7,7 +7,7 @@
 -- VENDORS (5 premium mock vendors in Hemet, CA)
 -- ──────────────────────────────────────────────────
 
-insert into vendors (id, name, description, address, location, rating, is_featured, cover_url, logo_url) values
+insert into vendors (id, name, description, address, location, rating, is_featured, cover_url, logo_url, category) values
   (
     'a1000000-0000-0000-0000-000000000001', 
     'Cloud Kitchen Hemet', 
@@ -17,7 +17,8 @@ insert into vendors (id, name, description, address, location, rating, is_featur
     4.8, 
     true,
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200',
-    'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=200'
+    'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=200',
+    'Restaurant'
   ),
   (
     'a1000000-0000-0000-0000-000000000002', 
@@ -28,7 +29,8 @@ insert into vendors (id, name, description, address, location, rating, is_featur
     4.6, 
     true,
     'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200',
-    'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200'
+    'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200',
+    'Groceries'
   ),
   (
     'a1000000-0000-0000-0000-000000000003', 
@@ -39,7 +41,8 @@ insert into vendors (id, name, description, address, location, rating, is_featur
     4.9, 
     true,
     'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1200',
-    'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=200'
+    'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=200',
+    'Restaurant'
   ),
   (
     'a1000000-0000-0000-0000-000000000004', 
@@ -50,7 +53,8 @@ insert into vendors (id, name, description, address, location, rating, is_featur
     4.5, 
     false,
     'https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1200',
-    'https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=200'
+    'https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=200',
+    'Retail'
   ),
   (
     'a1000000-0000-0000-0000-000000000005', 
@@ -61,7 +65,56 @@ insert into vendors (id, name, description, address, location, rating, is_featur
     4.7, 
     false,
     'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200',
-    'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=200'
+    'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=200',
+    'Restaurant'
+  ),
+  (
+    'a1000000-0000-0000-0000-000000000006', 
+    'Valley Wellness Pharmacy', 
+    'Prescriptions and wellness essentials delivered with care.', 
+    'San Jacinto St, Hemet, CA', 
+    st_point(-116.9650, 33.7480)::geography, 
+    4.9, 
+    false,
+    'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?q=80&w=1200',
+    'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?q=80&w=200',
+    'Pharmacy'
+  ),
+  (
+    'a1000000-0000-0000-0000-000000000007', 
+    'Paws & Claws Hemet', 
+    'Premium pet food, toys, and grooming gear delivered home.', 
+    'W Devonshire Ave, Hemet, CA', 
+    st_point(-116.9820, 33.7520)::geography, 
+    4.8, 
+    false,
+    'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?q=80&w=1200',
+    'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?q=80&w=200',
+    'Pets'
+  ),
+  (
+    'a1000000-0000-0000-0000-000000000008', 
+    'The Coffee Beam', 
+    'Artisanal roasts and freshly baked pastries delivered to your desk.', 
+    'N State St, Hemet, CA', 
+    st_point(-116.9720, 33.7490)::geography, 
+    4.9, 
+    false,
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200',
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=200',
+    'Coffee'
+  ),
+  (
+    'a1000000-0000-0000-0000-000000000009', 
+    'Bloom Beauty Bar', 
+    'Luxury skincare and makeup essentials delivered in minutes.', 
+    'Menlo Ave, Hemet, CA', 
+    st_point(-116.9740, 33.7430)::geography, 
+    4.7, 
+    false,
+    'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1200',
+    'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=200',
+    'Beauty'
   );
 
 -- ──────────────────────────────────────────────────

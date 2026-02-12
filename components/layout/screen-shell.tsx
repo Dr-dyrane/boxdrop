@@ -15,6 +15,8 @@ import { Footer } from "./footer";
 
 interface ScreenShellProps {
     children: React.ReactNode;
+    /** Optional right-side panel content for desktop */
+    side?: React.ReactNode;
     /** Optional loading state — renders skeleton placeholder */
     loading?: boolean;
     /** Skeleton to render during loading */
@@ -27,32 +29,41 @@ interface ScreenShellProps {
 
 export function ScreenShell({
     children,
+    side,
     loading = false,
     skeleton,
     flush = false,
     className = "",
 }: ScreenShellProps) {
     return (
-        <main
-            className={`
-                min-h-[100dvh]
-                w-full
-                flex flex-col
-                max-w-2xl md:max-w-3xl lg:max-w-5xl
-                mx-auto
-                ${flush ? "" : "px-4 py-6 sm:px-6 md:px-8"}
-            `}
-        >
-            {loading && skeleton ? (
-                <div className={cn("flex-1", className)}>{skeleton}</div>
-            ) : (
-                <>
-                    <div className={cn("flex-1", className)}>
-                        {children}
-                    </div>
-                    {!flush && <Footer className="mt-12" />}
-                </>
-            )}
+        <main className="min-h-[100dvh] w-full flex flex-col overflow-x-hidden">
+            <div className="flex-1 flex flex-col lg:flex-row w-full max-w-[2000px] mx-auto relative overflow-x-hidden">
+                {/* Main Content Pane */}
+                <div className={cn(
+                    "flex-1 flex flex-col min-w-0",
+                    !flush && "px-4 py-4 sm:px-6 lg:px-10 lg:py-8",
+                    className
+                )}>
+                    {loading && skeleton ? (
+                        <div className="flex-1">{skeleton}</div>
+                    ) : (
+                        <div className="flex-1">
+                            {children}
+                        </div>
+                    )}
+
+                    {!flush && <Footer className="mt-20" />}
+                </div>
+
+                {/* Right Discovery/Utility Pane (Desktop Only) */}
+                {side && (
+                    <aside className="hidden xl:block w-[360px] shrink-0 border-l border-white/[0.03] relative">
+                        <div className="sticky top-0 h-[100dvh] overflow-y-auto scrollbar-none px-6 py-8">
+                            {side}
+                        </div>
+                    </aside>
+                )}
+            </div>
         </main>
     );
 }
