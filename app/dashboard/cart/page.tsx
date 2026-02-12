@@ -81,7 +81,7 @@ export default function CartPage() {
                 {/* ── Item List ──────────────────────────────── */}
                 <div className="space-y-3">
                     {items.map((item) => (
-                        <GlassCard key={item.product.id} className="flex items-center gap-4 p-3" elevation="sm">
+                        <GlassCard key={item.product.id} className="flex items-center gap-4 p-3">
                             <div className="h-16 w-16 rounded-[var(--radius-md)] bg-primary/5 shrink-0 overflow-hidden">
                                 {item.product.image_url && (
                                     <img
@@ -117,7 +117,7 @@ export default function CartPage() {
                 </div>
 
                 {/* ── Summary ────────────────────────────────── */}
-                <div className="space-y-4 pt-4 shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]">
+                <div className="space-y-4 pt-6 mt-4 opacity-80">
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span>{formatCurrency(getTotal())}</span>

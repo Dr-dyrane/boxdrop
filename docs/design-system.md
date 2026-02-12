@@ -4,11 +4,11 @@
 
 ---
 
-## 1. The No-Border Rule
-You are **strictly forbidden** from using CSS borders (`border`, `border-width`) to separate elements. Visual separation is achieved exclusively through:
+## 1. The Pure UI Rule (Liquid Glass)
+You are **strictly forbidden** from using CSS borders (`border`) or depth-based shadows (`shadow`) to separate elements. Visual separation is achieved exclusively through:
 
-- **Frosted Glass:** `backdrop-blur-md`, `bg-white/10`
-- **Depth & Elevation:** Subtle shadows and semantic layering.
+- **Frosted Glass:** Translucency and `backdrop-blur`.
+- **Material Intensity:** Using `glass`, `glass-subtle`, and `glass-heavy` to create hierarchy.
 - **Whitespace:** Luxury is silence.
 
 ## 2. Color as State

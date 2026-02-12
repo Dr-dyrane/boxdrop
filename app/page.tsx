@@ -185,9 +185,8 @@ export default function LandingPage() {
                 w-full h-16 pl-12 pr-32
                 glass rounded-[var(--radius-squircle)] 
                 text-sm sm:text-base text-foreground placeholder:text-muted-foreground
-                outline-none shadow-[var(--shadow-md)]
-                transition-all duration-500
-                focus:shadow-[0_0_0_2px_hsl(var(--primary)/0.2),0_20px_40px_-10px_rgba(0,0,0,0.1)]
+                outline-none transition-all duration-500
+                focus:bg-white/5
                 focus:scale-[1.02]
               "
             />
@@ -209,7 +208,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 10, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                className="absolute top-full left-0 right-0 mt-3 glass-heavy rounded-[var(--radius-lg)] shadow-[var(--shadow-xl)] ring-1 ring-white/5 overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-3 glass-heavy rounded-[var(--radius-lg)] overflow-hidden"
               >
                 {results.map((res) => (
                   <button

@@ -93,16 +93,17 @@ export default function DashboardPage() {
 
                         <div className="space-y-6">
                             <Skeleton className="h-6 w-32 ml-1" />
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                                 <SkeletonCard className="h-64" />
                                 <SkeletonCard className="h-64" />
+                                <SkeletonCard className="h-64 hidden 2xl:block" />
                             </div>
                         </div>
 
                         <div className="space-y-6">
                             <Skeleton className="h-6 w-48 ml-1" />
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                {Array.from({ length: 4 }).map((_, i) => (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+                                {Array.from({ length: 6 }).map((_, i) => (
                                     <div key={i} className="glass-heavy p-4 rounded-[2rem] flex items-center gap-4">
                                         <Skeleton className="h-20 w-20 rounded-[1.5rem]" />
                                         <div className="flex-1 space-y-2">
@@ -149,7 +150,7 @@ export default function DashboardPage() {
                 {stats.map((stat) => (
                     <div
                         key={stat.label}
-                        className="glass-heavy p-5 rounded-3xl space-y-4 shadow-sm group hover:translate-y-[1px] transition-all duration-300 cursor-default"
+                        className="glass-heavy p-5 rounded-3xl space-y-4 group hover:translate-y-[1px] transition-all duration-300 cursor-default"
                     >
                         <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                             <stat.icon className="h-5 w-5" />
@@ -166,7 +167,7 @@ export default function DashboardPage() {
 
             {/* ── Active Location Banner ─────────────────── */}
             {address && (
-                <div className="px-4 py-4 glass-heavy rounded-[2rem] flex items-center gap-3 shadow-sm border border-white/5">
+                <div className="px-4 py-4 glass-heavy rounded-[2rem] flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                         <MapPin className="h-5 w-5 text-primary" />
                     </div>
@@ -179,7 +180,7 @@ export default function DashboardPage() {
 
             {/* ── Visual Map Coverage ───────────────────── */}
             {lat && lng && (
-                <div className="glass-heavy rounded-[2.5rem] overflow-hidden shadow-sm h-80 border border-white/5">
+                <div className="glass-heavy rounded-[2.5rem] overflow-hidden h-80">
                     <MapView
                         center={{ lat, lng }}
                         markers={mapMarkers}
@@ -240,7 +241,7 @@ export default function DashboardPage() {
                                         flex items-center gap-2.5 px-6 py-3
                                         glass rounded-full shrink-0 
                                         hover:bg-foreground hover:text-background transition-all duration-300
-                                        shadow-sm cursor-pointer border border-white/5
+                                        cursor-pointer
                                         group
                                     "
                                 >
@@ -258,13 +259,13 @@ export default function DashboardPage() {
                                 <h2 className="text-xl font-black tracking-tight">Featured</h2>
                                 <button className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">View all</button>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                                 {featuredVendors.map((vendor) => (
                                     <motion.div
                                         key={vendor.id}
                                         whileHover={{ y: -4 }}
                                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                        className="relative h-64 rounded-[2.5rem] overflow-hidden group cursor-pointer shadow-md"
+                                        className="relative h-64 rounded-[2.5rem] overflow-hidden group cursor-pointer"
                                         onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
                                     >
                                         {/* Full Photo */}
@@ -305,13 +306,13 @@ export default function DashboardPage() {
                     {/* ── Exploration Grid ─────────────────── */}
                     <motion.div variants={item} className="space-y-6">
                         <h2 className="text-xl font-black tracking-tight px-1">{lat ? "Available Nearby" : "Explore More"}</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                             {displayVendors.map((vendor) => (
                                 <motion.div
                                     key={vendor.id}
                                     whileHover={{ y: -2 }}
                                     onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
-                                    className="group glass-heavy p-4 rounded-[2rem] flex items-center gap-4 cursor-pointer shadow-sm border border-white/5 hover:border-white/10 transition-all duration-300"
+                                    className="group glass-heavy p-4 rounded-[2rem] flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-all duration-300"
                                 >
                                     <div className="h-20 w-20 rounded-[1.5rem] overflow-hidden glass shrink-0 relative">
                                         {vendor.logo_url ? (

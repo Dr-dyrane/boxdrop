@@ -30,7 +30,7 @@ export default function VendorDetailPage() {
     if (isLoading) {
         const loadingSidebar = (
             <div className="space-y-6">
-                <div className="glass-heavy p-6 rounded-[var(--radius-xl)] space-y-6 shadow-sm border border-white/5">
+                <div className="glass-heavy p-6 rounded-[var(--radius-xl)] space-y-6">
                     <Skeleton className="h-6 w-1/3" />
                     <div className="space-y-4">
                         {Array.from({ length: 3 }).map((_, i) => (
@@ -51,7 +51,7 @@ export default function VendorDetailPage() {
             <ScreenShell side={loadingSidebar}>
                 <div className="space-y-8">
                     {/* Header Placeholder */}
-                    <div className="relative h-64 rounded-[var(--radius-xl)] overflow-hidden glass-heavy shadow-sm p-6 flex flex-col justify-end gap-3">
+                    <div className="relative h-64 rounded-[var(--radius-xl)] overflow-hidden glass-heavy p-6 flex flex-col justify-end gap-3">
                         <Skeleton className="h-6 w-24 rounded-full" />
                         <Skeleton className="h-10 w-64" />
                     </div>
@@ -61,9 +61,9 @@ export default function VendorDetailPage() {
                             <Skeleton className="h-6 w-24" />
                             <Skeleton className="h-3 w-16" />
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                             {Array.from({ length: 4 }).map((_, i) => (
-                                <div key={i} className="h-[420px] glass-heavy rounded-[2.5rem] p-4 flex flex-col justify-end gap-4 shadow-sm">
+                                <div key={i} className="h-[420px] glass-heavy rounded-[2.5rem] p-4 flex flex-col justify-end gap-4">
                                     <Skeleton className="flex-1 rounded-[2rem]" />
                                     <div className="space-y-3 p-1">
                                         <div className="flex justify-between items-start">
@@ -95,7 +95,7 @@ export default function VendorDetailPage() {
                     {/* ── Left Column: Menu Items ────────────────── */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* ── Cover ──────────────────────────────────── */}
-                        <div className="relative h-64 rounded-[var(--radius-xl)] overflow-hidden glass shadow-md group">
+                        <div className="relative h-64 rounded-[var(--radius-xl)] overflow-hidden glass group">
                             {vendor.cover_url ? (
                                 <img
                                     src={vendor.cover_url}
@@ -109,7 +109,7 @@ export default function VendorDetailPage() {
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
                             <div className="absolute bottom-6 left-6 right-6">
-                                <p className="text-xs font-bold uppercase tracking-widest glass-subtle px-3 py-1.5 rounded-full w-fit mb-3 shadow-sm">
+                                <p className="text-xs font-bold uppercase tracking-widest glass-subtle px-3 py-1.5 rounded-full w-fit mb-3">
                                     {vendor.category || "Vendor"}
                                 </p>
                                 <h1 className="text-4xl font-black tracking-tight">{vendor.name}</h1>
@@ -122,7 +122,7 @@ export default function VendorDetailPage() {
                                 <h3 className="font-bold text-xl">Menu</h3>
                                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{products?.length || 0} items</p>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                                 {products?.map((product) => {
                                     const cartItem = items.find((i) => i.product.id === product.id);
                                     return (
@@ -130,7 +130,7 @@ export default function VendorDetailPage() {
                                             key={product.id}
                                             whileHover={{ y: -4 }}
                                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                            className="relative h-[420px] rounded-[2.5rem] overflow-hidden group cursor-pointer shadow-md"
+                                            className="relative h-[420px] rounded-[2.5rem] overflow-hidden group cursor-pointer"
                                             onClick={() => setSelectedProduct(product)}
                                         >
                                             {/* Full Width/Height Image */}
@@ -150,13 +150,13 @@ export default function VendorDetailPage() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
                                             {/* Floating Info Plate (Apple Style) */}
-                                            <div className="absolute bottom-4 left-4 right-4 glass-heavy p-5 rounded-[2rem] space-y-3 shadow-2xl border border-white/10 group-hover:translate-y-[-4px] transition-transform duration-500">
+                                            <div className="absolute bottom-4 left-4 right-4 glass-heavy p-5 rounded-[2rem] space-y-3 group-hover:translate-y-[-4px] transition-transform duration-500">
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div className="min-w-0 flex-1">
                                                         <p className="text-sm font-black text-foreground tracking-tight leading-tight line-clamp-1">{product.name}</p>
                                                         <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">{product.category}</p>
                                                     </div>
-                                                    <div className="glass px-3 py-1 rounded-full shadow-sm">
+                                                    <div className="glass px-3 py-1 rounded-full">
                                                         <p className="text-xs font-black">{formatCurrency(product.price)}</p>
                                                     </div>
                                                 </div>
@@ -190,7 +190,7 @@ export default function VendorDetailPage() {
 
                     {/* ── Right Column: Info Bento ────────────────── */}
                     <div className="space-y-6">
-                        <div className="glass-heavy p-6 rounded-[var(--radius-xl)] space-y-6 shadow-sm sticky top-24">
+                        <div className="glass-heavy p-6 rounded-[var(--radius-xl)] space-y-6 sticky top-24">
                             <h3 className="font-bold text-lg">Store Info</h3>
 
                             <div className="space-y-5">
@@ -226,7 +226,7 @@ export default function VendorDetailPage() {
                             </div>
 
                             {/* ── Vendor Map ────────────────────────────── */}
-                            <div className="h-48 rounded-2xl overflow-hidden glass shadow-inner mt-4">
+                            <div className="h-48 rounded-2xl overflow-hidden glass mt-4">
                                 {(vendor.location as any)?.coordinates && (
                                     <MapView
                                         center={{
@@ -268,7 +268,7 @@ export default function VendorDetailPage() {
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
                             className="fixed bottom-0 left-0 right-0 z-[70] max-w-2xl mx-auto"
                         >
-                            <div className="glass-heavy rounded-t-[var(--radius-xl)] shadow-[0_-20px_50px_rgba(0,0,0,0.3)] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] space-y-6">
+                            <div className="glass-heavy rounded-t-[var(--radius-xl)] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] space-y-6">
                                 <div className="h-1.5 w-12 bg-muted rounded-full mx-auto" />
 
                                 <div className="h-64 sm:h-80 w-full rounded-[var(--radius-lg)] overflow-hidden bg-primary/5">

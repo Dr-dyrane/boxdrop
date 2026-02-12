@@ -19,13 +19,13 @@ interface ButtonProps extends HTMLMotionProps<"button"> {
 
 const variantStyles: Record<string, string> = {
     primary:
-        "bg-primary text-primary-foreground shadow-[var(--shadow-sm)] hover:opacity-90",
+        "bg-primary text-primary-foreground hover:opacity-90",
     secondary:
-        "bg-secondary text-secondary-foreground shadow-[var(--shadow-sm)] hover:opacity-80",
+        "bg-secondary text-secondary-foreground hover:opacity-80",
     ghost:
         "bg-transparent text-foreground hover:bg-accent",
     destructive:
-        "bg-destructive text-destructive-foreground shadow-[var(--shadow-sm)] hover:opacity-90",
+        "bg-destructive text-destructive-foreground hover:opacity-90",
 };
 
 const sizeStyles: Record<string, string> = {

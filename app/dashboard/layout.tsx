@@ -152,7 +152,7 @@ export default function MainLayout({
             </header>
 
             {/* ── Tablet Side Rail (md only) ────────────── */}
-            <aside className="hidden md:flex lg:hidden fixed top-0 left-0 bottom-0 z-50 w-[72px] flex-col items-center py-6 gap-2 glass-heavy shadow-[var(--shadow-lg)]">
+            <aside className="hidden md:flex lg:hidden fixed top-0 left-0 bottom-0 z-50 w-[72px] flex-col items-center py-6 gap-2 glass-heavy">
                 <Link
                     href="/dashboard"
                     className="h-10 w-10 flex items-center justify-center mb-4 cursor-pointer"
@@ -204,7 +204,7 @@ export default function MainLayout({
             </aside>
 
             {/* ── Desktop Sidebar (lg+) ─────────────────── */}
-            <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy shadow-[var(--shadow-lg)]">
+            <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy">
                 <Link
                     href="/dashboard"
                     className="flex items-center gap-3 px-3 h-10 mb-4 cursor-pointer"
@@ -289,7 +289,7 @@ export default function MainLayout({
                         damping: 30,
                     }}
                 >
-                    <div className="glass-heavy shadow-[var(--shadow-xl)] rounded-full px-2 h-14 flex items-center gap-1.5">
+                    <div className="glass-heavy rounded-full px-2 h-14 flex items-center gap-1.5">
                         {pillTabs.map((tab) => {
                             const active = isActive(tab.href);
                             return (
@@ -328,7 +328,7 @@ export default function MainLayout({
                 {/* ── Dynamic Action FAB ────────────────── */}
                 <motion.button
                     onClick={fab.onClick}
-                    className="pointer-events-auto h-14 w-14 rounded-full glass-heavy shadow-[var(--shadow-xl)] flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer relative"
+                    className="pointer-events-auto h-14 w-14 rounded-full glass-heavy flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer relative"
                     animate={{
                         y: isCollapsed ? 120 : 0,
                         opacity: isCollapsed ? 0 : 1,
@@ -349,7 +349,7 @@ export default function MainLayout({
 
                         {/* Dynamic FAB Badge (e.g. Cart count) */}
                         {fab.badge !== null && fab.badge > 0 && (
-                            <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-black flex items-center justify-center shadow-lg">
+                            <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-black flex items-center justify-center">
                                 {fab.badge}
                             </span>
                         )}

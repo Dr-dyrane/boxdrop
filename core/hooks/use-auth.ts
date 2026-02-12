@@ -21,35 +21,44 @@ export function useAuth() {
 
     useEffect(() => {
         const getSession = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
+            try {
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+                setUser(session?.user ?? null);
 
-            if (session?.user) {
-                const { data } = await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("id", session.user.id)
-                    .single();
-                setProfile(data);
+                if (session?.user) {
+                    const { data } = await supabase
+                        .from("profiles")
+                        .select("*")
+                        .eq("id", session.user.id)
+                        .single();
+                    setProfile(data);
+                }
+            } catch (err) {
+                console.error("Auth initialization error:", err);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
 
         getSession();
 
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
             setUser(session?.user ?? null);
             if (session?.user) {
-                const { data } = await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("id", session.user.id)
-                    .single();
-                setProfile(data);
+                try {
+                    const { data } = await supabase
+                        .from("profiles")
+                        .select("*")
+                        .eq("id", session.user.id)
+                        .single();
+                    setProfile(data);
+                } catch {
+                    setProfile(null);
+                }
             } else {
                 setProfile(null);
             }

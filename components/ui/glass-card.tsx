@@ -18,12 +18,6 @@ interface GlassCardProps extends HTMLMotionProps<"div"> {
     intensity?: "subtle" | "default" | "heavy";
 }
 
-const elevationMap = {
-    sm: "shadow-[var(--shadow-sm)]",
-    md: "shadow-[var(--shadow-md)]",
-    lg: "shadow-[var(--shadow-lg)]",
-};
-
 const intensityMap = {
     subtle: "glass-subtle",
     default: "glass",
@@ -47,7 +41,6 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
                 ref={ref}
                 className={`
           ${intensityMap[intensity]}
-          ${elevationMap[elevation]}
           rounded-[var(--radius-lg)]
           p-4
           ${className}

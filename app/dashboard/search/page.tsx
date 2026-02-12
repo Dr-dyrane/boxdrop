@@ -63,7 +63,6 @@ export default function SearchPage() {
                             text-sm text-foreground
                             placeholder:text-muted-foreground/50
                             focus:ring-2 focus:ring-primary/5 transition-all
-                            border border-white/5
                         "
                     />
                     {query && (
@@ -96,7 +95,7 @@ export default function SearchPage() {
                                     whitespace-nowrap flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold
                                     transition-all duration-300 shrink-0
                                     ${isActive
-                                        ? "bg-foreground text-background shadow-md xl:translate-x-1"
+                                        ? "bg-foreground text-background xl:translate-x-1"
                                         : "glass text-muted-foreground hover:text-foreground xl:hover:translate-x-1"
                                     }
                                 `}
@@ -142,8 +141,8 @@ export default function SearchPage() {
                             <Skeleton className="h-10 w-64" />
                             <Skeleton className="h-3 w-48 opacity-40 transition-shimmer" />
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {Array.from({ length: 4 }).map((_, i) => (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+                            {Array.from({ length: 6 }).map((_, i) => (
                                 <SkeletonCard key={i} className="h-72" />
                             ))}
                         </div>
@@ -159,7 +158,7 @@ export default function SearchPage() {
                 <div className="md:hidden h-2" />
 
                 {/* Mobile-only Discovery Module */}
-                <div className="xl:hidden glass-heavy p-5 rounded-[2.5rem] shadow-sm mb-4">
+                <div className="xl:hidden glass-heavy p-5 rounded-[2.5rem] mb-4">
                     {DiscoveryContent}
                 </div>
 
@@ -176,15 +175,15 @@ export default function SearchPage() {
                     </div>
 
                     {isSearching ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {Array.from({ length: 4 }).map((_, i) => (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+                            {Array.from({ length: 6 }).map((_, i) => (
                                 <SkeletonCard key={i} className="h-72" />
                             ))}
                         </div>
                     ) : (
                         <AnimatePresence mode="popLayout">
                             {displayedVendors && displayedVendors.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                                     {displayedVendors.map((vendor: Vendor) => (
                                         <motion.div
                                             key={vendor.id}
@@ -193,7 +192,7 @@ export default function SearchPage() {
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.95 }}
                                             onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
-                                            className="relative h-72 rounded-[2.5rem] overflow-hidden group cursor-pointer shadow-md"
+                                            className="relative h-72 rounded-[2.5rem] overflow-hidden group cursor-pointer"
                                         >
                                             {/* Full Image */}
                                             {vendor.cover_url ? (
