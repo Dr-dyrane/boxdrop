@@ -8,7 +8,7 @@ import { GlassCard, Button } from "@/components/ui";
 import { ScreenShell } from "@/components/layout/screen-shell";
 import { formatCurrency } from "@/core/utils";
 import { useAuth, useCreateOrder } from "@/core/hooks";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function CartPage() {
     const router = useRouter();
@@ -16,6 +16,13 @@ export default function CartPage() {
     const { mutateAsync: createOrder } = useCreateOrder();
     const { user } = useAuth();
     const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+    // Listen for FAB checkout trigger from layout
+    useEffect(() => {
+        const handler = () => handleCheckout();
+        window.addEventListener("boxdrop-checkout", handler);
+        return () => window.removeEventListener("boxdrop-checkout", handler);
+    }, [items, user, vendorId]); // Re-bind if core dependencies change
 
     if (items.length === 0) {
         return (
@@ -68,16 +75,8 @@ export default function CartPage() {
 
     return (
         <ScreenShell>
-            <div className="space-y-6 pb-32">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => router.back()}
-                        className="h-10 w-10 flex items-center justify-center glass rounded-full"
-                    >
-                        <ArrowLeft className="h-5 w-5" />
-                    </button>
-                    <h1 className="text-xl font-bold">Your Cart</h1>
-                </div>
+            <div className="space-y-6">
+                <div className="md:hidden h-2" /> {/* Mobile spacer */} {/* Mobile spacer */}
 
                 {/* ── Item List ──────────────────────────────── */}
                 <div className="space-y-3">
@@ -134,18 +133,10 @@ export default function CartPage() {
                 </div>
             </div>
 
-            {/* ── Checkout Footer ────────────────────────── */}
-            <div className="fixed bottom-[calc(var(--tab-bar-height)+1rem)] left-4 right-4 z-40">
-                <Button
-                    size="lg"
-                    className="w-full gap-3 py-7 rounded-[var(--radius-xl)] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)]"
-                    onClick={handleCheckout}
-                    loading={isCheckingOut}
-                >
-                    <CreditCard className="h-5 w-5" />
-                    Place Order · {formatCurrency(getTotal() + 500)}
-                </Button>
-            </div>
+            {/* ── Checkout Instructions ─────────────────── */}
+            <p className="text-center text-xs text-muted-foreground pt-4 pb-20">
+                Tap the pay icon to complete your order
+            </p>
         </ScreenShell>
     );
 }

@@ -41,14 +41,7 @@ export default function SearchPage() {
 
     return (
         <ScreenShell className="space-y-6">
-            <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-1"
-            >
-                <h1 className="text-2xl font-bold tracking-tight">Explore</h1>
-                <p className="text-sm text-muted-foreground">Nearby vendors & fresh products</p>
-            </motion.div>
+            <div className="md:hidden h-2" /> {/* Subtle top gap on mobile below sticky header */}
 
             {/* ── Search Bar ──────────────────────────────── */}
             <div className="relative group">
@@ -79,7 +72,7 @@ export default function SearchPage() {
             </div>
 
             {/* ── Filter Categories ────────────────────────── */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
                 {CATEGORIES.map((cat) => {
                     const isActive = activeCategory === cat;
                     return (

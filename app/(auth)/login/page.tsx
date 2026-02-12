@@ -51,15 +51,11 @@ export default function LoginPage() {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
-            <div className="flex flex-col items-center mb-8">
-                <Logo className="h-12 mb-4" />
-                <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-                <p className="text-sm text-muted-foreground mt-1">
+        <>
+            <div className="flex flex-col items-center mb-10">
+                <Logo className="h-14 mb-4" />
+                <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
+                <p className="text-sm text-muted-foreground mt-2">
                     Sign in to your BoxDrop account
                 </p>
             </div>
@@ -187,6 +183,6 @@ export default function LoginPage() {
                     Sign up
                 </Link>
             </p>
-        </motion.div>
+        </>
     );
 }

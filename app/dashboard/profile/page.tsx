@@ -30,7 +30,7 @@ export default function ProfilePage() {
     return (
         <ScreenShell>
             <div className="space-y-6">
-                <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
+                <div className="md:hidden h-2" /> {/* Mobile spacer */}
 
                 {/* ── User Card ──────────────────────────────── */}
                 <GlassCard elevation="md" className="flex items-center gap-4">

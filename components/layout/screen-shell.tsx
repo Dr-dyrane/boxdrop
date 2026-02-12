@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/core/utils";
 import { Footer } from "./footer";
 
 /* ─────────────────────────────────────────────────────
@@ -36,16 +37,20 @@ export function ScreenShell({
             className={`
                 min-h-[100dvh]
                 w-full
+                flex flex-col
                 max-w-2xl md:max-w-3xl lg:max-w-5xl
                 mx-auto
                 ${flush ? "" : "px-4 py-6 sm:px-6 md:px-8"}
-                ${className}
             `}
         >
-            {loading && skeleton ? skeleton : (
+            {loading && skeleton ? (
+                <div className={cn("flex-1", className)}>{skeleton}</div>
+            ) : (
                 <>
-                    {children}
-                    {!flush && <Footer />}
+                    <div className={cn("flex-1", className)}>
+                        {children}
+                    </div>
+                    {!flush && <Footer className="mt-12" />}
                 </>
             )}
         </main>

@@ -24,7 +24,7 @@ export default function OrdersPage() {
     return (
         <ScreenShell>
             <div className="space-y-6">
-                <h1 className="text-2xl font-bold tracking-tight">Orders</h1>
+                <div className="md:hidden h-2" /> {/* Mobile spacer */}
 
                 {!orders || orders.length === 0 ? (
                     <div className="glass rounded-[var(--radius-lg)] p-12 flex flex-col items-center justify-center text-center space-y-3">

@@ -4,10 +4,11 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Compass, ShoppingBag, Package, Search, User } from "lucide-react";
+import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard } from "lucide-react";
 import { useScrollDirection } from "@/core/hooks/use-scroll-direction";
 import { useAuth } from "@/core/hooks";
 import { useCartStore } from "@/core/store";
+import { Logo } from "@/components/ui";
 
 /* ─────────────────────────────────────────────────────
    MAIN LAYOUT — Apple Store-Inspired Adaptive Nav
@@ -18,10 +19,16 @@ import { useCartStore } from "@/core/store";
    Desktop:  Left sidebar (240px) with labels
    ───────────────────────────────────────────────────── */
 
-const tabs = [
-    { href: "/dashboard", label: "Home", icon: Home },
+const pillTabs = [
+    { href: "/dashboard", label: "Shop", icon: Home },
+    { href: "/dashboard/orders", label: "Products", icon: Package },
+    // Bag removed from pill since it's now in the dynamic FAB
+];
+
+const sidebarTabs = [
+    { href: "/dashboard", label: "Shop", icon: Home },
     { href: "/dashboard/search", label: "Explore", icon: Compass },
-    { href: "/dashboard/orders", label: "Orders", icon: Package },
+    { href: "/dashboard/orders", label: "Products", icon: Package },
     { href: "/dashboard/cart", label: "Bag", icon: ShoppingBag },
 ];
 
@@ -38,10 +45,64 @@ export default function MainLayout({
 
     const isCollapsed = direction === "down" && isScrolled;
 
+    // ── Navigation Logic ─────────────────────────
+
     // Active tab check
     const isActive = (href: string) =>
         pathname === href ||
         (href !== "/dashboard" && pathname.startsWith(href));
+
+    // Dynamic Title Logic
+    const getPageTitle = () => {
+        if (pathname === "/dashboard") return "BoxDrop";
+        if (pathname.startsWith("/dashboard/search")) return "Explore";
+        if (pathname.startsWith("/dashboard/orders")) return "Products";
+        if (pathname.startsWith("/dashboard/cart")) return "Bag";
+        if (pathname.startsWith("/dashboard/profile")) return "Profile";
+        if (pathname.startsWith("/dashboard/vendor/")) return "Vendor";
+        return "BoxDrop";
+    };
+
+    // Dynamic FAB Logic
+    const getFABConfig = () => {
+        const hasItems = cartCount > 0;
+
+        // Cart Page Special: Checkout
+        if (pathname === "/dashboard/cart") {
+            return {
+                icon: CreditCard,
+                onClick: () => {
+                    const event = new CustomEvent("boxdrop-checkout");
+                    window.dispatchEvent(event);
+                },
+                isActive: true,
+                badge: null,
+                label: "Pay"
+            };
+        }
+
+        // If items are in bag, the Bag becomes the primary FAB action everywhere else
+        if (hasItems) {
+            return {
+                icon: ShoppingBag,
+                onClick: () => router.push("/dashboard/cart"),
+                isActive: pathname === "/dashboard/cart",
+                badge: cartCount,
+                label: "Bag"
+            };
+        }
+
+        // Default: Search
+        return {
+            icon: Search,
+            onClick: () => router.push("/dashboard/search"),
+            isActive: pathname === "/dashboard/search",
+            badge: null,
+            label: "Find"
+        };
+    };
+
+    const fab = getFABConfig();
 
     // Profile display
     const avatarUrl = profile?.avatar_url;
@@ -50,25 +111,28 @@ export default function MainLayout({
     return (
         <div className="min-h-[100dvh]">
             {/* ── Mobile Header ──────────────────────────── */}
-            <header className="md:hidden sticky top-0 z-40 glass-heavy">
-                <div className="flex items-center justify-between h-12 px-4">
-                    {/* Left: Page context */}
-                    <Link href="/dashboard" className="flex items-center gap-2">
-                        <span className="text-sm font-bold tracking-tight">BoxDrop</span>
-                    </Link>
+            <header className="md:hidden sticky top-0 z-40 glass-heavy h-14">
+                <div className="flex items-center justify-between h-full px-4">
+                    {/* Left: Dynamic Branding / Back */}
+                    <div className="flex items-center gap-3">
+                        {pathname !== "/dashboard" && (
+                            <button
+                                onClick={() => router.back()}
+                                className="h-8 w-8 flex items-center justify-center glass rounded-full active:scale-90 transition-transform cursor-pointer"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                            </button>
+                        )}
+                        <span className="text-lg font-black tracking-tight cursor-default">
+                            {getPageTitle()}
+                        </span>
+                    </div>
 
-                    {/* Right: Search & Avatar */}
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => router.push("/dashboard/search")}
-                            className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-accent transition-colors"
-                            aria-label="Search"
-                        >
-                            <Search className="h-4 w-4 text-muted-foreground" />
-                        </button>
+                    {/* Right: Avatar */}
+                    <div className="flex items-center gap-2.5">
                         <button
                             onClick={() => router.push("/dashboard/profile")}
-                            className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0"
+                            className="h-9 w-9 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-white/10 active:scale-95 transition-transform cursor-pointer"
                             aria-label="Profile"
                         >
                             {avatarUrl ? (
@@ -91,14 +155,14 @@ export default function MainLayout({
             <aside className="hidden md:flex lg:hidden fixed top-0 left-0 bottom-0 z-50 w-[72px] flex-col items-center py-6 gap-2 glass-heavy shadow-[var(--shadow-lg)]">
                 <Link
                     href="/dashboard"
-                    className="h-10 w-10 flex items-center justify-center mb-4"
+                    className="h-10 w-10 flex items-center justify-center mb-4 cursor-pointer"
                     aria-label="BoxDrop Home"
                 >
-                    <span className="text-lg font-black tracking-tighter">B</span>
+                    <Logo className="h-8 w-8" />
                 </Link>
 
                 <nav className="flex-1 flex flex-col items-center gap-1">
-                    {tabs.map((tab) => {
+                    {sidebarTabs.map((tab) => {
                         const active = isActive(tab.href);
                         return (
                             <Link
@@ -106,7 +170,7 @@ export default function MainLayout({
                                 href={tab.href}
                                 className={`
                                     relative h-11 w-11 flex items-center justify-center rounded-[var(--radius-md)]
-                                    transition-colors duration-200
+                                    transition-colors duration-200 cursor-pointer
                                     ${active
                                         ? "bg-primary/10 text-foreground"
                                         : "text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -143,13 +207,14 @@ export default function MainLayout({
             <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy shadow-[var(--shadow-lg)]">
                 <Link
                     href="/dashboard"
-                    className="flex items-center gap-3 px-3 h-10 mb-4"
+                    className="flex items-center gap-3 px-3 h-10 mb-4 cursor-pointer"
                 >
+                    <Logo className="h-7 w-7" />
                     <span className="text-base font-black tracking-tight">BoxDrop</span>
                 </Link>
 
                 <nav className="flex-1 flex flex-col gap-0.5">
-                    {tabs.map((tab) => {
+                    {sidebarTabs.map((tab) => {
                         const active = isActive(tab.href);
                         return (
                             <Link
@@ -157,7 +222,7 @@ export default function MainLayout({
                                 href={tab.href}
                                 className={`
                                     relative flex items-center gap-3 px-3 h-11 rounded-[var(--radius-md)]
-                                    text-sm font-medium transition-colors duration-200
+                                    text-sm font-medium transition-colors duration-200 cursor-pointer
                                     ${active
                                         ? "bg-primary/10 text-foreground"
                                         : "text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -211,11 +276,11 @@ export default function MainLayout({
             </div>
 
             {/* ── Mobile Bottom Pill (scroll-aware) ─────── */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex justify-between items-end gap-2 pb-[calc(12px+env(safe-area-inset-bottom))] px-4 pointer-events-none">
                 <motion.div
-                    className="pointer-events-auto mb-[calc(8px+env(safe-area-inset-bottom))]"
+                    className="pointer-events-auto"
                     animate={{
-                        y: isCollapsed ? 100 : 0,
+                        y: isCollapsed ? 120 : 0,
                         opacity: isCollapsed ? 0 : 1,
                     }}
                     transition={{
@@ -224,8 +289,8 @@ export default function MainLayout({
                         damping: 30,
                     }}
                 >
-                    <div className="glass-heavy shadow-[var(--shadow-xl)] rounded-full px-2 h-14 flex items-center gap-1">
-                        {tabs.map((tab) => {
+                    <div className="glass-heavy shadow-[var(--shadow-xl)] rounded-full px-2 h-14 flex items-center gap-1.5">
+                        {pillTabs.map((tab) => {
                             const active = isActive(tab.href);
                             return (
                                 <Link
@@ -233,7 +298,7 @@ export default function MainLayout({
                                     href={tab.href}
                                     className={`
                                         relative flex items-center gap-2 h-10 rounded-full
-                                        transition-all duration-300
+                                        transition-all duration-300 cursor-pointer
                                         ${active
                                             ? "bg-foreground text-background px-4"
                                             : "text-muted-foreground px-3 hover:text-foreground"
@@ -241,7 +306,7 @@ export default function MainLayout({
                                     `}
                                 >
                                     <tab.icon className="h-[18px] w-[18px] shrink-0" />
-                                    <AnimatePresence>
+                                    <AnimatePresence mode="wait">
                                         {active && (
                                             <motion.span
                                                 initial={{ width: 0, opacity: 0 }}
@@ -254,16 +319,42 @@ export default function MainLayout({
                                             </motion.span>
                                         )}
                                     </AnimatePresence>
-                                    {tab.label === "Bag" && cartCount > 0 && !active && (
-                                        <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-foreground text-background text-[9px] font-bold flex items-center justify-center">
-                                            {cartCount}
-                                        </span>
-                                    )}
                                 </Link>
                             );
                         })}
                     </div>
                 </motion.div>
+
+                {/* ── Dynamic Action FAB ────────────────── */}
+                <motion.button
+                    onClick={fab.onClick}
+                    className="pointer-events-auto h-14 w-14 rounded-full glass-heavy shadow-[var(--shadow-xl)] flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer relative"
+                    animate={{
+                        y: isCollapsed ? 120 : 0,
+                        opacity: isCollapsed ? 0 : 1,
+                    }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 30,
+                        delay: 0.05,
+                    }}
+                >
+                    <div className={`
+                        h-10 w-10 rounded-full flex items-center justify-center
+                        ${fab.isActive ? "bg-foreground text-background" : "text-muted-foreground"}
+                        transition-colors duration-300
+                    `}>
+                        <fab.icon className="h-[18px] w-[18px]" />
+
+                        {/* Dynamic FAB Badge (e.g. Cart count) */}
+                        {fab.badge !== null && fab.badge > 0 && (
+                            <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-black flex items-center justify-center shadow-lg">
+                                {fab.badge}
+                            </span>
+                        )}
+                    </div>
+                </motion.button>
             </nav>
         </div>
     );

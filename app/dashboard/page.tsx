@@ -155,8 +155,8 @@ export default function DashboardPage() {
                     )}
                 </AnimatePresence>
 
-                {/* ── Search Entry ───────────────────────────── */}
-                <motion.div variants={item}>
+                {/* ── Search Entry (Optional, keeping as secondary if requested, but user said move to FAB) ── */}
+                {/* <motion.div variants={item}>
                     <button
                         onClick={() => router.push("/dashboard/search")}
                         className="
@@ -167,15 +167,16 @@ export default function DashboardPage() {
                             transition-all duration-300
                             hover:shadow-[var(--shadow-md)]
                             active:scale-[0.98]
+                            cursor-pointer
                         "
                     >
                         <Search className="h-4 w-4" />
                         <span>Search vendors, products...</span>
                     </button>
-                </motion.div>
+                </motion.div> */}
 
                 {/* ── Quick Categories ──────────────────────── */}
-                <motion.div variants={item} className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <motion.div variants={item} className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
                     {CATEGORIES.map((cat) => (
                         <button
                             key={cat.name}

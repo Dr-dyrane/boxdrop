@@ -293,3 +293,16 @@ body {
     padding-right: env(safe-area-inset-right);
   }
 }
+
+/* ─────────────────────────────────────────────────────
+   UTILITIES
+   ───────────────────────────────────────────────────── */
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
