@@ -63,7 +63,7 @@ export default function OrdersPage() {
 
                 <motion.div variants={staggerItem} className="flex items-center justify-between px-1">
                     <div>
-                        <h1 className="text-5xl font-black tracking-tighter leading-tight">Order Logs.</h1>
+                        <h1 className="text-5xl font-black tracking-tighter leading-tight hidden md:block">Order Logs.</h1>
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-3 opacity-40">
                             Transaction Intelligence / {orders?.length || 0} Successful Cycles
                         </p>
