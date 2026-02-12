@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/types/database";
 import { authService } from "@/core/services/auth-service";
+
+/* ─────────────────────────────────────────────────────
+   USE AUTH HOOK
+   Connects UI to auth service. Manages session state.
+   ───────────────────────────────────────────────────── */
 
 export function useAuth() {
     const [user, setUser] = useState<User | null>(null);
@@ -54,19 +59,28 @@ export function useAuth() {
         return () => subscription.unsubscribe();
     }, [supabase]);
 
-    const signOut = async () => {
+    const signOut = useCallback(async () => {
         await authService.signOut();
         router.push("/");
-    };
+    }, [router]);
 
-    const signInWithOtp = (email: string, redirectTo?: string) =>
-        authService.signInWithOtp(email, redirectTo || `${window.location.origin}/dashboard`);
+    const signInWithOtp = useCallback(
+        (email: string, redirectTo?: string) =>
+            authService.signInWithOtp(email, redirectTo || `${window.location.origin}/dashboard`),
+        []
+    );
 
-    const signInWithGoogle = (redirectTo?: string) =>
-        authService.signInWithOAuth("google", redirectTo || `${window.location.origin}/dashboard`);
+    const signInWithGoogle = useCallback(
+        (redirectTo?: string) =>
+            authService.signInWithOAuth("google", redirectTo || "/dashboard"),
+        []
+    );
 
-    const signUp = (email: string, fullName: string, redirectTo?: string) =>
-        authService.signUp(email, fullName, redirectTo || `${window.location.origin}/dashboard`);
+    const signUp = useCallback(
+        (email: string, fullName: string, redirectTo?: string) =>
+            authService.signUp(email, fullName, redirectTo || `${window.location.origin}/dashboard`),
+        []
+    );
 
     return { user, profile, loading, signOut, signInWithOtp, signInWithGoogle, signUp };
 }

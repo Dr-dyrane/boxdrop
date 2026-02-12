@@ -118,7 +118,7 @@ export default function CartPage() {
                 </div>
 
                 {/* ── Summary ────────────────────────────────── */}
-                <div className="space-y-4 pt-4 border-t border-primary/5">
+                <div className="space-y-4 pt-4 shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]">
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span>{formatCurrency(getTotal())}</span>

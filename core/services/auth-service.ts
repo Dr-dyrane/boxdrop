@@ -19,10 +19,15 @@ export const authService = {
 
     async signInWithOAuth(provider: "google" | "github", redirectTo: string) {
         const supabase = createClient();
+        // Redirect through /auth/callback, which exchanges the code for a session.
+        // The 'next' param tells the callback where to send the user afterwards.
+        const callbackUrl = new URL("/auth/callback", window.location.origin);
+        callbackUrl.searchParams.set("next", redirectTo);
+
         return await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo
+                redirectTo: callbackUrl.toString()
             }
         });
     },

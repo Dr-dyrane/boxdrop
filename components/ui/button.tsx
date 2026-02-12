@@ -5,8 +5,10 @@ import { motion, type HTMLMotionProps } from "framer-motion";
 
 /* ─────────────────────────────────────────────────────
    BUTTON
-   Premium feel: scale-down on press.
-   No borders — depth through shadow.
+   Premium micro-interactions:
+   - Scale-down on press (0.96)
+   - Shimmer loading state (no spinners, ever)
+   - Depth through shadow, never borders
    ───────────────────────────────────────────────────── */
 
 interface ButtonProps extends HTMLMotionProps<"button"> {
@@ -50,24 +52,43 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             <motion.button
                 ref={ref}
                 className={`
-          inline-flex items-center justify-center gap-2
-          font-medium
-          transition-colors
-          cursor-pointer
-          select-none
-          disabled:opacity-50 disabled:pointer-events-none
-          ${variantStyles[variant]}
-          ${sizeStyles[size]}
-          ${className}
-        `}
+                    inline-flex items-center justify-center gap-2
+                    font-medium
+                    transition-colors
+                    cursor-pointer
+                    select-none
+                    relative overflow-hidden
+                    disabled:opacity-50 disabled:pointer-events-none
+                    ${variantStyles[variant]}
+                    ${sizeStyles[size]}
+                    ${className}
+                `}
                 whileTap={{ scale: 0.96, transition: { duration: 0.08 } }}
                 disabled={disabled || loading}
                 {...props}
             >
-                {loading ? (
-                    <span className="inline-block h-4 w-4 rounded-full bg-current opacity-40 animate-pulse" />
-                ) : (
-                    children
+                {/* ── Children (visible or invisible when loading) ── */}
+                <span
+                    className={`inline-flex items-center gap-2 transition-opacity duration-200 ${loading ? "opacity-0" : "opacity-100"
+                        }`}
+                >
+                    {children as React.ReactNode}
+                </span>
+
+                {/* ── Loading overlay: shimmer bar ────────────── */}
+                {loading && (
+                    <motion.span
+                        className="absolute inset-0 flex items-center justify-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.15 }}
+                    >
+                        <span className="flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:0ms]" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:150ms]" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:300ms]" />
+                        </span>
+                    </motion.span>
                 )}
             </motion.button>
         );

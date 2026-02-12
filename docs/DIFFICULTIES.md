@@ -6,6 +6,59 @@
 
 ---
 
+## 011 · Button Loading State Replaces Children
+
+**Date:** 2026-02-12
+**Phase:** 2 — Core Experience
+**Severity:** UX regression
+
+### Problem
+
+When `loading={true}`, the Button component replaced its children with a single dot. This caused the button to visibly shrink during loading, creating layout shift and breaking the "calm feedback" principle (Canon §6).
+
+### Root Cause
+
+The original implementation used a ternary: `{loading ? <dot/> : children}`. This swapped out the children entirely, losing the button's natural width.
+
+### Solution
+
+Rebuilt the Button to use a **stacked overlay** approach:
+- Children remain rendered but `opacity-0` during loading (preserving width)
+- A three-dot shimmer pulse overlays via `position: absolute`
+- Transition is 200ms for calm micro-interaction
+
+### Key Lesson
+
+> Loading states must never change element dimensions. Preserve layout stability by hiding content (opacity-0), not removing it.
+
+---
+
+## 010 · OAuth Callback Route Missing
+
+**Date:** 2026-02-12
+**Phase:** 2 — Core Experience
+**Severity:** Blocker (auth flow broken)
+
+### Problem
+
+After Google OAuth login, the user was dumped at `/?code=1e673ad7-...` — the landing page with a raw auth code in the URL. No session was created.
+
+### Root Cause
+
+There was **no `/auth/callback` route** to exchange the OAuth code for a Supabase session. The `signInWithOAuth` function pointed `redirectTo` directly at `/dashboard`, which doesn't handle the `code` parameter.
+
+### Solution
+
+1. Created `app/auth/callback/route.ts` — exchanges the code and redirects.
+2. Updated `auth-service.ts` to route through `/auth/callback?next=/dashboard`.
+3. Added a safety net in `middleware.ts` to catch stray `/?code=` URLs.
+
+### Key Lesson
+
+> OAuth is a 3-step flow. If you skip the callback exchange, you have a code, not a session.
+
+---
+
 ## 009 · PostGIS GIST Index Fails on Supabase Push
 
 **Date:** 2026-02-12

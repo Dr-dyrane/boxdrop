@@ -18,7 +18,7 @@ export default function AuthLayout({
     return (
         <div className="min-h-[100dvh] flex items-center justify-center px-4">
             <div className="w-full max-w-sm">
-                <Suspense fallback={<div className="h-20 flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent animate-spin rounded-full" /></div>}>
+                <Suspense fallback={<div className="space-y-4 py-8"><div className="h-8 w-3/4 mx-auto skeleton" /><div className="h-12 skeleton" /><div className="h-12 skeleton" /></div>}>
                     {children}
                 </Suspense>
             </div>

@@ -11,7 +11,7 @@ import { ThemeToggle, Logo } from "@/components/ui";
 
 export function Footer() {
     return (
-        <footer className="mt-12 py-12 border-t border-primary/5 flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
+        <footer className="mt-12 py-12 shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)] flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
             <div className="flex items-center gap-2 opacity-30 grayscale saturate-0">
                 <Logo className="h-4" />
                 <span className="text-xs font-semibold tracking-tighter uppercase">BoxDrop</span>

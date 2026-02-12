@@ -123,7 +123,7 @@ export default function DashboardPage() {
                 {/* ── Active Location Banner ─────────────────── */}
                 {address && (
                     <motion.div variants={item}>
-                        <div className="px-4 py-3 glass rounded-2xl flex items-center gap-3 border border-white/5">
+                        <div className="px-4 py-3 glass rounded-2xl flex items-center gap-3 ring-1 ring-white/5">
                             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                                 <MapPin className="h-4 w-4 text-primary" />
                             </div>

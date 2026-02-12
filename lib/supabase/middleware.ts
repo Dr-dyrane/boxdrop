@@ -36,6 +36,15 @@ export async function updateSession(request: NextRequest) {
 
     const path = request.nextUrl.pathname;
 
+    // ── Catch stray ?code= on root and redirect to callback ──
+    // This handles cases where OAuth redirects to /?code=xxx
+    // instead of /auth/callback?code=xxx
+    if (path === "/" && request.nextUrl.searchParams.has("code")) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/auth/callback";
+        return NextResponse.redirect(url);
+    }
+
     // Auth Routes (Login, Signup)
     const isAuthRoute = path.startsWith("/login") || path.startsWith("/signup");
 

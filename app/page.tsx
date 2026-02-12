@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Zap, Shield, MapPin, Search, Loader2 } from "lucide-react";
+import { ArrowRight, Zap, Shield, MapPin, Search } from "lucide-react";
 import { Button, Logo } from "@/components/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Footer } from "@/components/layout/footer";
-import { geocodingService, GeocodeResult } from "@/core/services/geocoding-service";
+import { geocodingService, type GeocodeResult } from "@/core/services";
 
 /* ─────────────────────────────────────────────────────
    LANDING PAGE
@@ -171,7 +171,7 @@ export default function LandingPage() {
           <div className="relative group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
               {loading ? (
-                <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                <MapPin className="h-5 w-5 text-primary animate-pulse" />
               ) : (
                 <MapPin className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
               )}
@@ -209,7 +209,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 10, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                className="absolute top-full left-0 right-0 mt-3 glass-heavy rounded-[var(--radius-lg)] shadow-[var(--shadow-xl)] border border-white/10 overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-3 glass-heavy rounded-[var(--radius-lg)] shadow-[var(--shadow-xl)] ring-1 ring-white/5 overflow-hidden"
               >
                 {results.map((res) => (
                   <button

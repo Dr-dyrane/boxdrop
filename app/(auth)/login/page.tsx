@@ -20,6 +20,7 @@ export default function LoginPage() {
 
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const [sent, setSent] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +31,7 @@ export default function LoginPage() {
         setLoading(true);
         setError(null);
 
-        const { error: authError } = await signInWithOtp(email, `${window.location.origin}${redirectTo}`);
+        const { error: authError } = await signInWithOtp(email, `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`);
 
         if (authError) {
             setError(authError.message);
@@ -43,7 +44,10 @@ export default function LoginPage() {
     };
 
     const handleGoogleLogin = async () => {
-        await signInWithGoogle(`${window.location.origin}${redirectTo}`);
+        setGoogleLoading(true);
+        await signInWithGoogle(redirectTo);
+        // If we reach here, the browser didn't redirect — reset state
+        setGoogleLoading(false);
     };
 
     return (
@@ -134,7 +138,7 @@ export default function LoginPage() {
 
                         <div className="relative py-4">
                             <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-primary/5" />
+                                <span className="w-full h-px bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
                                 <span className="bg-background px-2 text-muted-foreground">
@@ -147,6 +151,7 @@ export default function LoginPage() {
                             type="button"
                             variant="secondary"
                             className="w-full gap-3"
+                            loading={googleLoading}
                             onClick={handleGoogleLogin}
                         >
                             <svg className="h-4 w-4" viewBox="0 0 24 24">
