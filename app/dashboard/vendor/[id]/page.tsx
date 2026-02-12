@@ -283,78 +283,130 @@ export default function VendorDetailPage() {
                 </div>
             </motion.div>
 
-            {/* ── Product Intelligence Detail Glide-up ──── */}
+            {/* ── Product Intelligence Detail Reveal (Immersive) ──── */}
             <AnimatePresence>
                 {selectedProduct && (
-                    <>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8"
+                    >
+                        {/* Dynamic Backdrop */}
+                        <div className="absolute inset-0 bg-background/90 backdrop-blur-3xl" />
+
+                        {/* Ambient Color extraction via blurred image layer */}
+                        {selectedProduct.image_url && (
+                            <div className="absolute inset-0 z-[-1] opacity-40 scale-150 blur-[100px] overflow-hidden">
+                                <Image
+                                    src={selectedProduct.image_url}
+                                    alt="ambient"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                        )}
+
+                        <div className="absolute inset-0 bg-black/40 z-0" onClick={() => setSelectedProduct(null)} />
+
+                        {/* Main Stage */}
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setSelectedProduct(null)}
-                            className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[60]"
-                        />
-                        <motion.div
-                            initial={{ y: "100%" }}
-                            animate={{ y: 0 }}
-                            exit={{ y: "100%" }}
-                            transition={{ type: "spring", damping: 32, stiffness: 240 }}
-                            className="fixed bottom-0 left-0 right-0 z-[70] max-w-4xl mx-auto"
+                            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="relative max-w-5xl w-full max-h-[90vh] grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-[3rem] shadow-2xl shadow-black/50 z-10 glass-heavy border border-white/10"
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="glass-heavy rounded-t-[3.5rem] p-8 pb-[calc(3rem+env(safe-area-inset-bottom))] space-y-10 border-x border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.5)]">
-                                <div className="h-1.5 w-16 bg-white/10 rounded-full mx-auto" />
+                            <button
+                                onClick={() => setSelectedProduct(null)}
+                                className="absolute top-6 right-6 z-50 h-10 w-10 rounded-full bg-black/20 flex items-center justify-center backdrop-blur-md hover:bg-black/40 transition-colors border border-white/10"
+                            >
+                                <Minus className="h-4 w-4 text-white" />
+                            </button>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                    <div className="relative h-[24rem] rounded-[2.5rem] overflow-hidden shadow-2xl">
-                                        {selectedProduct.image_url ? (
-                                            <Image
-                                                src={selectedProduct.image_url}
-                                                alt={selectedProduct.name}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        ) : (
-                                            <div className="h-full w-full bg-primary/5 flex items-center justify-center">
-                                                <Package className="h-20 w-20 text-muted-foreground/10" />
-                                            </div>
-                                        )}
+                            {/* Left: Immersion Visual */}
+                            <div className="relative h-[40vh] lg:h-auto overflow-hidden bg-black/5">
+                                {selectedProduct.image_url ? (
+                                    <Image
+                                        src={selectedProduct.image_url}
+                                        alt={selectedProduct.name}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="h-full w-full flex items-center justify-center bg-zinc-900">
+                                        <Package className="h-24 w-24 text-zinc-800" />
                                     </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent lg:bg-gradient-to-r" />
+                            </div>
 
-                                    <div className="flex flex-col justify-center space-y-8">
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-4xl font-black tracking-tighter">{selectedProduct.name}</h2>
-                                                <p className="text-3xl font-black text-primary">{formatCurrency(selectedProduct.price)}</p>
-                                            </div>
-                                            <p className="text-lg text-muted-foreground leading-relaxed font-medium">
-                                                {selectedProduct.description || "Designed for excellence. This selection meets the highest standards of quality and utility within our marketplace."}
-                                            </p>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <Button
-                                                size="lg"
-                                                className="w-full h-16 text-sm font-black uppercase tracking-[0.2em] rounded-[1.5rem] shadow-2xl shadow-primary/20"
-                                                onClick={() => {
-                                                    addItem(selectedProduct);
-                                                    setSelectedProduct(null);
-                                                }}
+                            {/* Right: Product Narrative */}
+                            <div className="flex flex-col p-8 lg:p-16 justify-center space-y-8 lg:space-y-12 bg-white/5 backdrop-blur-3xl">
+                                <div className="space-y-4">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="space-y-2">
+                                            <motion.p
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.1 }}
+                                                className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50"
                                             >
-                                                Secure to Bag
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground"
-                                                onClick={() => setSelectedProduct(null)}
+                                                {selectedProduct.category || "Premium Selection"}
+                                            </motion.p>
+                                            <motion.h2
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[0.9]"
                                             >
-                                                Return to Menu
-                                            </Button>
+                                                {selectedProduct.name}
+                                            </motion.h2>
                                         </div>
                                     </div>
+
+                                    <motion.p
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-lg text-white/70 font-medium leading-relaxed max-w-md"
+                                    >
+                                        {selectedProduct.description || "Designed for excellence. This selection meets the highest standards of quality and utility within our marketplace."}
+                                    </motion.p>
+                                </div>
+
+                                <div className="space-y-6 pt-8 border-t border-white/10">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-3xl font-black text-white tracking-tight">{formatCurrency(selectedProduct.price)}</span>
+                                        <div className="flex items-center gap-3">
+                                            <div className="px-3 py-1 rounded-full glass border border-white/10 flex items-center gap-2">
+                                                <div className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">In Stock</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <Button
+                                            size="lg"
+                                            onClick={() => {
+                                                addItem(selectedProduct);
+                                                setSelectedProduct(null);
+                                            }}
+                                            className="h-16 rounded-[1.5rem] bg-white text-black hover:bg-white/90 font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                                        >
+                                            Secure to Bag
+                                        </Button>
+                                    </div>
+                                    <p className="text-[9px] text-center text-white/30 font-bold uppercase tracking-widest">
+                                        Verified for immediate dispatch
+                                    </p>
                                 </div>
                             </div>
                         </motion.div>
-                    </>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </ScreenShell>

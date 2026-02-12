@@ -8,11 +8,14 @@ import { DiscoveryMap } from "@/components/shared/discovery-map";
 import { ChevronLeft, Package, Clock, MapPin, Truck, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatCurrency, timeAgo } from "@/core/utils";
+import { useLocation } from "@/core/hooks/use-location";
+import { useState, useEffect, useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /* ─────────────────────────────────────────────────────
    ORDER TRACKING PAGE
    Live telemetry for active orders.
+   Includes simulated courier polling and route interpolation.
    ───────────────────────────────────────────────────── */
 
 const statusSteps = [
@@ -28,8 +31,88 @@ export default function OrderTrackingPage() {
     const router = useRouter();
     const { data: order, isLoading: isOrderLoading } = useOrder(id);
     const { data: vendor, isLoading: isVendorLoading } = useVendor(order?.vendor_id || "");
+    const { location: userLocation } = useLocation();
 
+    // Simulation State for Courier & Status
+    const [courierProgress, setCourierProgress] = useState(0);
+    const [simulatedStatus, setSimulatedStatus] = useState<string | null>(null);
+
+    // Sync initial status
+    useEffect(() => {
+        if (order?.status && simulatedStatus === null) {
+            setSimulatedStatus(order.status);
+        }
+    }, [order?.status, simulatedStatus]);
+
+    // Auto-Advance Status (Seeding the "Auto-Courier" System)
+    useEffect(() => {
+        if (!simulatedStatus) return;
+
+        let timeout: NodeJS.Timeout;
+
+        if (simulatedStatus === 'pending') {
+            timeout = setTimeout(() => setSimulatedStatus('confirmed'), 4000);
+        } else if (simulatedStatus === 'confirmed') {
+            timeout = setTimeout(() => setSimulatedStatus('preparing'), 4000);
+        } else if (simulatedStatus === 'preparing') {
+            timeout = setTimeout(() => setSimulatedStatus('picked_up'), 6000);
+        }
+
+        return () => clearTimeout(timeout);
+    }, [simulatedStatus]);
+
+    // Simulate Courier Movement if In Transit
+    useEffect(() => {
+        if (simulatedStatus === 'picked_up') {
+            const interval = setInterval(() => {
+                setCourierProgress(prev => {
+                    const next = prev + 0.005; // Slow movement
+                    return next > 1 ? 1 : next;
+                });
+            }, 100);
+            return () => clearInterval(interval);
+        } else if (simulatedStatus === 'delivered') {
+            setCourierProgress(1);
+        } else {
+            setCourierProgress(0);
+        }
+    }, [simulatedStatus]);
+
+    const activeStatus = simulatedStatus || order?.status || 'pending';
     const isLoading = isOrderLoading || (order && isVendorLoading);
+
+    // Generate Route Polyline (Simple Linear Interpolation for MVP)
+    const route = useMemo(() => {
+        if (!vendor || !order?.delivery_lat) return undefined;
+
+        const start = { lat: (vendor.location as any).coordinates[1], lng: (vendor.location as any).coordinates[0] };
+        const end = { lat: order.delivery_lat, lng: order.delivery_lng! };
+
+        // Create 100 points between start and end
+        const points: [number, number][] = [];
+        for (let i = 0; i <= 100; i++) {
+            const t = i / 100;
+            const lat = start.lat + (end.lat - start.lat) * t;
+            const lng = start.lng + (end.lng - start.lng) * t;
+            points.push([lng, lat]);
+        }
+        return { coordinates: points, color: '#22c55e' }; // Green route
+    }, [vendor, order]);
+
+    // Calculate Courier Position
+    const courierPosition = useMemo(() => {
+        if (!route || courierProgress <= 0) return null;
+        const index = Math.floor(courierProgress * (route.coordinates.length - 1));
+        const pos = route.coordinates[index];
+        return { lng: pos[0], lat: pos[1] };
+    }, [route, courierProgress]);
+
+    // Use simulated courier position or vendor position as generic "center" logic if no user location
+    const activeCenter = courierPosition
+        ? { lat: courierPosition.lat, lng: courierPosition.lng }
+        : order?.delivery_lat
+            ? { lat: order.delivery_lat, lng: order.delivery_lng! }
+            : userLocation || undefined;
 
     if (isLoading) {
         return (
@@ -59,7 +142,52 @@ export default function OrderTrackingPage() {
         );
     }
 
-    const currentStepIndex = statusSteps.findIndex(s => s.key === order.status);
+    const currentStepIndex = statusSteps.findIndex(s => s.key === activeStatus);
+
+    // Construct Markers
+    const markers: any[] = [];
+
+    // 1. Delivery Location
+    if (order.delivery_lat) {
+        markers.push({
+            id: "delivery",
+            lat: order.delivery_lat,
+            lng: order.delivery_lng!,
+            type: "delivery",
+            active: activeStatus === "delivered"
+        });
+    }
+
+    // 2. User Location (Blue Dot)
+    if (userLocation) {
+        markers.push({
+            id: "user-loc",
+            lat: userLocation.lat,
+            lng: userLocation.lng,
+            type: "user",
+        });
+    }
+
+    // 3. Vendor Location
+    if (vendor) {
+        markers.push({
+            id: "vendor",
+            lat: (vendor.location as any).coordinates[1],
+            lng: (vendor.location as any).coordinates[0],
+            type: "vendor"
+        });
+    }
+
+    // 4. Courier (Simulated)
+    if (courierPosition && activeStatus !== 'delivered' && activeStatus !== 'pending') {
+        markers.push({
+            id: "courier",
+            lat: courierPosition.lat,
+            lng: courierPosition.lng,
+            type: "courier",
+            active: true
+        });
+    }
 
     return (
         <ScreenShell flush>
@@ -73,30 +201,17 @@ export default function OrderTrackingPage() {
                         <ChevronLeft className="h-5 w-5" />
                     </button>
 
-                    <div className="absolute inset-0">
-                        <DiscoveryMap
-                            center={order.delivery_lat ? { lat: order.delivery_lat, lng: order.delivery_lng! } : undefined}
-                            markers={[
-                                ...(order.delivery_lat ? [{
-                                    id: "delivery",
-                                    lat: order.delivery_lat,
-                                    lng: order.delivery_lng!,
-                                    type: "delivery" as const,
-                                    active: order.status === "in_transit" || order.status === "picked_up"
-                                }] : [])
-                            ]}
-                        />
-                    </div>
+                    <DiscoveryMap
+                        center={activeCenter}
+                        zoom={14}
+                        markers={markers}
+                        route={activeStatus === 'picked_up' ? route : undefined}
+                        className="absolute inset-0"
+                    />
                 </div>
 
                 {/* ── Telemetry Panel (Right 1/3 on Desktop / Bottom on Mobile) ── */}
-                <div className="
-                    lg:w-[420px] lg:h-full lg:border-l lg:border-foreground/5
-                    glass-heavy lg:bg-background/80 lg:backdrop-blur-3xl
-                    rounded-t-[3rem] lg:rounded-none
-                    flex flex-col shadow-2xl lg:shadow-none
-                    z-20
-                ">
+                <div className="lg:w-[420px] lg:h-full lg:border-l lg:border-foreground/5 glass-heavy lg:bg-background/80 lg:backdrop-blur-3xl rounded-t-[3rem] lg:rounded-none flex flex-col shadow-2xl lg:shadow-none z-20">
                     <div className="p-8 lg:p-10 space-y-10 overflow-y-auto flex-1 scrollbar-none">
                         {/* Header Section */}
                         <div className="space-y-4">
@@ -104,9 +219,9 @@ export default function OrderTrackingPage() {
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Live Tracking</p>
                                 <span className={`
                                     px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
-                                    ${order.status === 'delivered' ? 'bg-success/10 text-success' : 'bg-primary text-background'}
+                                    ${activeStatus === 'delivered' ? 'bg-success/10 text-success' : 'bg-primary text-background'}
                                 `}>
-                                    {order.status}
+                                    {activeStatus.replace('_', ' ')}
                                 </span>
                             </div>
                             <h1 className="text-3xl font-black tracking-tight leading-none">Order #{order.id.slice(0, 8)}</h1>
@@ -193,10 +308,7 @@ export default function OrderTrackingPage() {
 
                     {/* Footer Actions */}
                     <div className="p-8 lg:p-10 pt-4 border-t border-foreground/5 bg-background/50">
-                        <Button
-                            variant="primary"
-                            className="w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/10"
-                        >
+                        <Button className="w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/10">
                             Contact Courier
                         </Button>
                     </div>
