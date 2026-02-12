@@ -101,7 +101,7 @@ export default function NotificationsPage() {
             >
                 <motion.div variants={item} className="flex items-end justify-between">
                     <div className="space-y-4">
-                        <h1 className="text-5xl font-black tracking-tighter">Notifications.</h1>
+                        <h1 className="text-5xl font-black tracking-tighter hidden md:block">Notifications.</h1>
                         <p className="text-sm font-medium text-muted-foreground">
                             System alerts and logistics updates.
                         </p>

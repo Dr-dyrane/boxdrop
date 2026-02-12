@@ -147,20 +147,6 @@ export default function DashboardPage() {
                 ))}
             </div>
 
-            {address && (
-                <button
-                    onClick={() => window.dispatchEvent(new CustomEvent("boxdrop-open-location"))}
-                    className="w-full text-left px-5 py-4 glass-heavy rounded-[2rem] flex items-center gap-4 hover:bg-white/5 transition-colors cursor-pointer"
-                >
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <MapPin className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black opacity-50">Deliver to</p>
-                        <p className="text-xs font-bold truncate leading-tight mt-0.5">{address}</p>
-                    </div>
-                </button>
-            )}
 
             {lat && lng && (
                 <div className="glass-heavy rounded-[2.5rem] overflow-hidden h-80 relative group">
@@ -185,24 +171,34 @@ export default function DashboardPage() {
                 animate="show"
             >
                 {/* ── Command Header ─────────────────────────── */}
-                <motion.div variants={staggerItem} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40 mb-2">{greeting}, {displayName}</p>
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
-                            {lat ? "Discovery Hub" : "Marketplace Center."}
-                        </h1>
-                    </div>
-                    {lat && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push('/dashboard')}
-                            className="glass px-5 rounded-full h-10 gap-2 text-[10px] font-black uppercase tracking-widest"
+                <motion.div variants={staggerItem} className="flex flex-col gap-4">
+                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40 px-1">{greeting}, {displayName}</p>
+
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => window.dispatchEvent(new CustomEvent("boxdrop-open-location"))}
+                            className="text-left group flex-1"
                         >
-                            <X className="h-3 w-3" />
-                            Reset View
-                        </Button>
-                    )}
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none group-hover:text-primary transition-colors flex items-center gap-3">
+                                {address || "Set Location"}
+                                <MapPin className="h-5 w-5 md:h-8 md:w-8 text-primary/50 group-hover:text-primary transition-colors" />
+                            </h1>
+                            <p className="text-xs font-bold text-muted-foreground mt-1 truncate max-w-[80vw]">
+                                {address ? "Tap to change delivery address" : "Select where to deliver"}
+                            </p>
+                        </button>
+
+                        {lat && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => router.push('/dashboard')}
+                                className="h-10 w-10 rounded-full glass hover:bg-white/10 shrink-0"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        )}
+                    </div>
                 </motion.div>
 
                 {/* ── Bento Categories (Discovery Grid) ──────── */}
@@ -220,6 +216,9 @@ export default function DashboardPage() {
                                 src={cat.image}
                                 alt={cat.name}
                                 fill
+                                priority={idx === 0}
+                                loading={idx === 0 ? "eager" : "lazy"}
+                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                                 className="object-cover opacity-50 group-hover:opacity-80 group-hover:scale-110 transition-all duration-1000 grayscale group-hover:grayscale-0"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -254,7 +253,13 @@ export default function DashboardPage() {
                                     onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
                                 >
                                     {vendor.cover_url ? (
-                                        <Image src={vendor.cover_url} alt={vendor.name} fill className="object-cover transition-transform duration-[2s] group-hover:scale-110" />
+                                        <Image
+                                            src={vendor.cover_url}
+                                            alt={vendor.name}
+                                            fill
+                                            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                            className="object-cover transition-transform duration-[2s] group-hover:scale-110"
+                                        />
                                     ) : (
                                         <div className="absolute inset-0 bg-accent" />
                                     )}
@@ -304,7 +309,13 @@ export default function DashboardPage() {
                             >
                                 <div className="h-20 w-20 rounded-[1.8rem] overflow-hidden glass shrink-0 relative">
                                     {vendor.logo_url ? (
-                                        <Image src={vendor.logo_url} alt={vendor.name} width={80} height={80} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                        <Image
+                                            src={vendor.logo_url}
+                                            alt={vendor.name}
+                                            width={80}
+                                            height={80}
+                                            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                                        />
                                     ) : (
                                         <div className="h-full w-full bg-primary/5 flex items-center justify-center">
                                             <Package className="h-7 w-7 text-muted-foreground/20" />

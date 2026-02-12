@@ -358,7 +358,9 @@ export default function MainLayout({
                 </Suspense>
 
                 <PersistentCart />
-                <LocationModal isOpen={showLocation} onClose={() => setShowLocation(false)} />
+                <Suspense fallback={null}>
+                    <LocationModal isOpen={showLocation} onClose={() => setShowLocation(false)} />
+                </Suspense>
             </div>
 
             {/* ── Mobile Bottom Pill (scroll-aware) ─────── */}

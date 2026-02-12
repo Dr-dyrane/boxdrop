@@ -63,7 +63,7 @@ export default function SettingsPage() {
                 animate="show"
             >
                 <motion.div variants={item} className="space-y-4">
-                    <h1 className="text-5xl font-black tracking-tighter">Settings.</h1>
+                    <h1 className="text-5xl font-black tracking-tighter hidden md:block">Settings.</h1>
                     <p className="text-sm font-medium text-muted-foreground max-w-lg">
                         Configure your BoxDrop experience. Customization reflects your operational style.
                     </p>

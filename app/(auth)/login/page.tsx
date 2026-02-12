@@ -100,12 +100,7 @@ export default function LoginPage() {
                 ) : (
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2">
-                            <label
-                                htmlFor="email"
-                                className="text-sm font-medium text-foreground"
-                            >
-                                Email
-                            </label>
+
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <input
