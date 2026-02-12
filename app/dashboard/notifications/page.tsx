@@ -3,9 +3,10 @@
 import { ScreenShell } from "@/components/layout/screen-shell";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Truck, Tag, Info, CheckCircle2, ChevronRight, X, CheckCheck } from "lucide-react";
-import { GlassCard, Button } from "@/components/ui";
-import { useState } from "react";
-import { cn } from "@/core/utils";
+import { GlassCard, Button, Skeleton } from "@/components/ui";
+import { useNotifications, useMarkAllRead, useDismissNotification } from "@/core/hooks";
+import { cn, timeAgo } from "@/core/utils";
+
 
 /* ─────────────────────────────────────────────────────
    NOTIFICATIONS PAGE
@@ -27,51 +28,12 @@ const item = {
     exit: { opacity: 0, x: 20, transition: { duration: 0.2 } }
 };
 
-const INITIAL_NOTIFICATIONS = [
-    {
-        id: '1',
-        type: 'order',
-        title: 'Order Delivered',
-        message: 'Your order from Grimey\'s has been delivered. Enjoy!',
-        time: '2m ago',
-        read: false
-    },
-    {
-        id: '2',
-        type: 'promo',
-        title: 'Lunch Special',
-        message: 'Get 20% off all orders placed before 2PM today.',
-        time: '1h ago',
-        read: false
-    },
-    {
-        id: '3',
-        type: 'system',
-        title: 'System Update',
-        message: 'BoxDrop dashboard has been updated to v2.4. New features available.',
-        time: '1d ago',
-        read: true
-    },
-    {
-        id: '4',
-        type: 'order',
-        title: 'Order Picked Up',
-        message: 'Courier James has picked up your order #8921.',
-        time: 'Yesterday',
-        read: true
-    },
-];
 
 export default function NotificationsPage() {
-    const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+    const { data: notifications, isLoading } = useNotifications();
+    const { mutate: markAllRead } = useMarkAllRead();
+    const { mutate: dismiss } = useDismissNotification();
 
-    const markAllRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    };
-
-    const dismiss = (id: string) => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    };
 
     const getIcon = (type: string) => {
         switch (type) {
@@ -106,22 +68,35 @@ export default function NotificationsPage() {
                             System alerts and logistics updates.
                         </p>
                     </div>
-                    {notifications.some(n => !n.read) && (
+                    {notifications?.some(n => !n.read) && (
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={markAllRead}
+                            onClick={() => markAllRead()}
                             className="h-12 w-12 rounded-full glass hover:bg-white/10 text-primary active:scale-95 transition-all"
                             title="Mark all as read"
                         >
                             <CheckCheck className="h-6 w-6" />
                         </Button>
                     )}
+
                 </motion.div>
 
                 <div className="space-y-4">
                     <AnimatePresence mode="popLayout">
-                        {notifications.length > 0 ? (
+                        {isLoading ? (
+                            Array.from({ length: 4 }).map((_, i) => (
+                                <GlassCard key={i} className="p-8 rounded-[4rem] animate-pulse">
+                                    <div className="flex gap-6">
+                                        <div className="h-12 w-12 rounded-2xl bg-foreground/5" />
+                                        <div className="flex-1 space-y-2">
+                                            <div className="h-4 w-32 bg-foreground/5 rounded" />
+                                            <div className="h-3 w-full bg-foreground/5 rounded" />
+                                        </div>
+                                    </div>
+                                </GlassCard>
+                            ))
+                        ) : notifications && notifications.length > 0 ? (
                             notifications.map((notif) => {
                                 const Icon = getIcon(notif.type);
                                 const colorClass = getColor(notif.type);
@@ -149,7 +124,7 @@ export default function NotificationsPage() {
                                                     <p className={cn("text-xs font-black uppercase tracking-widest", notif.read ? "text-muted-foreground" : "text-foreground")}>
                                                         {notif.title}
                                                     </p>
-                                                    <span className="text-[10px] font-bold text-muted-foreground/50">{notif.time}</span>
+                                                    <span className="text-[10px] font-bold text-muted-foreground/50">{timeAgo(notif.created_at)}</span>
                                                 </div>
                                                 <p className={cn("text-sm font-medium leading-relaxed", notif.read ? "text-muted-foreground" : "text-foreground/90")}>
                                                     {notif.message}
@@ -170,6 +145,7 @@ export default function NotificationsPage() {
                                     </motion.div>
                                 );
                             })
+
                         ) : (
                             <motion.div
                                 initial={{ opacity: 0 }}

@@ -7,9 +7,11 @@ import { useCartStore } from "@/core/store";
 import { GlassCard, Button } from "@/components/ui";
 import { ScreenShell } from "@/components/layout/screen-shell";
 import { formatCurrency, cn } from "@/core/utils";
-import { useAuth, useCreateOrder } from "@/core/hooks";
+import { useAuth, useCreateOrder, useLocation } from "@/core/hooks";
 import { useState, useCallback } from "react";
+import { CheckoutModal } from "@/components/shared/checkout-modal";
 import Image from "next/image";
+
 
 /* ─────────────────────────────────────────────────────
    CART PAGE — Your Bag
@@ -47,11 +49,20 @@ export default function CartPage() {
     const deliveryFee = 500;
     const total = subtotal + deliveryFee;
 
-    const handleCheckout = useCallback(async () => {
-        if (isCheckingOut || !user) {
-            if (!user) router.push(`/login?redirectTo=/dashboard/cart`);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+    const { location: userLocation } = useLocation();
+
+    const handleCheckoutPress = () => {
+        if (!user) {
+            router.push(`/login?redirectTo=/dashboard/cart`);
             return;
         }
+        setIsCheckoutOpen(true);
+    };
+
+    const handleCheckoutSuccess = async () => {
+        if (isCheckingOut) return;
 
         setIsCheckingOut(true);
         try {
@@ -62,18 +73,21 @@ export default function CartPage() {
                     quantity: i.quantity,
                     unit_price: i.product.price
                 })),
-                delivery_location: "Phase 2 Delivery Zone",
+                delivery_location: "2235 Corinto Court, Hemet, CA",
+                delivery_lat: userLocation?.lat || 33.7431,
+                delivery_lng: userLocation?.lng || -116.9478,
             });
 
             clearCart();
             router.push("/dashboard/orders");
         } catch (error: any) {
             console.error("Checkout failed:", error);
-            alert(error.message || "Transaction failed. Please check your network.");
         } finally {
             setIsCheckingOut(false);
+            setIsCheckoutOpen(false);
         }
-    }, [isCheckingOut, user, vendorId, items, createOrder, clearCart, router]);
+    };
+
 
     if (!hasItems) {
         return (
@@ -241,14 +255,21 @@ export default function CartPage() {
                             </div>
 
                             <Button
-                                onClick={handleCheckout}
-                                loading={isCheckingOut}
+                                onClick={handleCheckoutPress}
                                 className="w-full h-20 text-sm font-black uppercase tracking-[0.2em] rounded-[2rem] shadow-2xl shadow-primary/20 active:scale-95 transition-all"
                             >
                                 <CreditCard className="h-5 w-5 mr-3" />
                                 Finalize Order
                             </Button>
                         </motion.div>
+
+                        <CheckoutModal
+                            isOpen={isCheckoutOpen}
+                            onClose={() => setIsCheckoutOpen(false)}
+                            onSuccess={handleCheckoutSuccess}
+                            total={total}
+                        />
+
 
                         <motion.div variants={staggerItem} className="p-8 rounded-[2.5rem] glass border border-white/5 opacity-40 text-center">
                             <p className="text-[10px] font-bold uppercase tracking-[0.15em] leading-relaxed">

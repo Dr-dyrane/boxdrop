@@ -66,7 +66,9 @@ export interface Order {
     delivery_location: string | null;
     delivery_lat: number | null;
     delivery_lng: number | null;
+    progress: number | null;
     notes: string | null;
+
     created_at: string;
     updated_at: string;
 }

@@ -145,7 +145,9 @@ create table orders (
   delivery_location text,
   delivery_lat double precision,
   delivery_lng double precision,
+  progress numeric(3,2) default 0.0,
   notes text,
+
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -329,3 +331,39 @@ create policy "Vendor assets are publicly accessible."
 create policy "Vendors can upload their own assets."
   on storage.objects for insert
   with check ( bucket_id = 'vendors' );
+
+ - -   
+ - -   N O T I F I C A T I O N S 
+ - -   
+ 
+ c r e a t e   t a b l e   n o t i f i c a t i o n s   ( 
+     i d   u u i d   p r i m a r y   k e y   d e f a u l t   g e n _ r a n d o m _ u u i d ( ) , 
+     u s e r _ i d   u u i d   n o t   n u l l   r e f e r e n c e s   p r o f i l e s ( i d )   o n   d e l e t e   c a s c a d e , 
+     t y p e   t e x t   n o t   n u l l ,   - -   ' o r d e r ' ,   ' p r o m o ' ,   ' s y s t e m ' 
+     t i t l e   t e x t   n o t   n u l l , 
+     m e s s a g e   t e x t   n o t   n u l l , 
+     r e a d   b o o l e a n   n o t   n u l l   d e f a u l t   f a l s e , 
+     c r e a t e d _ a t   t i m e s t a m p t z   n o t   n u l l   d e f a u l t   n o w ( ) 
+ ) ; 
+ 
+ a l t e r   t a b l e   n o t i f i c a t i o n s   e n a b l e   r o w   l e v e l   s e c u r i t y ; 
+ 
+ c r e a t e   p o l i c y   \  
+ U s e r s  
+ c a n  
+ r e a d  
+ o w n  
+ n o t i f i c a t i o n s \ 
+     o n   n o t i f i c a t i o n s   f o r   s e l e c t   u s i n g   ( a u t h . u i d ( )   =   u s e r _ i d ) ; 
+ 
+ c r e a t e   p o l i c y   \ U s e r s  
+ c a n  
+ u p d a t e  
+ o w n  
+ n o t i f i c a t i o n s \ 
+     o n   n o t i f i c a t i o n s   f o r   u p d a t e   u s i n g   ( a u t h . u i d ( )   =   u s e r _ i d ) ; 
+ 
+ c r e a t e   i n d e x   i d x _ n o t i f i c a t i o n s _ u s e r   o n   n o t i f i c a t i o n s ( u s e r _ i d ) ; 
+ c r e a t e   i n d e x   i d x _ n o t i f i c a t i o n s _ r e a d   o n   n o t i f i c a t i o n s ( r e a d ) ; 
+  
+ 

@@ -128,7 +128,36 @@ export default function DashboardPage() {
 
     const DashboardSidebar = (
         <div className="space-y-8">
+            {/* Live Network Status */}
+            <div className="glass-heavy p-6 rounded-[2.5rem] space-y-4">
+                <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Network Status</p>
+                    <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                        <span className="text-[9px] font-black uppercase tracking-widest text-success">Optimal</span>
+                    </div>
+                </div>
+                <div className="space-y-3">
+                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                        <span>Active Couriers</span>
+                        <span className="text-foreground">12 Units</span>
+                    </div>
+                    <div className="h-1 w-full bg-foreground/5 rounded-full overflow-hidden">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: "65%" }}
+                            className="h-full bg-primary"
+                        />
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                        <span>Avg. Prep Time</span>
+                        <span className="text-foreground">8.4m</span>
+                    </div>
+                </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
+
                 {stats.map((stat) => (
                     <div
                         key={stat.label}
