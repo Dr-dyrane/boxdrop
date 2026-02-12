@@ -58,7 +58,7 @@ export function ScreenShell({
                 {/* Right Discovery/Utility Pane (Desktop Only) */}
                 {side && (
                     <aside className="hidden xl:block w-[360px] shrink-0 relative">
-                        <div className="sticky top-0 h-[100dvh] overflow-y-auto scrollbar-none px-6 py-8">
+                        <div className="px-6 py-8">
                             {side}
                         </div>
                     </aside>

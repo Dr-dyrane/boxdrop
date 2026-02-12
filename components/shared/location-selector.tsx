@@ -45,13 +45,13 @@ export function LocationModal({ isOpen, onClose }: LocationModalProps) {
             const params = new URLSearchParams(searchParams.toString());
             params.set("lat", "6.5244");
             params.set("lng", "3.3792");
-            params.set("address", "Current Location");
+            params.set("address", "Current Location, 15 Glover Rd, Ikoyi");
             router.push(`/dashboard?${params.toString()}`);
         } else {
             const params = new URLSearchParams(searchParams.toString());
             params.set("lat", lat.toString());
             params.set("lng", lng.toString());
-            params.set("address", address);
+            params.set("address", `${address.split(",")[0] === address ? `${address}, ` : ""}${address}`);
             router.push(`/dashboard?${params.toString()}`);
         }
         onClose();
@@ -66,7 +66,7 @@ export function LocationModal({ isOpen, onClose }: LocationModalProps) {
                         initial="hidden"
                         animate="show"
                         exit="exit"
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-background/20 backdrop-blur-sm"
                         onClick={onClose}
                     />
 
@@ -75,19 +75,19 @@ export function LocationModal({ isOpen, onClose }: LocationModalProps) {
                         initial="hidden"
                         animate="show"
                         exit="exit"
-                        className="relative w-full max-w-lg bg-zinc-900 border border-white/10 rounded-[2.5rem] p-6 shadow-2xl overflow-hidden"
+                        className="relative w-full max-w-lg glass-heavy border border-foreground/5 rounded-[2.5rem] p-6 shadow-2xl overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
                             onClick={onClose}
-                            className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/10 transition-colors z-10"
+                            className="absolute top-6 right-6 p-2 rounded-full hover:bg-muted transition-colors z-10"
                         >
                             <X className="h-5 w-5 text-muted-foreground" />
                         </button>
 
                         <div className="space-y-6">
                             <div>
-                                <h2 className="text-2xl font-black tracking-tighter">Set Location.</h2>
+                                <h2 className="text-2xl font-black tracking-tighter text-foreground">Set Location.</h2>
                                 <p className="text-sm text-muted-foreground font-medium">Where should we deliver to?</p>
                             </div>
 
@@ -98,7 +98,7 @@ export function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                     placeholder="Search street, city, or district..."
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
-                                    className="w-full h-14 pl-12 pr-4 bg-white/5 border border-white/5 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                    className="w-full h-14 pl-12 pr-4 bg-muted/30 border border-transparent focus:border-primary/10 focus:bg-background rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/5 transition-all outline-none text-foreground placeholder:text-muted-foreground/50"
                                 />
                             </div>
 
@@ -110,14 +110,14 @@ export function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                 {PRESETS.filter(p => p.label.toLowerCase().includes(query.toLowerCase()) || p.address.toLowerCase().includes(query.toLowerCase())).map((place, i) => (
                                     <button
                                         key={i}
-                                        onClick={() => handleSelect(place.lat, place.lng, place.label)}
-                                        className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors group text-left"
+                                        onClick={() => handleSelect(place.lat, place.lng, `${place.label}, ${place.address}`)}
+                                        className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors group text-left"
                                     >
                                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                             {place.lat === "gps" ? <Navigation className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="font-bold text-sm truncate">{place.label}</p>
+                                            <p className="font-bold text-sm truncate text-foreground">{place.label}</p>
                                             <p className="text-xs text-muted-foreground truncate">{place.address}</p>
                                         </div>
                                     </button>

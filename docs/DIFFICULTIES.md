@@ -404,3 +404,185 @@ Acknowledged as a non-blocking warning. The middleware still functions correctly
 ### Key Lesson
 
 > Build warnings from framework upgrades should be logged even if they're non-blocking. They become blockers in future versions.
+# Technical Challenges & Design Decisions Log
+
+This document tracks technical hurdles, design trade-offs, and solutions implemented to maintain the "Alexander UI" aesthetic across the BoxDrop application.
+
+## 1. Theming & Contrast (Light/Dark Mode)
+
+### Challenge: Modal Visibility in Light Mode
+- **Issue**: Modals designed with "glassmorphism" (`glass-heavy`) often relied on hardcoded white borders or backgrounds, making them invisible against a light background.
+- **Fix**: Replaced hardcoded colors with semantic tokens:
+  - `border-white/10` -> `border-foreground/5`
+  - `bg-white/5` -> `bg-background/5` or `bg-muted/10`
+  - `text-white` -> `text-foreground`
+- **Result**: Elements now invert correctly: dark/glass in Dark Mode, light/glass in Light Mode.
+
+### Challenge: Product Image Fidelity vs. Ambient Glow
+- **Issue**: The "Ambient Color Extraction" effect (a blurry, zoomed-in version of the product image behind the modal) looked great in Dark Mode but "washed out" or dulled the primary product image in Light Mode due to lack of contrast.
+- **Fix**: Removed the ambient glow layer entirely for the Product Detail modal. Removed the `bg-gradient-to-t` overlay on the image.
+- **Result**: Product images are now sharp, high-contrast, and color-accurate in all lighting conditions.
+
+## 2. Layout & Navigation
+
+### Challenge: Sidebar Stability vs. Immersive Scroll
+- **Issue**: The original "Apple-style" adaptive nav hid the sidebar (desktop/tablet) on scroll to maximize screen real estate. This caused a jarring shift in layout width and felt unstable for desktop users.
+- **Fix**: Removed the `animate` prop from the Desktop and Tablet sidebars in `MainLayout`.
+- **Result**: Sidebars start fixed. Only the Mobile header and bottom pill hide on scroll.
+
+## 3. Terminology & Data
+
+### Challenge: "Specialties" vs. "Products"
+- **Issue**: The UI referred to "Inventory / X Specialties", but the data model (confirmed via script) uses `products` and has no `specialties` field.
+- **Fix**: Updated UI label to "Products" to match the actual data entity.
+- **Result**: UI accurately reflects the database schema.
+
+## 4. Modal Backdrops
+
+### Challenge: Cinematic Depth vs. Readability
+- **Issue**: A "lighter" backdrop (`bg-background/10` + `blur-md`) caused visual noise by letting the underlying page bleed through too much.
+- **Fix**: Reverted to a high-fidelity blur (`bg-background/20` + `blur-3xl`).
+- **Result**: Maintains the "Spotlight Effect", keeping user focus entirely on the modal content by obliterating background distractions.
+
+## 5. Visual Hierarchy & Visibility
+
+### Challenge: Search & Input Visibility in Light Mode
+- **Issue**: Standard `glass-heavy` inputs and buttons often used `border-white/5` or `hover:border-white/10`. In Light Mode, these borders were invisible against a white background, making interactive areas undefined.
+- **Fix**: Swapped hardcoded white borders for theme-aware tokens:
+  - `border-white/5` -> `border-foreground/5`
+  - `hover:border-white/10` -> `hover:border-foreground/10`
+- **Result**: Inputs and filters define their shape subtly but clearly in both Light and Dark modes.
+
+### Challenge: Login Input Contrast
+- **Issue**: The Login input used `bg-muted/50`. In Light Mode, this resulted in a near-white input on a white glass card, offering zero contrast for the user to identify the typing area.
+- **Fix**: Increased opacity to `bg-muted` (full opacity) and added a transparent border that highlights on focus.
+- **Result**: Clear, accessible input fields that respect the glass aesthetic without sacrificing usability.
+
+### Challenge: Text Overlay on Missing Images
+- **Issue**: "Spotlight" cards use white text over product images. If the image failed to load, the fallback was `bg-accent` (light in Light Mode), rendering the white text invisible.
+- **Fix**: Changed image fallback to `bg-muted-foreground/20` (dark grey).
+- **Result**: White text remains readable even when media fails to load.
+
+
+---
+
+### 3. The "Mega-Prompt" for the AI Coder
+
+Copy and paste the following prompt. It contains the context of your previous projects (`iVisit`, `SeeViche`) implicitly by setting the standard high.
+
+**Prompt Subject:**
+> Build "BoxDrop": A Premium, Modular Logistics PWA with Next.js, Supabase, and Gluestack.
+
+**Prompt Body:**
+```text
+Role: You are a Senior Principal Software Architect and UI/UX Designer specialized in building high-performance, cross-platform logistics applications.
+
+Goal: Build the foundation and core flows for "BoxDrop," a premium delivery/logistics Progressive Web App (PWA).
+
+Tech Stack (Strict Adherence):
+- Framework: Next.js 15 (App Router).
+- Styling: Tailwind CSS + NativeWind (v4).
+- UI Components: Gluestack UI (Must be configured for universal usage).
+- State: Zustand (Client state), React Query (Server state).
+- Backend: Supabase (Auth, DB, Realtime).
+- Icons: Lucide React (Web) / React Native Vector Icons (Mobile).
+
+Design System Rules (The "Premium" Constraint):
+1. THE NO-BORDER RULE: You are strictly forbidden from using CSS borders (border-width). All visual separation must be achieved via:
+   - "Frosted Glass" depths (backdrop-blur-md, bg-white/10 or bg-black/5).
+   - Shadows and Elevation.
+   - Whitespace.
+2. Aesthetic: Black & White monochrome, minimalist, high contrast. "Premium" feel.
+3. Interaction: Micro-interactions are mandatory. Buttons press in, cards glide up.
+
+Architecture & Data Flow:
+Follow this exact data flow: Provider -> UI Component -> Custom Hook -> Service Layer -> Zustand/Supabase.
+- Create a `src/core/services` folder for all Supabase logic (clean separation).
+- Create a `src/core/store` folder for Zustand.
+
+Task List (Step-by-Step Implementation):
+
+Step 1: Setup & Configuration
+- Initialize Next.js with TypeScript.
+- Configure Supabase Client (createClient for server and client).
+- Configure Gluestack UI with a custom "BoxDrop" theme (Black/White).
+- Create the global `layout.tsx` with a `Providers` wrapper (QueryClient, Auth, Theme).
+
+Step 2: Database & Seed (SQL)
+- Write a Supabase SQL script to create tables: `profiles`, `vendors`, `products`, `orders`.
+- Enable RLS (Row Level Security) policies immediately.
+- Create a 'seed.sql' with 5 premium mock vendors and 20 products so the app has data on launch.
+
+Step 3: The "Smart" App Shell (Layouts)
+- Implement `app/(tabs)/_layout.tsx`: A smart bottom tab bar that uses a "Glassmorphism" effect.
+- Implement `app/(auth)/_layout.tsx`: A clean layout for login/signup without tabs.
+- Ensure the Tab Bar is hidden when navigating to `app/product/[id]`.
+
+Step 4: Core Components & "Modernized Shells"
+- Build a generic `ScreenShell` component: Handles SafeArea, loading states (Skeletons), and unified padding.
+- Build a `GlassCard` component: Implements the no-border, frosted depth look.
+- Build a `ProductCard` with "Add to Cart" micro-interaction (tap to expand/reveal controls).
+
+Step 5: Authentication & Auth Flow
+- Implement a phone/email auth flow using Supabase.
+- Create a `useAuth` hook that redirects unauthenticated users away from `(main)` routes.
+
+Step 6: The "Marketplace" (Home Tab)
+- Fetch vendors from Supabase using the Service layer.
+- Render them using the `GlassCard`.
+- Implement a "Progressive Disclosure" search bar that expands on focus.
+
+Output Requirements:
+- Provide the full file structure tree.
+- Provide the raw SQL for Supabase.
+- Provide the code for the critical Layouts and Components.
+- Do not use placeholder comments like "// rest of code". Write the full, clean, modular code.
+
+Role: You are the Lead Frontend Architect for "BoxDrop," a premium logistics PWA.
+
+CURRENT STATUS (Read Carefully):
+1.  **Repo Initialized:** The Next.js 15 (App Router) structure is set in the `app/` directory (Root structure, no `/src`).
+2.  **Tech Stack:** Next.js 15, Tailwind CSS + NativeWind v4, Gluestack UI, Supabase, Zustand.
+3.  **Database:** Schema is defined (`vendors`, `products`, `orders`) and RLS is enabled.
+4.  **Design System:** The `tailwind.config.ts` and `global.css` are configured for a "No Border" monochrome aesthetic.
+
+YOUR MISSION (Phase 2):
+We need to breathe life into the empty shell. You will build the **Global Layout**, the **Navigation**, and the **Marketplace Grid**.
+
+CRITICAL DESIGN LAWS (The "BoxDrop Constitution"):
+1.  **NO BORDERS:** You are strictly forbidden from using `border-` classes. Use `shadow-sm`, `shadow-lg`, or `backdrop-blur-md` (frosted glass) for separation.
+2.  **The "Levitating Slab":** On Desktop, the app must look like a floating phone/widget centered on the screen (max-w-md), NOT a full-width website.
+3.  **Black & White:** Use the `bg-neutral-50` to `bg-neutral-900` spectrum. Color is reserved for status only.
+
+TASK LIST (Execute in Order):
+
+Task 1: The "Levitating Slab" Root Layout
+-   Modify `app/layout.tsx`.
+-   Implement the "Desk Mat" background (a subtle noise texture or gradient orb).
+-   Create the centered "App Container" that constrains the app to a mobile shape on desktop (`sm:max-w-[480px]`, `sm:rounded-3xl`, `sm:shadow-2xl`).
+-   Ensure `overflow-hidden` is handled correctly so scrollbars stay inside the "phone".
+
+Task 2: The "Glassmorphism" Tab Bar
+-   Create `app/(main)/(tabs)/_layout.tsx` (Note: Use `_layout.tsx` for Expo router compatibility mental model, or `layout.tsx` for Next.js).
+-   Implement a floating bottom navigation bar using `backdrop-blur-xl` and `bg-white/80`.
+-   It must have active states (icon fills) and inactive states (opacity 50%).
+-   Hide this tab bar when on `/product/[id]` routes.
+
+Task 3: The "Marketplace" (Home Tab)
+-   Edit `app/(main)/(tabs)/page.tsx`.
+-   **Header:** Create a "Good Morning" header with a "Current Location" pill (use `useLocation` hook mock if needed).
+-   **Search:** Build a "Progressive Disclosure" search bar that expands on focus.
+-   **Grid:** Render a grid of `GlassCard` components (create this component if missing) fetching data from Supabase `vendors` table.
+-   **Loading:** Use a Skeleton loader (Shimmer effect), NOT a spinner.
+
+Task 4: The `GlassCard` Component
+-   Create `components/shared/GlassCard.tsx`.
+-   Style: `bg-white` (or `bg-black/5` in dark mode), `shadow-sm`, `rounded-2xl`.
+-   Interaction: `active:scale-95` and `hover:-translate-y-1` (smooth physics).
+
+OUTPUT REQUIREMENTS:
+-   Do not simply explain. **WRITE THE CODE.**
+-   Use `next/image` for all images.
+-   Use `lucide-react` for icons.
+-   Ensure all files are strictly typed (TypeScript).
+-   Read the existing `tailwind.config.ts` to use the correct color variables.

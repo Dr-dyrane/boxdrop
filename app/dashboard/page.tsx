@@ -180,12 +180,14 @@ export default function DashboardPage() {
                             className="text-left group flex-1"
                         >
                             <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none group-hover:text-primary transition-colors flex items-center gap-3">
-                                {address || "Set Location"}
+                                {address ? address.split(',')[0] : "Set Location"}
                                 <MapPin className="h-5 w-5 md:h-8 md:w-8 text-primary/50 group-hover:text-primary transition-colors" />
                             </h1>
-                            <p className="text-xs font-bold text-muted-foreground mt-1 truncate max-w-[80vw]">
-                                {address ? "Tap to change delivery address" : "Select where to deliver"}
-                            </p>
+                            {address && (
+                                <p className="text-sm md:text-base font-bold text-muted-foreground mt-1 truncate max-w-[80vw]">
+                                    {address.split(',').slice(1).join(',').trim() || "Tap to select precise location"}
+                                </p>
+                            )}
                         </button>
 
                         {lat && (
@@ -261,7 +263,7 @@ export default function DashboardPage() {
                                             className="object-cover transition-transform duration-[2s] group-hover:scale-110"
                                         />
                                     ) : (
-                                        <div className="absolute inset-0 bg-accent" />
+                                        <div className="absolute inset-0 bg-muted-foreground/20" />
                                     )}
 
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
@@ -305,7 +307,7 @@ export default function DashboardPage() {
                                 key={vendor.id}
                                 whileHover={{ x: 4 }}
                                 onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
-                                className="group glass-heavy p-6 rounded-[2.5rem] flex items-center gap-6 cursor-pointer hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10"
+                                className="group glass-heavy p-6 rounded-[2.5rem] flex items-center gap-6 cursor-pointer hover:bg-foreground/5 transition-all duration-300 border border-transparent hover:border-foreground/10"
                             >
                                 <div className="h-20 w-20 rounded-[1.8rem] overflow-hidden glass shrink-0 relative">
                                     {vendor.logo_url ? (

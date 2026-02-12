@@ -113,11 +113,11 @@ export default function LoginPage() {
                                     autoFocus
                                     className="
                     w-full h-10 pl-10 pr-4
-                    bg-muted/50 rounded-[var(--radius-md)]
+                    bg-muted rounded-[var(--radius-md)]
                     text-sm text-foreground placeholder:text-muted-foreground
-                    outline-none
-                    transition-shadow duration-200
-                    focus:shadow-[0_0_0_2px_hsl(var(--primary)/0.3)]
+                    outline-none border border-transparent focus:border-primary/10
+                    transition-all duration-200
+                    focus:shadow-[0_0_0_2px_hsl(var(--primary)/0.1)]
                   "
                                 />
                             </div>

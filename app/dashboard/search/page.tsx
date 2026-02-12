@@ -100,7 +100,7 @@ export default function SearchPage() {
                             glass-heavy rounded-[1.5rem]
                             text-sm font-bold text-foreground
                             placeholder:text-muted-foreground/30
-                            border border-white/5
+                            border border-foreground/5
                             focus:ring-2 focus:ring-primary/10 transition-all duration-300
                         "
                     />
@@ -131,7 +131,7 @@ export default function SearchPage() {
                             "whitespace-nowrap flex items-center justify-between px-5 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 shrink-0 border",
                             isFeaturedOnly
                                 ? "bg-primary text-primary-foreground border-primary shadow-2xl shadow-primary/20 xl:translate-x-1"
-                                : "glass border-transparent text-muted-foreground hover:text-foreground hover:border-white/10 xl:hover:translate-x-1"
+                                : "glass border-transparent text-muted-foreground hover:text-foreground hover:border-foreground/10 xl:hover:translate-x-1"
                         )}
                     >
                         <div className="flex items-center gap-3">
@@ -140,7 +140,7 @@ export default function SearchPage() {
                         </div>
                     </button>
 
-                    <div className="h-px bg-white/5 xl:my-2 hidden xl:block" />
+                    <div className="h-px bg-foreground/5 xl:my-2 hidden xl:block" />
 
                     {CATEGORIES.map((cat) => {
                         const isActive = activeCategory === cat.label && !isFeaturedOnly;
@@ -156,7 +156,7 @@ export default function SearchPage() {
                                     "whitespace-nowrap flex items-center justify-between px-5 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 shrink-0 border",
                                     isActive
                                         ? "bg-foreground text-background border-foreground xl:translate-x-1"
-                                        : "glass border-transparent text-muted-foreground hover:text-foreground hover:border-white/10 xl:hover:translate-x-1"
+                                        : "glass border-transparent text-muted-foreground hover:text-foreground hover:border-foreground/10 xl:hover:translate-x-1"
                                 )}
                             >
                                 <div className="flex items-center gap-3">
@@ -241,7 +241,7 @@ export default function SearchPage() {
                                                     className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
                                                 />
                                             ) : (
-                                                <div className="absolute inset-0 bg-accent flex items-center justify-center">
+                                                <div className="absolute inset-0 bg-muted-foreground/20 flex items-center justify-center">
                                                     <MapPin className="h-10 w-10 text-muted-foreground/10" />
                                                 </div>
                                             )}
@@ -279,7 +279,7 @@ export default function SearchPage() {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="text-center py-32 glass-heavy rounded-[3rem] border border-white/5 mx-1"
+                                    className="text-center py-32 glass-heavy rounded-[3rem] border border-foreground/5 mx-1"
                                 >
                                     <div className="h-20 w-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-6">
                                         <Search className="h-8 w-8 text-muted-foreground/20" />

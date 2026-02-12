@@ -196,7 +196,7 @@ export default function MainLayout({
 
             {/* ── Tablet Side Rail (md only) ────────────── */}
             <motion.aside
-                animate={{ x: isCollapsed ? -80 : 0 }}
+                animate={{ x: 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 className="hidden md:flex lg:hidden fixed top-0 left-0 bottom-0 z-50 w-[72px] flex-col items-center py-6 gap-2 glass-heavy"
             >
@@ -252,7 +252,7 @@ export default function MainLayout({
 
             {/* ── Desktop Sidebar (lg+) ─────────────────── */}
             <motion.aside
-                animate={{ x: isCollapsed ? -240 : 0 }}
+                animate={{ x: 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy"
             >

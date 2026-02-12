@@ -219,7 +219,7 @@ export default function VendorDetailPage() {
 
                     {/* ── Information Bento (4 Cols) ─────────────── */}
                     <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
-                        <motion.div variants={staggerItem} className="glass-heavy p-8 rounded-[2.5rem] space-y-8 border border-white/5 shadow-2xl">
+                        <motion.div variants={staggerItem} className="glass-heavy p-8 rounded-[2.5rem] space-y-8 border border-foreground/5 shadow-2xl">
                             <div className="flex items-center justify-between">
                                 <h3 className="font-black text-lg tracking-tighter">Entity Intelligence</h3>
                                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -268,8 +268,12 @@ export default function VendorDetailPage() {
                                         interactive={false}
                                     />
                                 )}
-                                <div className="absolute inset-x-0 bottom-0 glass-heavy p-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-center">Precise Geo-Targeting Active</p>
+                                <div className="absolute inset-x-0 bottom-0 glass-heavy p-4 border-t border-foreground/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-2">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/80 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                                    </span>
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-center text-foreground">Precise Geo-Targeting Active</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -294,21 +298,9 @@ export default function VendorDetailPage() {
                         className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8"
                     >
                         {/* Dynamic Backdrop */}
-                        <div className="absolute inset-0 bg-background/90 backdrop-blur-3xl" />
+                        <div className="absolute inset-0 bg-background/20 backdrop-blur-3xl" />
 
-                        {/* Ambient Color extraction via blurred image layer */}
-                        {selectedProduct.image_url && (
-                            <div className="absolute inset-0 z-[-1] opacity-40 scale-150 blur-[100px] overflow-hidden">
-                                <Image
-                                    src={selectedProduct.image_url}
-                                    alt="ambient"
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                        )}
-
-                        <div className="absolute inset-0 bg-black/40 z-0" onClick={() => setSelectedProduct(null)} />
+                        <div className="absolute inset-0 bg-background/40 z-0" onClick={() => setSelectedProduct(null)} />
 
                         {/* Main Stage */}
                         <motion.div
@@ -316,18 +308,18 @@ export default function VendorDetailPage() {
                             animate={{ scale: 1, y: 0, opacity: 1 }}
                             exit={{ scale: 0.9, y: 20, opacity: 0 }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="relative max-w-5xl w-full max-h-[90vh] grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-[3rem] shadow-2xl shadow-black/50 z-10 glass-heavy border border-white/10"
+                            className="relative max-w-5xl w-full max-h-[90vh] grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-[3rem] shadow-2xl z-10 glass-heavy border border-foreground/5"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <button
                                 onClick={() => setSelectedProduct(null)}
-                                className="absolute top-6 right-6 z-50 h-10 w-10 rounded-full bg-black/20 flex items-center justify-center backdrop-blur-md hover:bg-black/40 transition-colors border border-white/10"
+                                className="absolute top-6 right-6 z-50 h-10 w-10 rounded-full bg-muted/20 flex items-center justify-center backdrop-blur-md hover:bg-muted/40 transition-colors border border-foreground/5"
                             >
-                                <Minus className="h-4 w-4 text-white" />
+                                <Minus className="h-4 w-4 text-foreground" />
                             </button>
 
                             {/* Left: Immersion Visual */}
-                            <div className="relative h-[40vh] lg:h-auto overflow-hidden bg-black/5">
+                            <div className="relative h-[40vh] lg:h-auto overflow-hidden bg-muted/10">
                                 {selectedProduct.image_url ? (
                                     <Image
                                         src={selectedProduct.image_url}
@@ -336,15 +328,14 @@ export default function VendorDetailPage() {
                                         className="object-cover"
                                     />
                                 ) : (
-                                    <div className="h-full w-full flex items-center justify-center bg-zinc-900">
-                                        <Package className="h-24 w-24 text-zinc-800" />
+                                    <div className="h-full w-full flex items-center justify-center bg-muted/20">
+                                        <Package className="h-24 w-24 text-muted-foreground/20" />
                                     </div>
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent lg:bg-gradient-to-r" />
                             </div>
 
                             {/* Right: Product Narrative */}
-                            <div className="flex flex-col p-8 lg:p-16 justify-center space-y-8 lg:space-y-12 bg-white/5 backdrop-blur-3xl">
+                            <div className="flex flex-col p-8 lg:p-16 justify-center space-y-8 lg:space-y-12 bg-background/5 backdrop-blur-3xl">
                                 <div className="space-y-4">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="space-y-2">
@@ -352,7 +343,7 @@ export default function VendorDetailPage() {
                                                 initial={{ opacity: 0, x: -10 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: 0.1 }}
-                                                className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50"
+                                                className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground"
                                             >
                                                 {selectedProduct.category || "Premium Selection"}
                                             </motion.p>
@@ -360,7 +351,7 @@ export default function VendorDetailPage() {
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.2 }}
-                                                className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[0.9]"
+                                                className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter leading-[0.9]"
                                             >
                                                 {selectedProduct.name}
                                             </motion.h2>
@@ -371,19 +362,19 @@ export default function VendorDetailPage() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-lg text-white/70 font-medium leading-relaxed max-w-md"
+                                        className="text-lg text-muted-foreground font-medium leading-relaxed max-w-md"
                                     >
                                         {selectedProduct.description || "Designed for excellence. This selection meets the highest standards of quality and utility within our marketplace."}
                                     </motion.p>
                                 </div>
 
-                                <div className="space-y-6 pt-8 border-t border-white/10">
+                                <div className="space-y-6 pt-8 border-t border-foreground/10">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-3xl font-black text-white tracking-tight">{formatCurrency(selectedProduct.price)}</span>
+                                        <span className="text-3xl font-black text-foreground tracking-tight">{formatCurrency(selectedProduct.price)}</span>
                                         <div className="flex items-center gap-3">
-                                            <div className="px-3 py-1 rounded-full glass border border-white/10 flex items-center gap-2">
+                                            <div className="px-3 py-1 rounded-full glass border border-foreground/10 flex items-center gap-2">
                                                 <div className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-                                                <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">In Stock</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">In Stock</span>
                                             </div>
                                         </div>
                                     </div>
@@ -395,12 +386,12 @@ export default function VendorDetailPage() {
                                                 addItem(selectedProduct);
                                                 setSelectedProduct(null);
                                             }}
-                                            className="h-16 rounded-[1.5rem] bg-white text-black hover:bg-white/90 font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                                            className="h-16 rounded-[1.5rem] bg-foreground text-background hover:opacity-90 font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                                         >
                                             Secure to Bag
                                         </Button>
                                     </div>
-                                    <p className="text-[9px] text-center text-white/30 font-bold uppercase tracking-widest">
+                                    <p className="text-[9px] text-center text-muted-foreground/60 font-bold uppercase tracking-widest">
                                         Verified for immediate dispatch
                                     </p>
                                 </div>
