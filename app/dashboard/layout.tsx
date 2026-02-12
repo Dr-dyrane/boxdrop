@@ -5,12 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard, Sun, Moon, Bell, Settings } from "lucide-react";
+import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard, Sun, Moon, Bell, Settings, MapPin } from "lucide-react";
 import { useScrollDirection } from "@/core/hooks/use-scroll-direction";
 import { useAuth } from "@/core/hooks";
 import { useCartStore, useThemeStore } from "@/core/store";
 import { Logo } from "@/components/ui";
 import { PersistentCart } from "@/components/shared/persistent-cart";
+import { LocationModal } from "@/components/shared/location-selector";
+import { useState, useEffect } from "react";
 
 /* ─────────────────────────────────────────────────────
    MAIN LAYOUT — Apple Store-Inspired Adaptive Nav
@@ -45,6 +47,13 @@ export default function MainLayout({
     const { profile, user } = useAuth();
     const cartCount = useCartStore((s) => s.items.length);
     const isCollapsed = direction === "down" && isScrolled;
+    const [showLocation, setShowLocation] = useState(false);
+
+    useEffect(() => {
+        const handleOpenLocation = () => setShowLocation(true);
+        window.addEventListener("boxdrop-open-location", handleOpenLocation);
+        return () => window.removeEventListener("boxdrop-open-location", handleOpenLocation);
+    }, []);
 
     // ── Navigation Logic ─────────────────────────
 
@@ -141,6 +150,12 @@ export default function MainLayout({
                     <div className="flex items-center gap-3">
                         {isProfilePage ? (
                             <>
+                                <button
+                                    onClick={() => setShowLocation(true)}
+                                    className="h-9 w-9 flex items-center justify-center rounded-full glass hover:bg-white/10 active:scale-95 transition-all"
+                                >
+                                    <MapPin className="h-4 w-4" />
+                                </button>
                                 <button
                                     onClick={() => router.push("/dashboard/notifications")}
                                     className="h-9 w-9 flex items-center justify-center rounded-full glass hover:bg-white/10 active:scale-95 transition-all"
@@ -281,6 +296,19 @@ export default function MainLayout({
                 <div className="mt-auto space-y-2 pb-4">
                     <div className="px-3">
                         <button
+                            onClick={() => setShowLocation(true)}
+                            className="
+                                flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)]
+                                hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground mb-1
+                            "
+                        >
+                            <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 bg-primary/5">
+                                <MapPin className="h-3 w-3" />
+                            </div>
+                            <span className="text-xs font-medium">Location</span>
+                        </button>
+
+                        <button
                             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                             className="
                                 flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)]
@@ -330,6 +358,7 @@ export default function MainLayout({
                 </Suspense>
 
                 <PersistentCart />
+                <LocationModal isOpen={showLocation} onClose={() => setShowLocation(false)} />
             </div>
 
             {/* ── Mobile Bottom Pill (scroll-aware) ─────── */}

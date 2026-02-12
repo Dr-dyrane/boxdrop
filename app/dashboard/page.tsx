@@ -148,7 +148,10 @@ export default function DashboardPage() {
             </div>
 
             {address && (
-                <div className="px-5 py-4 glass-heavy rounded-[2rem] flex items-center gap-4">
+                <button
+                    onClick={() => window.dispatchEvent(new CustomEvent("boxdrop-open-location"))}
+                    className="w-full text-left px-5 py-4 glass-heavy rounded-[2rem] flex items-center gap-4 hover:bg-white/5 transition-colors cursor-pointer"
+                >
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                         <MapPin className="h-5 w-5 text-primary" />
                     </div>
@@ -156,7 +159,7 @@ export default function DashboardPage() {
                         <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black opacity-50">Deliver to</p>
                         <p className="text-xs font-bold truncate leading-tight mt-0.5">{address}</p>
                     </div>
-                </div>
+                </button>
             )}
 
             {lat && lng && (
@@ -183,26 +186,11 @@ export default function DashboardPage() {
             >
                 {/* ── Command Header ─────────────────────────── */}
                 <motion.div variants={staggerItem} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 border-2 border-white/10 shadow-lg">
-                            {profile?.avatar_url ? (
-                                <Image
-                                    src={profile.avatar_url}
-                                    alt="User"
-                                    width={56}
-                                    height={56}
-                                    className="h-full w-full object-cover"
-                                />
-                            ) : (
-                                <span className="text-xl font-black text-primary">{displayName[0]}</span>
-                            )}
-                        </div>
-                        <div>
-                            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40 mb-1">{greeting}, {displayName}</p>
-                            <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-none">
-                                {lat ? "Discovery Hub" : "Marketplace Center."}
-                            </h1>
-                        </div>
+                    <div>
+                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40 mb-2">{greeting}, {displayName}</p>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
+                            {lat ? "Discovery Hub" : "Marketplace Center."}
+                        </h1>
                     </div>
                     {lat && (
                         <Button
