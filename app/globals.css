@@ -53,11 +53,11 @@
   --glass-border: 0 0% 0% / 0.08;
   --glass-blur: 16px;
 
-  /* Balanced Depth — Zeroed out for Pure UI */
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: none;
+  /* Balanced Depth — Soft and expansive */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
 
   /* Spacing Scale */
   --radius-sm: 0.5rem;
@@ -113,11 +113,11 @@
   --glass-border: 0 0% 100% / 0.06;
   --glass-blur: 24px;
 
-  /* Dark Mode Balanced Depth — Zeroed out for Pure UI */
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: none;
+  /* Dark Mode Depth — Deeper shadows for dark surfaces */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 12px -1px rgb(0 0 0 / 0.4), 0 2px 8px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 30px -3px rgb(0 0 0 / 0.5), 0 10px 15px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.6);
 }
 
 /* ─────────────────────────────────────────────────────

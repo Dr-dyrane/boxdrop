@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import React, { Suspense, useState, useEffect, type ElementType } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -12,28 +12,29 @@ import { useCartStore, useThemeStore } from "@/core/store";
 import { Logo } from "@/components/ui";
 import { PersistentCart } from "@/components/shared/persistent-cart";
 import { LocationModal } from "@/components/shared/location-selector";
-import { useState, useEffect } from "react";
 
 /* ─────────────────────────────────────────────────────
    MAIN LAYOUT — Apple Store-Inspired Adaptive Nav
    
-   Mobile:   Floating bottom pill (scroll-aware)
-             + top header with avatar & search
+   Mobile:   Floating bottom pill (context-aware)
+             + top header with contextual title & profile
    Tablet:   Left icon rail (72px)
    Desktop:  Left sidebar (240px) with labels
    ───────────────────────────────────────────────────── */
 
-const pillTabs = [
-    { href: "/dashboard", label: "Shop", icon: Home },
-    { href: "/dashboard/orders", label: "Products", icon: Package },
-    // Bag removed from pill since it's now in the dynamic FAB
-];
+interface NavTab {
+    href: string;
+    label: string;
+    icon: React.ElementType;
+    count?: number;
+}
 
-const sidebarTabs = [
+const sidebarTabs: NavTab[] = [
     { href: "/dashboard", label: "Shop", icon: Home },
     { href: "/dashboard/search", label: "Explore", icon: Compass },
     { href: "/dashboard/orders", label: "Products", icon: Package },
 ];
+
 
 export default function MainLayout({
     children,
@@ -57,10 +58,73 @@ export default function MainLayout({
 
     // ── Navigation Logic ─────────────────────────
 
-    // Active tab check
     const isActive = (href: string) =>
         pathname === href ||
         (href !== "/dashboard" && pathname.startsWith(href));
+
+    // ── Smart Navigation Matrix (Mobile & Desktop) ─────────────
+    // Slot 1: "Shop" (Fixed)
+    // Slot 2: "Active Context" (Always current page)
+    // Slot 3: "Rotation" (Context helper with badges)
+    const getSmartTabs = (): NavTab[] => {
+        const shopTab: NavTab = { href: "/dashboard", label: "Shop", icon: Home };
+
+        // Dynamic Counts
+        const alertCount = 0; // Placeholder for real notification count hook
+
+        // Find if current page is one of our primary tabs
+        const isSearch = pathname.startsWith("/dashboard/search");
+        const isOrders = pathname.startsWith("/dashboard/orders");
+        const isProfile = pathname.startsWith("/dashboard/profile") || pathname.startsWith("/dashboard/settings") || pathname.startsWith("/dashboard/notifications");
+        const isVendor = pathname.startsWith("/dashboard/vendor/");
+        const isCart = pathname === "/dashboard/cart";
+
+        const searchTab: NavTab = { href: "/dashboard/search", label: "Explore", icon: Compass };
+        const ordersTab: NavTab = { href: "/dashboard/orders", label: "Orders", icon: Package };
+        const profileTab: NavTab = { href: "/dashboard/profile", label: "Profile", icon: User };
+        const settingsTab: NavTab = { href: "/dashboard/settings", label: "Settings", icon: Settings };
+        const alertsTab: NavTab = { href: "/dashboard/notifications", label: "Alerts", icon: Bell, count: alertCount };
+        const cartTab: NavTab = { href: "/dashboard/cart", label: "Bag", icon: ShoppingBag, count: cartCount };
+
+        // Home Page Context
+        if (pathname === "/dashboard") {
+            return [shopTab, searchTab, ordersTab];
+        }
+
+        // Search Context
+        if (isSearch) {
+            return [shopTab, searchTab, cartCount > 0 ? cartTab : ordersTab];
+        }
+
+        // Orders Context
+        if (isOrders) {
+            return [shopTab, ordersTab, cartCount > 0 ? cartTab : searchTab];
+        }
+
+        // Profile / Activity Context
+        if (isProfile) {
+            const currentTab = pathname.startsWith("/dashboard/notifications") ? alertsTab :
+                pathname.startsWith("/dashboard/settings") ? settingsTab : profileTab;
+            return [shopTab, currentTab, alertsTab === currentTab ? settingsTab : alertsTab];
+        }
+
+        // Vendor Context
+        if (isVendor) {
+            const vendorTab: NavTab = { href: pathname, label: "Vendor", icon: Compass };
+            return [shopTab, vendorTab, cartCount > 0 ? cartTab : ordersTab];
+        }
+
+        // Cart Context
+        if (isCart) {
+            return [shopTab, cartTab, ordersTab];
+        }
+
+        // Fallback
+        return [shopTab, searchTab, ordersTab];
+    };
+
+
+    const currentSmartTabs = getSmartTabs();
 
     // Dynamic Title Logic
     const getPageTitle = () => {
@@ -75,11 +139,11 @@ export default function MainLayout({
         return "BoxDrop";
     };
 
-    // Dynamic FAB Logic
+    // Dynamic FAB Logic — Helper for App Flow
     const getFABConfig = () => {
         const hasItems = cartCount > 0;
 
-        // Cart Page Special: Checkout
+        // 1. Checkout Helper (Cart/Bag)
         if (pathname === "/dashboard/cart") {
             return {
                 icon: CreditCard,
@@ -93,18 +157,45 @@ export default function MainLayout({
             };
         }
 
-        // If items are in bag, the Bag becomes the primary FAB action everywhere else
+        // 2. Add to Bag Helper (Vendor Detail)
+        if (pathname.startsWith("/dashboard/vendor/")) {
+            return {
+                icon: ShoppingBag,
+                onClick: () => {
+                    const event = new CustomEvent("boxdrop-quick-add");
+                    window.dispatchEvent(event);
+                },
+                isActive: hasItems,
+                badge: cartCount > 0 ? cartCount : null,
+                label: "Add"
+            };
+        }
+
+        // 3. Filter Helper (Search/Explore)
+        if (pathname.startsWith("/dashboard/search")) {
+            return {
+                icon: Settings,
+                onClick: () => {
+                    const event = new CustomEvent("boxdrop-open-filters");
+                    window.dispatchEvent(event);
+                },
+                isActive: false,
+                badge: null,
+                label: "Filter"
+            };
+        }
+
+        // 4. Global Priority: Cart (if has items) or Search
         if (hasItems) {
             return {
                 icon: ShoppingBag,
                 onClick: () => router.push("/dashboard/cart"),
-                isActive: pathname === "/dashboard/cart",
+                isActive: false,
                 badge: cartCount,
                 label: "Bag"
             };
         }
 
-        // Default: Search
         return {
             icon: Search,
             onClick: () => router.push("/dashboard/search"),
@@ -116,10 +207,9 @@ export default function MainLayout({
 
     const fab = getFABConfig();
 
-    // Profile display
+    // Profile Metadata
     const avatarUrl = profile?.avatar_url;
     const initials = (profile?.full_name || user?.email || "U")[0].toUpperCase();
-    const isProfilePage = pathname === "/dashboard/profile";
 
     return (
         <div className="min-h-[100dvh]">
@@ -146,50 +236,19 @@ export default function MainLayout({
                         </span>
                     </div>
 
-                    {/* Right: Actions (Profile vs Settings/Notifs) */}
-                    <div className="flex items-center gap-3">
-                        {isProfilePage ? (
-                            <>
-                                <button
-                                    onClick={() => setShowLocation(true)}
-                                    className="h-9 w-9 flex items-center justify-center rounded-full glass hover:bg-white/10 active:scale-95 transition-all"
-                                >
-                                    <MapPin className="h-4 w-4" />
-                                </button>
-                                <button
-                                    onClick={() => router.push("/dashboard/notifications")}
-                                    className="h-9 w-9 flex items-center justify-center rounded-full glass hover:bg-white/10 active:scale-95 transition-all"
-                                >
-                                    <Bell className="h-4 w-4" />
-                                </button>
-                                <button
-                                    onClick={() => router.push("/dashboard/settings")}
-                                    className="h-9 w-9 flex items-center justify-center rounded-full glass hover:bg-white/10 active:scale-95 transition-all"
-                                >
-                                    <Settings className="h-4 w-4" />
-                                </button>
-                            </>
-                        ) : (
-                            <button
-                                onClick={() => router.push("/dashboard/profile")}
-                                className="h-9 w-9 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-white/10 active:scale-95 transition-transform cursor-pointer"
-                                aria-label="Profile"
-                            >
-                                {avatarUrl ? (
-                                    <Image
-                                        src={avatarUrl}
-                                        alt="Profile"
-                                        width={36}
-                                        height={36}
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <span className="text-xs font-bold text-muted-foreground">
-                                        {initials}
-                                    </span>
-                                )}
-                            </button>
-                        )}
+                    {/* Right: Clean Profile Access */}
+                    <div className="flex items-center">
+                        <button
+                            onClick={() => router.push("/dashboard/profile")}
+                            className="h-9 w-9 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-white/10 active:scale-95 transition-transform cursor-pointer"
+                            aria-label="Profile"
+                        >
+                            {avatarUrl ? (
+                                <Image src={avatarUrl} alt="Profile" width={36} height={36} className="h-full w-full object-cover" />
+                            ) : (
+                                <span className="text-xs font-bold text-muted-foreground">{initials}</span>
+                            )}
+                        </button>
                     </div>
                 </div>
             </motion.header>
@@ -200,16 +259,12 @@ export default function MainLayout({
                 transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 className="hidden md:flex lg:hidden fixed top-0 left-0 bottom-0 z-50 w-[72px] flex-col items-center py-6 gap-2 glass-heavy"
             >
-                <Link
-                    href="/dashboard"
-                    className="h-10 w-10 flex items-center justify-center mb-4 cursor-pointer"
-                    aria-label="BoxDrop Home"
-                >
+                <Link href="/dashboard" className="h-10 w-10 flex items-center justify-center mb-4 cursor-pointer" aria-label="BoxDrop Home">
                     <Logo className="h-8 w-8" />
                 </Link>
 
                 <nav className="flex-1 flex flex-col items-center gap-1">
-                    {sidebarTabs.map((tab) => {
+                    {currentSmartTabs.map((tab) => {
                         const active = isActive(tab.href);
                         return (
                             <Link
@@ -226,9 +281,9 @@ export default function MainLayout({
                                 aria-label={tab.label}
                             >
                                 <tab.icon className="h-5 w-5" />
-                                {tab.label === "Bag" && cartCount > 0 && (
+                                {tab.count !== undefined && tab.count > 0 && (
                                     <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-foreground text-background text-[9px] font-bold flex items-center justify-center">
-                                        {cartCount}
+                                        {tab.count}
                                     </span>
                                 )}
                             </Link>
@@ -236,17 +291,11 @@ export default function MainLayout({
                     })}
                 </nav>
 
-                {/* Bottom: Profile */}
                 <button
                     onClick={() => router.push("/dashboard/profile")}
                     className="h-10 w-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center mt-auto"
-                    aria-label="Profile"
                 >
-                    {avatarUrl ? (
-                        <Image src={avatarUrl} alt="Profile" width={40} height={40} className="h-full w-full object-cover" />
-                    ) : (
-                        <span className="text-xs font-bold text-muted-foreground">{initials}</span>
-                    )}
+                    {avatarUrl ? <Image src={avatarUrl} alt="Profile" width={40} height={40} className="h-full w-full object-cover" /> : <span className="text-xs font-bold text-muted-foreground">{initials}</span>}
                 </button>
             </motion.aside>
 
@@ -256,16 +305,13 @@ export default function MainLayout({
                 transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy"
             >
-                <Link
-                    href="/dashboard"
-                    className="flex items-center gap-3 px-3 h-10 mb-4 cursor-pointer"
-                >
+                <Link href="/dashboard" className="flex items-center gap-3 px-3 h-10 mb-4 cursor-pointer">
                     <Logo className="h-7 w-7" />
                     <span className="text-base font-black tracking-tight">BoxDrop</span>
                 </Link>
 
                 <nav className="flex-1 flex flex-col gap-0.5">
-                    {sidebarTabs.map((tab) => {
+                    {currentSmartTabs.map((tab) => {
                         const active = isActive(tab.href);
                         return (
                             <Link
@@ -282,9 +328,9 @@ export default function MainLayout({
                             >
                                 <tab.icon className="h-5 w-5 shrink-0" />
                                 <span>{tab.label}</span>
-                                {tab.label === "Bag" && cartCount > 0 && (
+                                {tab.count !== undefined && tab.count > 0 && (
                                     <span className="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
-                                        {cartCount}
+                                        {tab.count}
                                     </span>
                                 )}
                             </Link>
@@ -292,29 +338,15 @@ export default function MainLayout({
                     })}
                 </nav>
 
-                {/* Bottom: Settings & Profile */}
                 <div className="mt-auto space-y-2 pb-4">
                     <div className="px-3">
-                        <button
-                            onClick={() => setShowLocation(true)}
-                            className="
-                                flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)]
-                                hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground mb-1
-                            "
-                        >
+                        <button onClick={() => setShowLocation(true)} className="flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground mb-1">
                             <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 bg-primary/5">
                                 <MapPin className="h-3 w-3" />
                             </div>
                             <span className="text-xs font-medium">Location</span>
                         </button>
-
-                        <button
-                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                            className="
-                                flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)]
-                                hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground
-                            "
-                        >
+                        <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground">
                             <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 bg-primary/5">
                                 {theme === "dark" ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
                             </div>
@@ -325,26 +357,14 @@ export default function MainLayout({
                     <div className="px-3">
                         <button
                             onClick={() => router.push("/dashboard/profile")}
-                            className={`
-                                flex items-center gap-3 w-full px-3 h-12 rounded-[var(--radius-md)]
-                                hover:bg-accent transition-colors text-left
-                                ${pathname === "/dashboard/profile" ? "bg-primary/10" : ""}
-                            `}
+                            className={`flex items-center gap-3 w-full px-3 h-12 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left ${pathname === "/dashboard/profile" ? "bg-primary/10" : ""}`}
                         >
                             <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
-                                {avatarUrl ? (
-                                    <Image src={avatarUrl} alt="Profile" width={32} height={32} className="h-full w-full object-cover" />
-                                ) : (
-                                    <User className="h-4 w-4 text-muted-foreground" />
-                                )}
+                                {avatarUrl ? <Image src={avatarUrl} alt="Profile" width={32} height={32} className="h-full w-full object-cover" /> : <User className="h-4 w-4 text-muted-foreground" />}
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-[11px] font-black uppercase tracking-tight truncate leading-tight">
-                                    {profile?.full_name || user?.email?.split("@")[0] || "Profile"}
-                                </p>
-                                <p className="text-[9px] text-muted-foreground truncate tabular-nums">
-                                    {user?.email || "Not signed in"}
-                                </p>
+                                <p className="text-[11px] font-black uppercase tracking-tight truncate leading-tight">{profile?.full_name || user?.email?.split("@")[0] || "Profile"}</p>
+                                <p className="text-[9px] text-muted-foreground truncate tabular-nums">{user?.email || "Not signed in"}</p>
                             </div>
                         </button>
                     </div>
@@ -353,47 +373,37 @@ export default function MainLayout({
 
             {/* ── Content Area ──────────────────────────── */}
             <div className="md:pl-[72px] lg:pl-60 pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-0 pb-24 md:pb-0">
-                <Suspense fallback={null}>
-                    {children}
-                </Suspense>
-
+                <Suspense fallback={null}>{children}</Suspense>
                 <PersistentCart />
                 <Suspense fallback={null}>
                     <LocationModal isOpen={showLocation} onClose={() => setShowLocation(false)} />
                 </Suspense>
             </div>
 
-            {/* ── Mobile Bottom Pill (scroll-aware) ─────── */}
+            {/* ── Mobile Bottom Navigation (Smart Pill + FAB) ───────── */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex justify-between items-end gap-2 pb-[calc(12px+env(safe-area-inset-bottom))] px-4 pointer-events-none">
                 <motion.div
                     className="pointer-events-auto"
-                    animate={{
-                        y: isCollapsed ? 120 : 0,
-                        opacity: isCollapsed ? 0 : 1,
-                    }}
-                    transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 30,
-                    }}
+                    animate={{ y: isCollapsed ? 120 : 0, opacity: isCollapsed ? 0 : 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 >
-                    <div className="glass-heavy rounded-full px-2 h-14 flex items-center gap-1.5">
-                        {pillTabs.map((tab) => {
+                    <div className="glass-heavy rounded-full px-2 h-14 flex items-center gap-1 shadow-xl">
+                        {currentSmartTabs.map((tab) => {
                             const active = isActive(tab.href);
                             return (
                                 <Link
                                     key={tab.href}
                                     href={tab.href}
-                                    className={`
-                                        relative flex items-center gap-2 h-10 rounded-full
-                                        transition-all duration-300 cursor-pointer
-                                        ${active
-                                            ? "bg-foreground text-background px-4"
-                                            : "text-muted-foreground px-3 hover:text-foreground"
-                                        }
-                                    `}
+                                    className={`relative flex items-center gap-2 h-10 rounded-full transition-all duration-300 cursor-pointer ${active ? "bg-foreground text-background px-4" : "text-muted-foreground px-3 hover:text-foreground"}`}
                                 >
-                                    <tab.icon className="h-[18px] w-[18px] shrink-0" />
+                                    <div className="relative">
+                                        <tab.icon className="h-[18px] w-[18px] shrink-0" />
+                                        {tab.count !== undefined && tab.count > 0 && (
+                                            <span className="absolute -top-1.5 -right-1.5 h-3.5 min-w-[14px] px-1 rounded-full bg-primary text-[8px] font-black flex items-center justify-center text-primary-foreground shadow-sm">
+                                                {tab.count}
+                                            </span>
+                                        )}
+                                    </div>
                                     <AnimatePresence mode="wait">
                                         {active && (
                                             <motion.span
@@ -413,29 +423,15 @@ export default function MainLayout({
                     </div>
                 </motion.div>
 
-                {/* ── Dynamic Action FAB ────────────────── */}
+                {/* ── Dynamic Action FAB (Helper) ────────── */}
                 <motion.button
                     onClick={fab.onClick}
-                    className="pointer-events-auto h-14 w-14 rounded-full glass-heavy flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer relative"
-                    animate={{
-                        y: isCollapsed ? 120 : 0,
-                        opacity: isCollapsed ? 0 : 1,
-                    }}
-                    transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 30,
-                        delay: 0.05,
-                    }}
+                    className="pointer-events-auto h-14 w-14 rounded-full glass-heavy flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer relative shadow-xl"
+                    animate={{ y: isCollapsed ? 120 : 0, opacity: isCollapsed ? 0 : 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.05 }}
                 >
-                    <div className={`
-                        h-10 w-10 rounded-full flex items-center justify-center
-                        ${fab.isActive ? "bg-foreground text-background" : "text-muted-foreground"}
-                        transition-colors duration-300
-                    `}>
+                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${fab.isActive ? "bg-foreground text-background" : "text-muted-foreground"} transition-colors duration-300`}>
                         <fab.icon className="h-[18px] w-[18px]" />
-
-                        {/* Dynamic FAB Badge (e.g. Cart count) */}
                         {fab.badge !== null && fab.badge > 0 && (
                             <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-black flex items-center justify-center">
                                 {fab.badge}

@@ -269,7 +269,7 @@ export default function DashboardPage() {
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
 
                                     <div className="absolute top-6 right-6">
-                                        <div className="glass px-3.5 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10">
+                                        <div className="glass px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
                                             <Star className="h-2.5 w-2.5 text-warning fill-warning" />
                                             <span className="text-[10px] font-black text-white">{vendor.rating}</span>
                                         </div>
@@ -307,7 +307,7 @@ export default function DashboardPage() {
                                 key={vendor.id}
                                 whileHover={{ x: 4 }}
                                 onClick={() => router.push(`/dashboard/vendor/${vendor.id}`)}
-                                className="group glass-heavy p-6 rounded-[2.5rem] flex items-center gap-6 cursor-pointer hover:bg-foreground/5 transition-all duration-300 border border-transparent hover:border-foreground/10"
+                                className="group glass-heavy p-6 rounded-[2.5rem] flex items-center gap-6 cursor-pointer hover:bg-foreground/5 transition-all duration-300"
                             >
                                 <div className="h-20 w-20 rounded-[1.8rem] overflow-hidden glass shrink-0 relative">
                                     {vendor.logo_url ? (

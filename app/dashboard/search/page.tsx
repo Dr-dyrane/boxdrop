@@ -99,9 +99,8 @@ export default function SearchPage() {
                             w-full h-14 pl-12 pr-4
                             glass-heavy rounded-[1.5rem]
                             text-sm font-bold text-foreground
-                            placeholder:text-muted-foreground/30
-                            border border-foreground/5
-                            focus:ring-2 focus:ring-primary/10 transition-all duration-300
+                            placeholder:text-muted-foreground/40
+                            shadow-sm focus:shadow-lg transition-all duration-300
                         "
                     />
                     {query && (
@@ -128,10 +127,10 @@ export default function SearchPage() {
                             setActiveCategory("All");
                         }}
                         className={cn(
-                            "whitespace-nowrap flex items-center justify-between px-5 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 shrink-0 border",
+                            "whitespace-nowrap flex items-center justify-between px-5 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 shrink-0",
                             isFeaturedOnly
-                                ? "bg-primary text-primary-foreground border-primary shadow-2xl shadow-primary/20 xl:translate-x-1"
-                                : "glass border-transparent text-muted-foreground hover:text-foreground hover:border-foreground/10 xl:hover:translate-x-1"
+                                ? "bg-primary text-primary-foreground xl:translate-x-1"
+                                : "glass text-muted-foreground hover:text-foreground xl:hover:translate-x-1"
                         )}
                     >
                         <div className="flex items-center gap-3">
@@ -153,10 +152,10 @@ export default function SearchPage() {
                                     setIsFeaturedOnly(false);
                                 }}
                                 className={cn(
-                                    "whitespace-nowrap flex items-center justify-between px-5 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 shrink-0 border",
+                                    "whitespace-nowrap flex items-center justify-between px-5 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 shrink-0",
                                     isActive
-                                        ? "bg-foreground text-background border-foreground xl:translate-x-1"
-                                        : "glass border-transparent text-muted-foreground hover:text-foreground hover:border-foreground/10 xl:hover:translate-x-1"
+                                        ? "bg-foreground text-background xl:translate-x-1"
+                                        : "glass text-muted-foreground hover:text-foreground xl:hover:translate-x-1"
                                 )}
                             >
                                 <div className="flex items-center gap-3">
@@ -249,7 +248,7 @@ export default function SearchPage() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
 
                                             <div className="absolute top-6 right-6">
-                                                <div className="glass px-3.5 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10">
+                                                <div className="glass px-3.5 py-1.5 rounded-full flex items-center gap-1.5">
                                                     <Star className="h-2.5 w-2.5 text-warning fill-warning" />
                                                     <span className="text-[10px] font-black text-white">{vendor.rating}</span>
                                                 </div>
@@ -279,7 +278,7 @@ export default function SearchPage() {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="text-center py-32 glass-heavy rounded-[3rem] border border-foreground/5 mx-1"
+                                    className="text-center py-32 glass-heavy rounded-[3rem] mx-1"
                                 >
                                     <div className="h-20 w-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-6">
                                         <Search className="h-8 w-8 text-muted-foreground/20" />

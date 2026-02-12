@@ -76,14 +76,14 @@ export default function OrdersPage() {
                 {!orders || orders.length === 0 ? (
                     <motion.div
                         variants={staggerItem}
-                        className="glass-heavy rounded-[3.5rem] p-24 flex flex-col items-center justify-center text-center space-y-8 border border-white/5"
+                        className="glass-heavy rounded-[3.5rem] p-24 flex flex-col items-center justify-center text-center space-y-8 shadow-sm"
                     >
                         <div className="h-24 w-24 rounded-[2.5rem] bg-primary/5 flex items-center justify-center relative">
                             <Package className="h-10 w-10 text-muted-foreground/20" />
                             <motion.div
-                                animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
+                                animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
                                 transition={{ duration: 4, repeat: Infinity }}
-                                className="absolute inset-0 rounded-[2.5rem] border border-primary/20"
+                                className="absolute inset-0 rounded-[2.5rem] bg-primary/10 shadow-xl"
                             />
                         </div>
                         <div className="space-y-2">
@@ -105,11 +105,11 @@ export default function OrdersPage() {
                                 <Link href={`/dashboard/orders/${order.id}`}>
                                     <GlassCard
                                         interactive
-                                        className="flex flex-col gap-8 p-8 rounded-[3rem] h-full group border border-transparent hover:border-white/10 shadow-2xl shadow-black/5"
+                                        className="flex flex-col gap-8 p-8 rounded-[3rem] h-full group shadow-md"
                                     >
                                         <div className="flex items-start justify-between gap-4">
                                             <div className="flex items-center gap-5 min-w-0">
-                                                <div className="h-16 w-16 rounded-[1.8rem] bg-primary/5 flex items-center justify-center shrink-0 border border-white/5 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
+                                                <div className="h-16 w-16 rounded-[1.8rem] bg-primary/5 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
                                                     <Package className="h-7 w-7" />
                                                 </div>
                                                 <div className="min-w-0 space-y-1">
@@ -132,7 +132,10 @@ export default function OrdersPage() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-end justify-between pt-8 border-t border-white/5 mt-auto">
+                                        <div className="flex items-end justify-between pt-8 bg-gradient-to-t from-transparent via-transparent to-transparent mt-auto relative">
+                                            {/* Separation via whitespace and subtle bg difference if needed, but here we use a faux divider via opacity if absolutely necessary */}
+                                            <div className="absolute top-0 left-0 right-0 h-px bg-foreground/[0.03]" />
+
                                             <div className="space-y-1">
                                                 <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest opacity-40">Settlement Total</p>
                                                 <p className="text-2xl font-black tracking-tighter">
@@ -141,12 +144,12 @@ export default function OrdersPage() {
                                             </div>
 
                                             <div className={cn(
-                                                "px-5 py-2.5 rounded-2xl flex items-center gap-2 border shadow-xl",
+                                                "px-5 py-2.5 rounded-2xl flex items-center gap-2 shadow-sm backdrop-blur-md",
                                                 order.status === 'delivered'
-                                                    ? 'bg-success/10 text-success border-success/20'
+                                                    ? 'bg-success/10 text-success'
                                                     : order.status === 'pending'
-                                                        ? 'bg-warning/10 text-warning border-warning/20'
-                                                        : 'bg-primary/10 text-primary border-primary/20'
+                                                        ? 'bg-warning/10 text-warning'
+                                                        : 'bg-primary/10 text-primary'
                                             )}>
                                                 {order.status === 'delivered' ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
                                                 <span className="text-[10px] font-black uppercase tracking-[0.15em]">
@@ -161,7 +164,7 @@ export default function OrdersPage() {
                     </div>
                 )}
 
-                <motion.div variants={staggerItem} className="glass p-8 rounded-[3rem] border border-white/5 opacity-40 flex flex-col md:flex-row items-center justify-between gap-6">
+                <motion.div variants={staggerItem} className="glass p-8 rounded-[3rem] shadow-sm opacity-40 flex flex-col md:flex-row items-center justify-between gap-6">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em]">Transaction Registry v2.4</p>
                     <p className="text-[10px] font-black uppercase tracking-[0.2em]">Tracking active for {orders?.filter(o => o.status !== 'delivered').length || 0} cycles</p>
                 </motion.div>
