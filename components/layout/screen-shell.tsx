@@ -4,8 +4,12 @@ import { Footer } from "./footer";
 
 /* ─────────────────────────────────────────────────────
    SCREEN SHELL
-   Unified page wrapper. Handles padding,
-   max-width, and optional loading skeleton state.
+   Unified page wrapper. Adapts content width per
+   breakpoint to complement the adaptive nav:
+   
+   Mobile  → full width, px-4
+   Tablet  → max-w-3xl centered  
+   Desktop → max-w-5xl (sidebar already provides structure)
    ───────────────────────────────────────────────────── */
 
 interface ScreenShellProps {
@@ -30,13 +34,13 @@ export function ScreenShell({
     return (
         <main
             className={`
-        min-h-[100dvh]
-        w-full
-        max-w-2xl
-        mx-auto
-        ${flush ? "" : "px-2 py-6 sm:px-6"}
-        ${className}
-      `}
+                min-h-[100dvh]
+                w-full
+                max-w-2xl md:max-w-3xl lg:max-w-5xl
+                mx-auto
+                ${flush ? "" : "px-4 py-6 sm:px-6 md:px-8"}
+                ${className}
+            `}
         >
             {loading && skeleton ? skeleton : (
                 <>
