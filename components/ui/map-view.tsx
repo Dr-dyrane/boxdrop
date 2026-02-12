@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import Map, { Marker, Source, Layer, NavigationControl } from 'react-map-gl/mapbox';
 import { cn } from '@/core/utils';
+import { useThemeStore } from '@/core/store';
 
 /* ─────────────────────────────────────────────────────
    MAP VIEW COMPONENT
@@ -10,7 +11,6 @@ import { cn } from '@/core/utils';
    Standardizes on Mapbox for logistics precision.
    ───────────────────────────────────────────────────── */
 
-const MAP_STYLE = "mapbox://styles/mapbox/dark-v11"; // High contrast dark style
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
 interface MapViewProps {
@@ -29,12 +29,21 @@ interface MapViewProps {
 
 export function MapView({
     center = { lat: 6.4549, lng: 3.4246 }, // Default Lagos
-    zoom = 13,
+    zoom = 15, // Street level
     markers = [],
     route,
     className,
     interactive = true
 }: MapViewProps) {
+    const { theme } = useThemeStore();
+
+    // Theme-sensitive grayscale style
+    const mapStyle = useMemo(() => {
+        return theme === "light"
+            ? "mapbox://styles/mapbox/light-v11"
+            : "mapbox://styles/mapbox/dark-v11";
+    }, [theme]);
+
     const [viewState, setViewState] = useState({
         latitude: center.lat,
         longitude: center.lng,
@@ -59,7 +68,7 @@ export function MapView({
                 {...viewState}
                 onMove={(evt: any) => setViewState(evt.viewState)}
                 style={{ width: '100%', height: '100%' }}
-                mapStyle={MAP_STYLE}
+                mapStyle={mapStyle}
                 mapboxAccessToken={MAPBOX_TOKEN}
                 reuseMaps
                 scrollZoom={interactive}

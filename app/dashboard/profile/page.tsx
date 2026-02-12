@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ScreenShell } from "@/components/layout/screen-shell";
 import { GlassCard, Button } from "@/components/ui";
 import { useThemeStore } from "@/core/store";
@@ -36,7 +37,13 @@ export default function ProfilePage() {
                 <GlassCard className="flex items-center gap-4">
                     <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                         {profile?.avatar_url ? (
-                            <img src={profile.avatar_url} alt={profile.full_name || ""} className="h-full w-full object-cover" />
+                            <Image
+                                src={profile.avatar_url}
+                                alt={profile.full_name || "Profile"}
+                                width={56}
+                                height={56}
+                                className="h-full w-full object-cover"
+                            />
                         ) : (
                             <User className="h-6 w-6 text-muted-foreground" />
                         )}

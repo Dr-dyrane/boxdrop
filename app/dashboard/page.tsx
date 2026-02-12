@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Package, MapPin, Clock, TrendingUp, Search, X, Star } from "lucide-react";
 import { ScreenShell } from "@/components/layout/screen-shell";
@@ -257,7 +258,12 @@ export default function DashboardPage() {
                         <motion.div variants={item} className="space-y-6">
                             <div className="flex items-center justify-between px-1">
                                 <h2 className="text-xl font-black tracking-tight">Featured</h2>
-                                <button className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">View all</button>
+                                <button
+                                    onClick={() => router.push('/dashboard/search?featured=true')}
+                                    className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                >
+                                    View all
+                                </button>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                                 {featuredVendors.map((vendor) => (
@@ -270,10 +276,11 @@ export default function DashboardPage() {
                                     >
                                         {/* Full Photo */}
                                         {vendor.cover_url ? (
-                                            <img
+                                            <Image
                                                 src={vendor.cover_url}
                                                 alt={vendor.name}
-                                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+                                                fill
+                                                className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
                                             />
                                         ) : (
                                             <div className="absolute inset-0 bg-accent flex items-center justify-center">
@@ -316,7 +323,13 @@ export default function DashboardPage() {
                                 >
                                     <div className="h-20 w-20 rounded-[1.5rem] overflow-hidden glass shrink-0 relative">
                                         {vendor.logo_url ? (
-                                            <img src={vendor.logo_url} alt={vendor.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                            <Image
+                                                src={vendor.logo_url}
+                                                alt={vendor.name}
+                                                width={80}
+                                                height={80}
+                                                className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                            />
                                         ) : (
                                             <div className="h-full w-full bg-primary/5 flex items-center justify-center">
                                                 <Package className="h-7 w-7 text-muted-foreground/20" />

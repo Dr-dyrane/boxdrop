@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| **Status** | Phase 2 — Core Experience Implementation |
+| **Status** | Phase 3 — Real-time & Delivery Tracking |
 | **Type** | Progressive Web App (PWA) |
-| **Stack** | Next.js 15 · Supabase · Gluestack UI · Zustand |
+| **Stack** | Next.js 15 · Supabase · Mapbox · Zustand |
 | **License** | Proprietary |
 
 ---
@@ -201,7 +201,7 @@ Root-level structure. **No `/src` directory.** Next.js 15 App Router conventions
 │
 ├── components/                    # React Components
 │   ├── ui/                        # Gluestack/Primitive UI (Button, Input)
-│   ├── shared/                    # Business Components (GlassCard, OrderRow)
+│   ├── shared/                    # Business Components (GlassCard, OrderRow, DiscoveryMap)
 │   ├── layout/                    # Layout wrappers (ScreenShell, KeyboardAvoid)
 │   └── animations/                # Animation wrappers (Framer Motion)
 │
@@ -282,6 +282,14 @@ pending → confirmed → preparing → picked_up → in_transit → delivered
 - Zustand-powered cart with optimistic updates
 - Order creation through Service Layer → Supabase
 - Real-time order status via Supabase Realtime subscriptions
+- Order Search & Geocoding (Mapbox integration)
+
+### Real-time Tracking & Map (Phase 3)
+
+- **Theme-Sensitive Maps** — Adaptive styles (`light-v11` / `dark-v11`) syncing with system/user theme.
+- **Street-Level Logistics** — Zoom level 15+ focus with high-resolution telemetry.
+- **Responsive Telemetry** — Vertical timeline and split-panel tracking on desktop.
+- **Geocoding Hub** — Predictive address search via Mapbox/Google APIs.
 
 ### Live Tracking (Planned)
 
@@ -354,10 +362,12 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 - [x] Cart management (Zustand store, optimistic UI)
 - [x] Order creation and confirmation flow (Success interactions)
 
-### Phase 3 — Real-time & Delivery
+### Phase 3 — Real-time & Delivery ✅ (In Progress)
 
-- [ ] Order status tracking (Supabase Realtime)
-- [ ] Map integration (Mapbox/Google Maps)
+- [x] Order status tracking (Supabase Realtime)
+- [x] Map integration (Mapbox Navigation & standard styles)
+- [x] Theme-aware Map styles (Grayscale Light/Dark)
+- [x] Responsive Tracking Panel (Desktop split-view)
 - [ ] Courier assignment and tracking
 - [ ] Distance-based delivery fee calculation
 

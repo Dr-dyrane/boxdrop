@@ -7,6 +7,8 @@ import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/types/database";
 import { authService } from "@/core/services/auth-service";
 
+import { useProfile } from "./use-profile";
+
 /* ─────────────────────────────────────────────────────
    USE AUTH HOOK
    Connects UI to auth service. Manages session state.
@@ -14,10 +16,11 @@ import { authService } from "@/core/services/auth-service";
 
 export function useAuth() {
     const [user, setUser] = useState<User | null>(null);
-    const [profile, setProfile] = useState<Profile | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loadingSession, setLoadingSession] = useState(true);
     const supabase = useMemo(() => createClient(), []);
     const router = useRouter();
+
+    const { data: profile, isLoading: isLoadingProfile } = useProfile(user?.id);
 
     useEffect(() => {
         const getSession = async () => {
@@ -26,19 +29,10 @@ export function useAuth() {
                     data: { session },
                 } = await supabase.auth.getSession();
                 setUser(session?.user ?? null);
-
-                if (session?.user) {
-                    const { data } = await supabase
-                        .from("profiles")
-                        .select("*")
-                        .eq("id", session.user.id)
-                        .single();
-                    setProfile(data);
-                }
             } catch (err) {
                 console.error("Auth initialization error:", err);
             } finally {
-                setLoading(false);
+                setLoadingSession(false);
             }
         };
 
@@ -46,27 +40,15 @@ export function useAuth() {
 
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
+        } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
             setUser(session?.user ?? null);
-            if (session?.user) {
-                try {
-                    const { data } = await supabase
-                        .from("profiles")
-                        .select("*")
-                        .eq("id", session.user.id)
-                        .single();
-                    setProfile(data);
-                } catch {
-                    setProfile(null);
-                }
-            } else {
-                setProfile(null);
-            }
-            setLoading(false);
+            setLoadingSession(false);
         });
 
         return () => subscription.unsubscribe();
     }, [supabase]);
+
+    const loading = loadingSession || isLoadingProfile;
 
     const signOut = useCallback(async () => {
         await authService.signOut();

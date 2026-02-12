@@ -23,12 +23,16 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
         0
     );
 
+    // Get current user for RLS
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error("Authentication required to place an order");
+
     // Create order
     const { data: order, error: orderError } = await (supabase
         .from("orders" as any) as any)
         .insert({
             vendor_id: input.vendor_id,
-            user_id: "", // Will be set by RLS/trigger from auth.uid()
+            user_id: user.id,
             status: "pending",
             total,
             delivery_location: input.delivery_location,
@@ -82,4 +86,16 @@ export async function fetchOrderItems(orderId: string): Promise<OrderItem[]> {
 
     if (error) throw error;
     return data ?? [];
+}
+
+export async function fetchOrderById(orderId: string): Promise<Order | null> {
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("id", orderId)
+        .single();
+
+    if (error) throw error;
+    return data;
 }

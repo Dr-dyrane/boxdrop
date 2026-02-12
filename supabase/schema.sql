@@ -184,14 +184,52 @@ create table order_items (
 
 alter table order_items enable row level security;
 
-create policy "Order items visible to order owner"
+-- Updated: Allow customers to see their items AND vendors to see items ordered from them
+create policy "Order items are visible to order stakeholders"
   on order_items for select using (
     exists (
       select 1 from orders
       where orders.id = order_items.order_id
+      and (
+        orders.user_id = auth.uid() or 
+        exists (
+          select 1 from vendors 
+          where vendors.id = orders.vendor_id 
+          and vendors.owner_id = auth.uid()
+        )
+      )
+    )
+  );
+
+-- NEW: Allow customers to insert items into their own orders
+create policy "Users can insert items into their own orders"
+  on order_items for insert with check (
+    exists (
+      select 1 from orders
+      where orders.id = order_id
       and orders.user_id = auth.uid()
     )
   );
+
+-- ──────────────────────────────────────────────────
+-- AUTOMATION: Updated At
+-- ──────────────────────────────────────────────────
+
+create or replace function handle_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger on_profiles_updated
+  before update on profiles
+  for each row execute procedure handle_updated_at();
+
+create trigger on_orders_updated
+  before update on orders
+  for each row execute procedure handle_updated_at();
 
 -- ──────────────────────────────────────────────────
 -- INDEXES

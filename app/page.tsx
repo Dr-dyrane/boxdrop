@@ -63,10 +63,16 @@ export default function LandingPage() {
     const handler = setTimeout(async () => {
       if (query.length > 2) {
         setLoading(true);
-        const data = await geocodingService.search(query);
-        setResults(data);
-        setLoading(false);
-        setShowDropdown(true);
+        try {
+          const data = await geocodingService.search(query);
+          setResults(data);
+          setShowDropdown(true);
+        } catch (err) {
+          console.error("Geocoding failed:", err);
+          setResults([]);
+        } finally {
+          setLoading(false);
+        }
       } else {
         setResults([]);
         setShowDropdown(false);
@@ -97,9 +103,9 @@ export default function LandingPage() {
       {/* ── Header ─────────────────────────────────── */}
       <motion.header
         initial={{ y: 0 }}
-        animate={{ y: isHidden ? -80 : 0 }}
+        animate={{ y: isHidden ? -120 : 0 }}
         transition={{ type: "spring", stiffness: 400, damping: 40 }}
-        className="fixed top-0 left-0 right-0 z-50 glass-heavy"
+        className="fixed top-0 left-0 right-0 z-50 glass-heavy h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)]"
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">

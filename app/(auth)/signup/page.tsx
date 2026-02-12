@@ -33,27 +33,39 @@ export default function SignupPage() {
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim()) return;
+        if (!name.trim() || loading) return;
 
         setLoading(true);
         setError(null);
 
-        const { error: authError } = await signUp(email, name, `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`);
+        try {
+            const { error: authError } = await signUp(email, name, `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`);
 
-        if (authError) {
-            setError(authError.message);
+            if (authError) {
+                setError(authError.message);
+                return;
+            }
+
+            setStep("sent");
+        } catch (err: any) {
+            console.error("Signup failed:", err);
+            setError(err.message || "An unexpected error occurred.");
+        } finally {
             setLoading(false);
-            return;
         }
-
-        setLoading(false);
-        setStep("sent");
     };
 
     const handleGoogleLogin = async () => {
+        if (googleLoading) return;
         setGoogleLoading(true);
-        await signInWithGoogle(redirectTo);
-        setGoogleLoading(false);
+        try {
+            await signInWithGoogle(redirectTo);
+        } catch (err: any) {
+            console.error("Google login failed:", err);
+            setError("Google signup failed. Please try again.");
+        } finally {
+            setGoogleLoading(false);
+        }
     };
 
     return (

@@ -22,12 +22,19 @@ Welcome to the official documentation for **BoxDrop**, a premium logistics & del
 - Authentication infrastructure (OTP flow, AuthLayout)
 - Initial database schema & seed data
 
-### 🏗️ [Phase 2: Core Experience](./phases/phase-2.md)
-*Status: In Progress*
+### ✅ [Phase 2: Core Experience](./phases/phase-2.md)
+*Status: Complete*
 - Marketplace Discovery (Adaptive Navigation, Search Droplet)
 - Product & Vendor Details
 - Cart Management (Zustand Store)
 - Order Creation Pipeline
+
+### 🏗️ [Phase 3: Real-time & Logistics](./phases/phase-3.md)
+*Status: In Progress*
+- Mapbox Integration & Theme-Aware Styles
+- Live Order Tracking (Realtime)
+- Responsive Telemetry (Split-Panel Tracking)
+- Distance & Geocoding Services
 
 ---
 

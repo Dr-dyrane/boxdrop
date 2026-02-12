@@ -2,12 +2,13 @@
 
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard } from "lucide-react";
+import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard, Sun, Moon } from "lucide-react";
 import { useScrollDirection } from "@/core/hooks/use-scroll-direction";
 import { useAuth } from "@/core/hooks";
-import { useCartStore } from "@/core/store";
+import { useCartStore, useThemeStore } from "@/core/store";
 import { Logo } from "@/components/ui";
 
 /* ─────────────────────────────────────────────────────
@@ -38,6 +39,7 @@ export default function MainLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const { theme, setTheme } = useThemeStore();
     const router = useRouter();
     const { direction, isScrolled } = useScrollDirection(10);
     const { profile, user } = useAuth();
@@ -112,11 +114,11 @@ export default function MainLayout({
             {/* ── Mobile Header ──────────────────────────── */}
             <motion.header
                 initial={{ y: 0 }}
-                animate={{ y: isCollapsed ? -64 : 0 }}
+                animate={{ y: isCollapsed ? -120 : 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                className="md:hidden sticky top-0 z-40 glass-heavy h-14"
+                className="md:hidden sticky top-0 z-40 glass-heavy h-[calc(3.5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)]"
             >
-                <div className="flex items-center justify-between h-full px-4">
+                <div className="flex items-center justify-between h-14 px-4">
                     {/* Left: Dynamic Branding / Back */}
                     <div className="flex items-center gap-3">
                         {pathname !== "/dashboard" && (
@@ -140,9 +142,11 @@ export default function MainLayout({
                             aria-label="Profile"
                         >
                             {avatarUrl ? (
-                                <img
+                                <Image
                                     src={avatarUrl}
-                                    alt=""
+                                    alt="Profile"
+                                    width={36}
+                                    height={36}
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
@@ -204,7 +208,7 @@ export default function MainLayout({
                     aria-label="Profile"
                 >
                     {avatarUrl ? (
-                        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                        <Image src={avatarUrl} alt="Profile" width={40} height={40} className="h-full w-full object-cover" />
                     ) : (
                         <span className="text-xs font-bold text-muted-foreground">{initials}</span>
                     )}
@@ -253,31 +257,48 @@ export default function MainLayout({
                     })}
                 </nav>
 
-                {/* Bottom: Profile */}
-                <button
-                    onClick={() => router.push("/dashboard/profile")}
-                    className={`
-                        flex items-center gap-3 px-3 h-12 rounded-[var(--radius-md)]
-                        hover:bg-accent transition-colors text-left
-                        ${pathname === "/dashboard/profile" ? "bg-primary/10" : ""}
-                    `}
-                >
-                    <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
-                        {avatarUrl ? (
-                            <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-                        ) : (
-                            <User className="h-4 w-4 text-muted-foreground" />
-                        )}
+                {/* Bottom: Settings & Profile */}
+                <div className="mt-auto space-y-2 pb-4">
+                    <div className="px-3">
+                        <button
+                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                            className="
+                                flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)]
+                                hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground
+                            "
+                        >
+                            <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 bg-primary/5">
+                                {theme === "dark" ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
+                            </div>
+                            <span className="text-xs font-medium">Appearance</span>
+                        </button>
                     </div>
-                    <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">
-                            {profile?.full_name || user?.email?.split("@")[0] || "Profile"}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground truncate">
-                            {user?.email || "Not signed in"}
-                        </p>
-                    </div>
-                </button>
+
+                    <button
+                        onClick={() => router.push("/dashboard/profile")}
+                        className={`
+                            flex items-center gap-3 px-3 h-12 rounded-[var(--radius-md)]
+                            hover:bg-accent transition-colors text-left
+                            ${pathname === "/dashboard/profile" ? "bg-primary/10" : ""}
+                        `}
+                    >
+                        <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
+                            {avatarUrl ? (
+                                <Image src={avatarUrl} alt="Profile" width={32} height={32} className="h-full w-full object-cover" />
+                            ) : (
+                                <User className="h-4 w-4 text-muted-foreground" />
+                            )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">
+                                {profile?.full_name || user?.email?.split("@")[0] || "Profile"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground truncate">
+                                {user?.email || "Not signed in"}
+                            </p>
+                        </div>
+                    </button>
+                </div>
             </motion.aside>
 
             {/* ── Content Area ──────────────────────────── */}

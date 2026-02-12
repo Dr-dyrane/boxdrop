@@ -7,6 +7,7 @@ import { ScreenShell } from "@/components/layout/screen-shell";
 import { Skeleton, SkeletonCard, SkeletonPill } from "@/components/ui";
 import { useSearchVendors, useVendors, useAuth } from "@/core/hooks";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import type { Vendor } from "@/types/database";
 import { calculateDeliveryTime, formatDistance } from "@/core/utils";
 
@@ -22,13 +23,23 @@ export default function SearchPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const initialCategory = searchParams.get("category") || "All";
+    const initialFeatured = searchParams.get("featured") === "true";
 
     const [query, setQuery] = useState("");
     const [activeCategory, setActiveCategory] = useState(initialCategory);
+    const [isFeaturedOnly, setIsFeaturedOnly] = useState(initialFeatured);
 
     useEffect(() => {
         const cat = searchParams.get("category");
-        if (cat) setActiveCategory(cat);
+        const featured = searchParams.get("featured") === "true";
+        if (cat) {
+            setActiveCategory(cat);
+            setIsFeaturedOnly(false);
+        }
+        if (featured) {
+            setIsFeaturedOnly(true);
+            setActiveCategory("All");
+        }
     }, [searchParams]);
 
     const { data: searchResults, isLoading: isSearching } = useSearchVendors(query);
@@ -39,9 +50,11 @@ export default function SearchPage() {
 
     const displayedVendors = query.length > 2
         ? searchResults
-        : allVendors?.filter(v =>
-            activeCategory === "All" || v.category === activeCategory
-        );
+        : allVendors?.filter(v => {
+            const matchesCategory = activeCategory === "All" || v.category === activeCategory;
+            const matchesFeatured = !isFeaturedOnly || v.is_featured;
+            return matchesCategory && matchesFeatured;
+        });
 
     const DiscoveryContent = (
         <div className="space-y-8">
@@ -83,13 +96,14 @@ export default function SearchPage() {
                 {/* Mobile: Horizontal Scroll | Desktop: Vertical Grid */}
                 <div className="flex xl:flex-col overflow-x-auto xl:overflow-visible gap-2 pb-2 xl:pb-0 scrollbar-none mask-fade-right xl:mask-none">
                     {CATEGORIES.map((cat) => {
-                        const isActive = activeCategory === cat;
+                        const isActive = activeCategory === cat && !isFeaturedOnly;
                         return (
                             <button
                                 key={cat}
                                 onClick={() => {
                                     setQuery("");
                                     setActiveCategory(cat);
+                                    setIsFeaturedOnly(false);
                                 }}
                                 className={`
                                     whitespace-nowrap flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold
@@ -105,6 +119,29 @@ export default function SearchPage() {
                             </button>
                         );
                     })}
+
+                    {/* Featured Shortcut */}
+                    <button
+                        onClick={() => {
+                            setQuery("");
+                            setIsFeaturedOnly(!isFeaturedOnly);
+                            setActiveCategory("All");
+                        }}
+                        className={`
+                            whitespace-nowrap flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold
+                            transition-all duration-300 shrink-0
+                            ${isFeaturedOnly
+                                ? "bg-primary text-primary-foreground xl:translate-x-1 shadow-lg shadow-primary/20"
+                                : "glass text-muted-foreground hover:text-foreground xl:hover:translate-x-1"
+                            }
+                        `}
+                    >
+                        <div className="flex items-center gap-2">
+                            <Star className={`h-3 w-3 ${isFeaturedOnly ? "fill-current" : ""}`} />
+                            Featured
+                        </div>
+                        {isFeaturedOnly && <ArrowRight className="hidden xl:block h-3 w-3" />}
+                    </button>
                 </div>
             </div>
         </div>
@@ -166,7 +203,7 @@ export default function SearchPage() {
                     <div className="flex items-center justify-between px-1">
                         <section>
                             <h2 className="text-3xl font-black tracking-tighter leading-none">
-                                {query ? `Results: ${query}` : `${activeCategory} Hub`}
+                                {query ? `Results: ${query}` : isFeaturedOnly ? "Featured Vendors" : `${activeCategory} Hub`}
                             </h2>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-3 opacity-40">
                                 Discovery Engine / {displayedVendors?.length || 0} Matches
@@ -196,10 +233,11 @@ export default function SearchPage() {
                                         >
                                             {/* Full Image */}
                                             {vendor.cover_url ? (
-                                                <img
+                                                <Image
                                                     src={vendor.cover_url}
                                                     alt={vendor.name}
-                                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+                                                    fill
+                                                    className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
                                                 />
                                             ) : (
                                                 <div className="absolute inset-0 bg-accent flex items-center justify-center">

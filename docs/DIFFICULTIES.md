@@ -6,7 +6,57 @@
 
 ---
 
-## 011 · Button Loading State Replaces Children
+## 013 · Mapbox Navigation Styles vs. Monochrome Aesthetic
+
+**Date:** 2026-02-12
+**Phase:** 3 — Logistics & Geospatial
+**Severity:** Design regression
+
+### Problem
+
+Switching to Mapbox `navigation-day-v1` and `navigation-night-v1` introduced "neon green" high-frequency road highlights that clashed with the pure monochrome aesthetic of the Alexander UI Canon.
+
+### Root Cause
+
+Navigation styles prioritize visibility over aesthetic, using high-contrast green for roads suitable for in-car GPS but inconsistent with the "Premium Lightness" (Canon §20) and "Depth Over Color" (Canon §21) principles.
+
+### Solution
+
+Reverted to standard `light-v11` and `dark-v11`. While they lack the specific navigation-optimized metadata, they provide a cleaner grayscale canvas that maintains the premium feel.
+
+### Key Lesson
+
+> Functional optimization (Navigation styles) should not override brand identity (Monochrome). Always test "Utility" styles against the design canon.
+
+---
+
+## 012 · Responsive "Flatness" on Ultra-Wide Monitors
+
+**Date:** 2026-02-12
+**Phase:** 3 — Logistics & Geospatial
+**Severity:** UX refinement
+
+### Problem
+
+On large desktop monitors, the list of orders and cart items stretched across the entire X-axis, creating "ribbon" cards that were difficult to scan and visually unappealing.
+
+### Root Cause
+
+The initial layout used a simple vertical list with `w-full` responsiveness. While this worked for mobile, it broke the "Dashboard = Control" (Canon §10) principle on desktop by wasting whitespace and creating long scanning paths.
+
+### Solution
+
+Implemented **Responsive Grid Switching**:
+- Mobile: 1 column
+- Tablet/Small Desktop: 2 columns
+- Ultra-Wide/Large Desktop: 3 columns + Split-Panel Telemetry.
+Used `gap-8` for increased spatial separation to reduce visual noise.
+
+### Key Lesson
+
+> Responsive design isn't just about shrinking; it's about re-orienting. Don't stretch a list—multiply its columns.
+
+---
 
 **Date:** 2026-02-12
 **Phase:** 2 — Core Experience

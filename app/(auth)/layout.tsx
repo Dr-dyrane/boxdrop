@@ -20,9 +20,9 @@ export default function AuthLayout({
             {/* Header / Back Link */}
             <motion.header
                 initial={{ y: 0 }}
-                animate={{ y: isHidden ? -80 : 0 }}
+                animate={{ y: isHidden ? -120 : 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                className="sticky top-0 z-50 h-16 px-4 flex items-center glass-heavy"
+                className="sticky top-0 z-50 glass-heavy h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-4 flex items-center"
             >
                 <Link
                     href="/"

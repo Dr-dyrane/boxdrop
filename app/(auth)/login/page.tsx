@@ -26,28 +26,40 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email.trim()) return;
+        if (!email.trim() || loading) return;
 
         setLoading(true);
         setError(null);
 
-        const { error: authError } = await signInWithOtp(email, `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`);
+        try {
+            const { error: authError } = await signInWithOtp(email, `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`);
 
-        if (authError) {
-            setError(authError.message);
+            if (authError) {
+                setError(authError.message);
+                return;
+            }
+
+            setSent(true);
+        } catch (err: any) {
+            console.error("Login failed:", err);
+            setError(err.message || "An unexpected error occurred. Please try again.");
+        } finally {
             setLoading(false);
-            return;
         }
-
-        setLoading(false);
-        setSent(true);
     };
 
     const handleGoogleLogin = async () => {
+        if (googleLoading) return;
         setGoogleLoading(true);
-        await signInWithGoogle(redirectTo);
-        // If we reach here, the browser didn't redirect — reset state
-        setGoogleLoading(false);
+        try {
+            await signInWithGoogle(redirectTo);
+        } catch (err: any) {
+            console.error("Google login failed:", err);
+            setError(err.message || "Login with Google failed.");
+        } finally {
+            // If we reach here, the browser didn't redirect or it's a slow transition
+            setGoogleLoading(false);
+        }
     };
 
     return (
