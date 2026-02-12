@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard, Sun, Moon } from "lucide-react";
+import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard, Sun, Moon, Bell, Settings } from "lucide-react";
 import { useScrollDirection } from "@/core/hooks/use-scroll-direction";
 import { useAuth } from "@/core/hooks";
 import { useCartStore, useThemeStore } from "@/core/store";
@@ -60,6 +60,8 @@ export default function MainLayout({
         if (pathname.startsWith("/dashboard/orders")) return "Products";
         if (pathname.startsWith("/dashboard/cart")) return "Bag";
         if (pathname.startsWith("/dashboard/profile")) return "Profile";
+        if (pathname.startsWith("/dashboard/settings")) return "Settings";
+        if (pathname.startsWith("/dashboard/notifications")) return "Notifications";
         if (pathname.startsWith("/dashboard/vendor/")) return "Vendor";
         return "BoxDrop";
     };
@@ -108,6 +110,7 @@ export default function MainLayout({
     // Profile display
     const avatarUrl = profile?.avatar_url;
     const initials = (profile?.full_name || user?.email || "U")[0].toUpperCase();
+    const isProfilePage = pathname === "/dashboard/profile";
 
     return (
         <div className="min-h-[100dvh]">
@@ -134,27 +137,44 @@ export default function MainLayout({
                         </span>
                     </div>
 
-                    {/* Right: Avatar */}
-                    <div className="flex items-center gap-2.5">
-                        <button
-                            onClick={() => router.push("/dashboard/profile")}
-                            className="h-9 w-9 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-white/10 active:scale-95 transition-transform cursor-pointer"
-                            aria-label="Profile"
-                        >
-                            {avatarUrl ? (
-                                <Image
-                                    src={avatarUrl}
-                                    alt="Profile"
-                                    width={36}
-                                    height={36}
-                                    className="h-full w-full object-cover"
-                                />
-                            ) : (
-                                <span className="text-xs font-bold text-muted-foreground">
-                                    {initials}
-                                </span>
-                            )}
-                        </button>
+                    {/* Right: Actions (Profile vs Settings/Notifs) */}
+                    <div className="flex items-center gap-3">
+                        {isProfilePage ? (
+                            <>
+                                <button
+                                    onClick={() => router.push("/dashboard/notifications")}
+                                    className="h-9 w-9 flex items-center justify-center rounded-full glass hover:bg-white/10 active:scale-95 transition-all"
+                                >
+                                    <Bell className="h-4 w-4" />
+                                </button>
+                                <button
+                                    onClick={() => router.push("/dashboard/settings")}
+                                    className="h-9 w-9 flex items-center justify-center rounded-full glass hover:bg-white/10 active:scale-95 transition-all"
+                                >
+                                    <Settings className="h-4 w-4" />
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => router.push("/dashboard/profile")}
+                                className="h-9 w-9 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-white/10 active:scale-95 transition-transform cursor-pointer"
+                                aria-label="Profile"
+                            >
+                                {avatarUrl ? (
+                                    <Image
+                                        src={avatarUrl}
+                                        alt="Profile"
+                                        width={36}
+                                        height={36}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-xs font-bold text-muted-foreground">
+                                        {initials}
+                                    </span>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             </motion.header>

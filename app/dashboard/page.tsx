@@ -183,11 +183,26 @@ export default function DashboardPage() {
             >
                 {/* ── Command Header ─────────────────────────── */}
                 <motion.div variants={staggerItem} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40 mb-2">{greeting}, {displayName}</p>
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
-                            {lat ? "Discovery Hub" : "Marketplace Center."}
-                        </h1>
+                    <div className="flex items-center gap-4">
+                        <div className="h-14 w-14 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 border-2 border-white/10 shadow-lg">
+                            {profile?.avatar_url ? (
+                                <Image
+                                    src={profile.avatar_url}
+                                    alt="User"
+                                    width={56}
+                                    height={56}
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-xl font-black text-primary">{displayName[0]}</span>
+                            )}
+                        </div>
+                        <div>
+                            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40 mb-1">{greeting}, {displayName}</p>
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-none">
+                                {lat ? "Discovery Hub" : "Marketplace Center."}
+                            </h1>
+                        </div>
                     </div>
                     {lat && (
                         <Button

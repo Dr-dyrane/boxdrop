@@ -31,7 +31,7 @@ function SettingRow({ icon: Icon, label, description, action }: any) {
     return (
         <GlassCard className="p-6 rounded-[2rem] flex items-center justify-between gap-6 hover:bg-white/5 transition-colors cursor-pointer group">
             <div className="flex items-center gap-6">
-                <div className="h-12 w-12 rounded-2xl bg-zinc-900 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     <Icon className="h-5 w-5" />
                 </div>
                 <div>
@@ -63,7 +63,7 @@ export default function SettingsPage() {
                 animate="show"
             >
                 <motion.div variants={item} className="space-y-4">
-                    <h1 className="text-5xl font-black tracking-tighter">System.</h1>
+                    <h1 className="text-5xl font-black tracking-tighter">Settings.</h1>
                     <p className="text-sm font-medium text-muted-foreground max-w-lg">
                         Configure your BoxDrop experience. Customization reflects your operational style.
                     </p>
