@@ -6,7 +6,7 @@
 |---|---|
 | **Status** | **Phase 3 — High-Fidelity Logistics Simulation** 🟢 |
 | **Type** | Progressive Web App (PWA) |
-| **Stack** | Next.js 14 · Supabase · Mapbox · Zustand · Framer Motion |
+| **Stack** | Next.js 16 · Supabase · Mapbox · Zustand · Framer Motion |
 | **License** | Proprietary |
 
 ---

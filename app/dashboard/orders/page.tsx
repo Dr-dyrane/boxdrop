@@ -6,7 +6,7 @@ import { GlassCard, Skeleton, SkeletonCard, Button } from "@/components/ui";
 import Link from "next/link";
 import { useOrders } from "@/core/hooks";
 import { formatCurrency, timeAgo, cn } from "@/core/utils";
-import { ShoppingBag, Package, ChevronRight, Clock, CheckCircle2, AlertCircle, History } from "lucide-react";
+import { ShoppingBag, Package, ChevronRight, Clock, CheckCircle2, AlertCircle, History, TrendingUp, Wallet, ArrowUpRight } from "lucide-react";
 
 /* ─────────────────────────────────────────────────────
    ORDERS PAGE — Transaction History
@@ -51,8 +51,93 @@ export default function OrdersPage() {
         );
     }
 
+
+    // ── Metrics Calculation ───────────────────────────
+    const totalSpend = orders?.reduce((acc, order) => acc + order.total, 0) || 0;
+    const activeCount = orders?.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length || 0;
+    const completedCount = orders?.filter(o => o.status === 'delivered').length || 0;
+
+    const OrdersSidebar = (
+        <div className="space-y-8">
+            <div className="glass-heavy p-6 rounded-[2.5rem] space-y-4">
+                <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Financial Summary</p>
+                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Wallet className="h-3 w-3 text-primary" />
+                    </div>
+                </div>
+                <div>
+                    <p className="text-3xl font-black tracking-tighter leading-none">{formatCurrency(totalSpend)}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mt-1.5 leading-none opacity-50">
+                        Lifetime Volume
+                    </p>
+                </div>
+                <div className="h-1 w-full bg-foreground/5 rounded-full overflow-hidden">
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="h-full bg-primary"
+                    />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div className="glass-heavy p-5 rounded-[2rem] space-y-4 group hover:translate-y-[1px] transition-all duration-300">
+                    <div className="h-10 w-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500">
+                        <Clock className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p className="text-2xl font-black tracking-tighter leading-none">{activeCount}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mt-1.5 leading-none opacity-50">
+                            Active
+                        </p>
+                    </div>
+                </div>
+                <div className="glass-heavy p-5 rounded-[2rem] space-y-4 group hover:translate-y-[1px] transition-all duration-300">
+                    <div className="h-10 w-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500">
+                        <CheckCircle2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p className="text-2xl font-black tracking-tighter leading-none">{completedCount}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mt-1.5 leading-none opacity-50">
+                            Cleared
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {orders && orders.length > 0 && (
+                <div className="glass-heavy p-6 rounded-[2.5rem] space-y-6">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Recent Activity</p>
+                    <div className="space-y-6 relative">
+                        <div className="absolute left-[11px] top-2 bottom-2 w-[2px] bg-foreground/5 rounded-full" />
+                        {orders.slice(0, 3).map((order, i) => (
+                            <div key={order.id} className="relative pl-8">
+                                <div className={cn(
+                                    "absolute left-0 top-1 h-6 w-6 rounded-full border-[3px] border-background flex items-center justify-center z-10",
+                                    i === 0 ? "bg-primary" : "bg-muted-foreground/20"
+                                )}>
+                                    {i === 0 && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground animate-pulse" />}
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black uppercase tracking-wider text-foreground">{order.status}</p>
+                                    <p className="text-[10px] font-bold text-muted-foreground opacity-50">{timeAgo(order.created_at)}</p>
+                                    <p className="text-sm font-black tracking-tight">{formatCurrency(order.total)}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <Link href="/dashboard/orders" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary hover:opacity-80 transition-opacity pt-2">
+                        View Full History <ArrowUpRight className="h-3 w-3" />
+                    </Link>
+                </div>
+            )}
+        </div>
+    );
+
     return (
-        <ScreenShell>
+        <ScreenShell side={OrdersSidebar}>
             <motion.div
                 className="space-y-12 pb-24"
                 variants={container}
@@ -61,14 +146,15 @@ export default function OrdersPage() {
             >
                 <div className="md:hidden h-2" />
 
-                <motion.div variants={staggerItem} className="flex items-center justify-between px-1">
-                    <div>
+                <motion.div variants={staggerItem} className="flex items-center justify-between px-1 pr-2 md:pr-20">
+                    <div className="min-w-0 pr-4">
                         <h1 className="text-5xl font-black tracking-tighter leading-tight hidden md:block">Order Logs.</h1>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-3 opacity-40">
+                        <h1 className="text-3xl font-black tracking-tighter leading-tight md:hidden">Orders.</h1>
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-3 opacity-40 truncate">
                             Transaction Intelligence / {orders?.length || 0} Successful Cycles
                         </p>
                     </div>
-                    <div className="h-12 w-12 rounded-full glass flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-full glass flex items-center justify-center shrink-0">
                         <History className="h-5 w-5 text-muted-foreground/40" />
                     </div>
                 </motion.div>

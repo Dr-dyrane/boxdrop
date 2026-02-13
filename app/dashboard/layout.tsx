@@ -285,7 +285,7 @@ export default function MainLayout({
                                     key={tab.href}
                                     href={tab.href}
                                     className={`
-                                        relative h-11 w-11 flex items-center justify-center rounded-[var(--radius-md)]
+                                        group relative h-11 w-11 flex items-center justify-center rounded-[var(--radius-md)]
                                         transition-colors duration-200 cursor-pointer
                                         ${active
                                             ? "bg-primary/10 text-foreground"
@@ -300,93 +300,136 @@ export default function MainLayout({
                                             {tab.count}
                                         </span>
                                     )}
+                                    {/* Glass Tooltip */}
+                                    <span className="
+                                        absolute left-full ml-4 top-1/2 -translate-y-1/2 
+                                        px-3 py-2 rounded-xl 
+                                        bg-background/20 backdrop-blur-md border border-white/10 shadow-2xl 
+                                        text-[9px] font-black uppercase tracking-widest text-foreground
+                                        opacity-0 scale-90 translate-x-[-8px]
+                                        group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0
+                                        transition-all duration-300 ease-out 
+                                        pointer-events-none whitespace-nowrap z-50
+                                    ">
+                                        {tab.label}
+                                    </span>
                                 </Link>
                             );
                         })}
                     </nav>
 
-                    <button
-                        onClick={() => router.push("/dashboard/profile")}
-                        className="h-10 w-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center mt-auto"
-                    >
-                        {avatarUrl ? <Image src={avatarUrl} alt="Profile" width={40} height={40} className="h-full w-full object-cover" /> : <span className="text-xs font-bold text-muted-foreground">{initials}</span>}
-                    </button>
+                    <div className="mt-auto flex flex-col items-center gap-3">
+                        <button
+                            onClick={() => setShowLocation(true)}
+                            className="group relative h-10 w-10 flex items-center justify-center rounded-full hover:bg-accent transition-colors"
+                            aria-label="Change Location"
+                        >
+                            <MapPin className="h-5 w-5 text-muted-foreground" />
+                            <span className="absolute left-full ml-4 top-1/2 -translate-y-1/2 px-3 py-2 rounded-xl bg-background/20 backdrop-blur-md border border-white/10 shadow-2xl text-[9px] font-black uppercase tracking-widest text-foreground opacity-0 scale-90 translate-x-[-8px] group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none whitespace-nowrap z-50">
+                                Location
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                            className="group relative h-10 w-10 flex items-center justify-center rounded-full hover:bg-accent transition-colors"
+                            aria-label="Toggle Theme"
+                        >
+                            {theme === "dark" ? <Sun className="h-5 w-5 text-muted-foreground" /> : <Moon className="h-5 w-5 text-muted-foreground" />}
+                            <span className="absolute left-full ml-4 top-1/2 -translate-y-1/2 px-3 py-2 rounded-xl bg-background/20 backdrop-blur-md border border-white/10 shadow-2xl text-[9px] font-black uppercase tracking-widest text-foreground opacity-0 scale-90 translate-x-[-8px] group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none whitespace-nowrap z-50">
+                                Appearance
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={() => router.push("/dashboard/profile")}
+                            className="group relative h-10 w-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center mt-2"
+                        >
+                            {avatarUrl ? <Image src={avatarUrl} alt="Profile" width={40} height={40} className="h-full w-full object-cover" /> : <span className="text-xs font-bold text-muted-foreground">{initials}</span>}
+                            <span className="absolute left-full ml-4 top-1/2 -translate-y-1/2 px-3 py-2 rounded-xl bg-background/20 backdrop-blur-md border border-white/10 shadow-2xl text-[9px] font-black uppercase tracking-widest text-foreground opacity-0 scale-90 translate-x-[-8px] group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none whitespace-nowrap z-50">
+                                Profile
+                            </span>
+                        </button>
+                    </div>
                 </motion.aside>
-            )}
+            )
+            }
 
             {/* ── Desktop Sidebar (lg+) ─────────────────── */}
-            {!isImmersivePage && (
-                <motion.aside
-                    animate={{ x: 0 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                    className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy"
-                >
-                    <Link href="/dashboard" className="flex items-center gap-3 px-3 h-10 mb-4 cursor-pointer">
-                        <Logo className="h-7 w-7" />
-                        <span className="text-base font-black tracking-tight">BoxDrop</span>
-                    </Link>
+            {
+                !isImmersivePage && (
+                    <motion.aside
+                        animate={{ x: 0 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                        className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col py-6 px-3 gap-1 glass-heavy"
+                    >
+                        <Link href="/dashboard" className="flex items-center gap-3 px-3 h-10 mb-4 cursor-pointer">
+                            <Logo className="h-7 w-7" />
+                            <span className="text-base font-black tracking-tight">BoxDrop</span>
+                        </Link>
 
-                    <nav className="flex-1 flex flex-col gap-0.5">
-                        {currentSmartTabs.map((tab) => {
-                            const active = isActive(tab.href);
-                            return (
-                                <Link
-                                    key={tab.href}
-                                    href={tab.href}
-                                    className={`
+                        <nav className="flex-1 flex flex-col gap-0.5">
+                            {currentSmartTabs.map((tab) => {
+                                const active = isActive(tab.href);
+                                return (
+                                    <Link
+                                        key={tab.href}
+                                        href={tab.href}
+                                        className={`
                                         relative flex items-center gap-3 px-3 h-11 rounded-[var(--radius-md)]
                                         text-sm font-medium transition-colors duration-200 cursor-pointer
                                         ${active
-                                            ? "bg-primary/10 text-foreground"
-                                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                                        }
+                                                ? "bg-primary/10 text-foreground"
+                                                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                                            }
                                     `}
+                                    >
+                                        <tab.icon className="h-5 w-5 shrink-0" />
+                                        <span>{tab.label}</span>
+                                        {tab.count !== undefined && tab.count > 0 && (
+                                            <span className="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
+                                                {tab.count}
+                                            </span>
+                                        )}
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+
+                        <div className="mt-auto space-y-2 pb-4">
+                            <div className="px-3">
+                                <button onClick={() => setShowLocation(true)} className="flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground mb-1">
+                                    <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 bg-primary/5">
+                                        <MapPin className="h-3 w-3" />
+                                    </div>
+                                    <span className="text-xs font-medium">Location</span>
+                                </button>
+                                <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground">
+                                    <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 bg-primary/5">
+                                        {theme === "dark" ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
+                                    </div>
+                                    <span className="text-xs font-medium">Appearance</span>
+                                </button>
+                            </div>
+
+                            <div className="px-3">
+                                <button
+                                    onClick={() => router.push("/dashboard/profile")}
+                                    className={`flex items-center gap-3 w-full px-3 h-12 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left ${pathname === "/dashboard/profile" ? "bg-primary/10" : ""}`}
                                 >
-                                    <tab.icon className="h-5 w-5 shrink-0" />
-                                    <span>{tab.label}</span>
-                                    {tab.count !== undefined && tab.count > 0 && (
-                                        <span className="ml-auto h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
-                                            {tab.count}
-                                        </span>
-                                    )}
-                                </Link>
-                            );
-                        })}
-                    </nav>
-
-                    <div className="mt-auto space-y-2 pb-4">
-                        <div className="px-3">
-                            <button onClick={() => setShowLocation(true)} className="flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground mb-1">
-                                <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 bg-primary/5">
-                                    <MapPin className="h-3 w-3" />
-                                </div>
-                                <span className="text-xs font-medium">Location</span>
-                            </button>
-                            <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="flex items-center gap-3 w-full px-3 h-10 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left text-muted-foreground hover:text-foreground">
-                                <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 bg-primary/5">
-                                    {theme === "dark" ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
-                                </div>
-                                <span className="text-xs font-medium">Appearance</span>
-                            </button>
+                                    <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
+                                        {avatarUrl ? <Image src={avatarUrl} alt="Profile" width={32} height={32} className="h-full w-full object-cover" /> : <User className="h-4 w-4 text-muted-foreground" />}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[11px] font-black uppercase tracking-tight truncate leading-tight">{profile?.full_name || user?.email?.split("@")[0] || "Profile"}</p>
+                                        <p className="text-[9px] text-muted-foreground truncate tabular-nums">{user?.email || "Not signed in"}</p>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
-
-                        <div className="px-3">
-                            <button
-                                onClick={() => router.push("/dashboard/profile")}
-                                className={`flex items-center gap-3 w-full px-3 h-12 rounded-[var(--radius-md)] hover:bg-accent transition-colors text-left ${pathname === "/dashboard/profile" ? "bg-primary/10" : ""}`}
-                            >
-                                <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
-                                    {avatarUrl ? <Image src={avatarUrl} alt="Profile" width={32} height={32} className="h-full w-full object-cover" /> : <User className="h-4 w-4 text-muted-foreground" />}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-[11px] font-black uppercase tracking-tight truncate leading-tight">{profile?.full_name || user?.email?.split("@")[0] || "Profile"}</p>
-                                    <p className="text-[9px] text-muted-foreground truncate tabular-nums">{user?.email || "Not signed in"}</p>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                </motion.aside>
-            )}
+                    </motion.aside>
+                )
+            }
 
             {/* ── Content Area ──────────────────────────── */}
             <div className={`
@@ -401,67 +444,69 @@ export default function MainLayout({
             </div>
 
             {/* ── Mobile Bottom Navigation (Smart Pill + FAB) ───────── */}
-            {!isImmersivePage && (
-                <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex justify-between items-end gap-2 pb-[calc(12px+env(safe-area-inset-bottom))] px-4 pointer-events-none">
-                    <motion.div
-                        className="pointer-events-auto"
-                        animate={{ y: isCollapsed ? 120 : 0, opacity: isCollapsed ? 0 : 1 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    >
-                        <div className="glass-heavy rounded-full px-2 h-14 flex items-center gap-1 shadow-xl">
-                            {currentSmartTabs.map((tab) => {
-                                const active = isActive(tab.href);
-                                return (
-                                    <Link
-                                        key={tab.href}
-                                        href={tab.href}
-                                        className={`relative flex items-center gap-2 h-10 rounded-full transition-all duration-300 cursor-pointer ${active ? "bg-foreground text-background px-4" : "text-muted-foreground px-3 hover:text-foreground"}`}
-                                    >
-                                        <div className="relative">
-                                            <tab.icon className="h-[18px] w-[18px] shrink-0" />
-                                            {tab.count !== undefined && tab.count > 0 && (
-                                                <span className="absolute -top-1.5 -right-1.5 h-3.5 min-w-[14px] px-1 rounded-full bg-primary text-[8px] font-black flex items-center justify-center text-primary-foreground shadow-sm">
-                                                    {tab.count}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <AnimatePresence mode="wait">
-                                            {active && (
-                                                <motion.span
-                                                    initial={{ width: 0, opacity: 0 }}
-                                                    animate={{ width: "auto", opacity: 1 }}
-                                                    exit={{ width: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                                                    className="text-xs font-semibold overflow-hidden whitespace-nowrap"
-                                                >
-                                                    {tab.label}
-                                                </motion.span>
-                                            )}
-                                        </AnimatePresence>
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </motion.div>
+            {
+                !isImmersivePage && (
+                    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex justify-between items-end gap-2 pb-[calc(12px+env(safe-area-inset-bottom))] px-4 pointer-events-none">
+                        <motion.div
+                            className="pointer-events-auto"
+                            animate={{ y: isCollapsed ? 120 : 0, opacity: isCollapsed ? 0 : 1 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        >
+                            <div className="glass-heavy rounded-full px-2 h-14 flex items-center gap-1 shadow-xl">
+                                {currentSmartTabs.map((tab) => {
+                                    const active = isActive(tab.href);
+                                    return (
+                                        <Link
+                                            key={tab.href}
+                                            href={tab.href}
+                                            className={`relative flex items-center gap-2 h-10 rounded-full transition-all duration-300 cursor-pointer ${active ? "bg-foreground text-background px-4" : "text-muted-foreground px-3 hover:text-foreground"}`}
+                                        >
+                                            <div className="relative">
+                                                <tab.icon className="h-[18px] w-[18px] shrink-0" />
+                                                {tab.count !== undefined && tab.count > 0 && (
+                                                    <span className="absolute -top-1.5 -right-1.5 h-3.5 min-w-[14px] px-1 rounded-full bg-primary text-[8px] font-black flex items-center justify-center text-primary-foreground shadow-sm">
+                                                        {tab.count}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <AnimatePresence mode="wait">
+                                                {active && (
+                                                    <motion.span
+                                                        initial={{ width: 0, opacity: 0 }}
+                                                        animate={{ width: "auto", opacity: 1 }}
+                                                        exit={{ width: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                                                        className="text-xs font-semibold overflow-hidden whitespace-nowrap"
+                                                    >
+                                                        {tab.label}
+                                                    </motion.span>
+                                                )}
+                                            </AnimatePresence>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </motion.div>
 
-                    {/* ── Dynamic Action FAB (Helper) ────────── */}
-                    <motion.button
-                        onClick={fab.onClick}
-                        className="pointer-events-auto h-14 w-14 rounded-full glass-heavy flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer relative shadow-xl"
-                        animate={{ y: isCollapsed ? 120 : 0, opacity: isCollapsed ? 0 : 1 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.05 }}
-                    >
-                        <div className={`h-10 w-10 rounded-full flex items-center justify-center ${fab.isActive ? "bg-foreground text-background" : "text-muted-foreground"} transition-colors duration-300`}>
-                            <fab.icon className="h-[18px] w-[18px]" />
-                            {fab.badge !== null && fab.badge > 0 && (
-                                <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-black flex items-center justify-center">
-                                    {fab.badge}
-                                </span>
-                            )}
-                        </div>
-                    </motion.button>
-                </nav>
-            )}
-        </div>
+                        {/* ── Dynamic Action FAB (Helper) ────────── */}
+                        <motion.button
+                            onClick={fab.onClick}
+                            className="pointer-events-auto h-14 w-14 rounded-full glass-heavy flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer relative shadow-xl"
+                            animate={{ y: isCollapsed ? 120 : 0, opacity: isCollapsed ? 0 : 1 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.05 }}
+                        >
+                            <div className={`h-10 w-10 rounded-full flex items-center justify-center ${fab.isActive ? "bg-foreground text-background" : "text-muted-foreground"} transition-colors duration-300`}>
+                                <fab.icon className="h-[18px] w-[18px]" />
+                                {fab.badge !== null && fab.badge > 0 && (
+                                    <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 rounded-full bg-foreground text-background text-[10px] font-black flex items-center justify-center">
+                                        {fab.badge}
+                                    </span>
+                                )}
+                            </div>
+                        </motion.button>
+                    </nav>
+                )
+            }
+        </div >
     );
 }

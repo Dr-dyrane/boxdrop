@@ -36,25 +36,72 @@ const PRESETS = [
 export function LocationModal({ isOpen, onClose }: LocationModalProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [isLoading, setIsLoading] = useState(false);
     const [query, setQuery] = useState("");
+
+    const handleUseCurrentLocation = async () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser.");
+            return;
+        }
+
+        setIsLoading(true);
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+
+                try {
+                    // Reverse Geocode via Mapbox
+                    const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+                    if (!token) throw new Error("Missing Mapbox Token");
+
+                    const res = await fetch(
+                        `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`
+                    );
+                    const data = await res.json();
+
+                    const address = data.features?.[0]?.place_name || "Unknown Location";
+
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.set("lat", latitude.toString());
+                    params.set("lng", longitude.toString());
+                    params.set("address", address);
+
+                    router.push(`/dashboard?${params.toString()}`);
+                    onClose();
+                } catch (error) {
+                    console.error("Geocoding failed:", error);
+                    // Fallback to coordinates only if geocoding fails
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.set("lat", latitude.toString());
+                    params.set("lng", longitude.toString());
+                    params.set("address", `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+                    router.push(`/dashboard?${params.toString()}`);
+                    onClose();
+                } finally {
+                    setIsLoading(false);
+                }
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                alert("Unable to retrieve your location. Please check your permissions.");
+                setIsLoading(false);
+            }
+        );
+    };
 
     const handleSelect = (lat: number | string, lng: number | string, address: string) => {
         if (lat === "gps") {
-            // In a real app, trigger geolocation here
-            // For now, simulate a GPS location (e.g., Lagos center)
-            const params = new URLSearchParams(searchParams.toString());
-            params.set("lat", "6.5244");
-            params.set("lng", "3.3792");
-            params.set("address", "Current Location, 15 Glover Rd, Ikoyi");
-            router.push(`/dashboard?${params.toString()}`);
+            handleUseCurrentLocation();
         } else {
             const params = new URLSearchParams(searchParams.toString());
             params.set("lat", lat.toString());
             params.set("lng", lng.toString());
-            params.set("address", `${address.split(",")[0] === address ? `${address}, ` : ""}${address}`);
+            params.set("address", address);
             router.push(`/dashboard?${params.toString()}`);
+            onClose();
         }
-        onClose();
     };
 
     return (
@@ -103,18 +150,31 @@ export function LocationModal({ isOpen, onClose }: LocationModalProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <div className="flex items-center gap-2 mb-2">
+                                <Button
+                                    onClick={handleUseCurrentLocation}
+                                    disabled={isLoading}
+                                    className="w-full h-14 rounded-2xl font-black uppercase tracking-widest gap-3"
+                                >
+                                    {isLoading ? (
+                                        <div className="h-4 w-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+                                    ) : (
+                                        <Navigation className="h-4 w-4" />
+                                    )}
+                                    {isLoading ? "Locating..." : "Use Current Location"}
+                                </Button>
+
+                                <div className="flex items-center gap-2 mb-2 pt-4">
                                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">Nearby & Recent</span>
                                 </div>
 
-                                {PRESETS.filter(p => p.label.toLowerCase().includes(query.toLowerCase()) || p.address.toLowerCase().includes(query.toLowerCase())).map((place, i) => (
+                                {PRESETS.filter(p => (p.label.toLowerCase().includes(query.toLowerCase()) || p.address.toLowerCase().includes(query.toLowerCase())) && p.lat !== "gps").map((place, i) => (
                                     <button
                                         key={i}
                                         onClick={() => handleSelect(place.lat, place.lng, `${place.label}, ${place.address}`)}
                                         className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors group text-left"
                                     >
                                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                            {place.lat === "gps" ? <Navigation className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+                                            <MapPin className="h-4 w-4" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <p className="font-bold text-sm truncate text-foreground">{place.label}</p>

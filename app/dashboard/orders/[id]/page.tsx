@@ -393,95 +393,83 @@ export default function OrderTrackingPage() {
 
     const ActiveIcon = statusSteps[currentStepIndex]?.icon || Package;
 
+    // ── Sidebar Content ───────────────────────────────
+    const OrderDetailsSidebar = (
+        <div className="space-y-10 min-h-full flex flex-col">
+            <TimelineContent
+                displayOrder={displayOrder}
+                activeStatus={activeStatus}
+                currentStepIndex={currentStepIndex}
+                isDemoMode={isDemoMode}
+            />
+
+            <div className="mt-auto pt-10 sticky bottom-0">
+                <Button className="w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/10">
+                    Contact Courier
+                </Button>
+            </div>
+        </div>
+    );
+
     return (
-        <ScreenShell flush>
-            <div className="flex flex-col lg:flex-row h-[100dvh] overflow-hidden">
-                <div className="flex-1 relative overflow-hidden h-full">
-                    {/* Floating Header */}
-                    <div className="absolute top-[calc(1.5rem+env(safe-area-inset-top))] left-6 right-6 z-30 flex items-center justify-between pointer-events-none">
+        <ScreenShell flush side={OrderDetailsSidebar}>
+            <div className="relative w-full h-[calc(100vh-80px)] lg:h-[100dvh] overflow-hidden">
+                {/* Floating Header */}
+                <div className="absolute top-[calc(1.5rem+env(safe-area-inset-top))] left-6 right-6 z-30 flex items-center justify-between pointer-events-none">
+                    <div className="flex items-center gap-3 pointer-events-auto">
                         <button
                             onClick={() => router.back()}
-                            className="h-10 w-10 glass-heavy rounded-full flex items-center justify-center active:scale-90 transition-transform cursor-pointer pointer-events-auto"
+                            className="h-10 w-10 glass-heavy rounded-full flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
                         >
                             <ChevronLeft className="h-5 w-5" />
                         </button>
 
-                        <div className="flex items-center gap-2 pointer-events-auto">
-                            <div className="glass-heavy px-4 py-2 rounded-2xl flex items-center gap-3 border border-foreground/5 shadow-2xl">
-                                <div className="h-2 w-2 rounded-full bg-foreground animate-pulse" />
-                                <p className="text-[10px] font-black uppercase tracking-widest leading-none mt-0.5">#{displayOrder.id.slice(0, 8)}</p>
-                            </div>
-
-                            <button
-                                onClick={() => setIsDesktopPanelCollapsed(!isDesktopPanelCollapsed)}
-                                className="hidden lg:flex h-10 w-10 glass-heavy rounded-full items-center justify-center active:scale-90 transition-transform cursor-pointer"
-                            >
-                                {isDesktopPanelCollapsed ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-                            </button>
+                        <div className="glass-heavy px-4 py-2 rounded-2xl flex items-center gap-3 border border-foreground/5 shadow-2xl">
+                            <div className="h-2 w-2 rounded-full bg-foreground animate-pulse" />
+                            <p className="text-[10px] font-black uppercase tracking-widest leading-none mt-0.5">#{displayOrder.id.slice(0, 8)}</p>
                         </div>
                     </div>
-
-                    <DiscoveryMap
-                        center={activeCenter}
-                        zoom={14}
-                        markers={markers}
-                        route={route}
-                        className="absolute inset-0"
-                    />
-
-                    {/* Mobile Dynamic Bottom Sheet */}
-                    <motion.div
-                        initial={false}
-                        animate={{ height: isSheetExpanded ? "85vh" : "33vh" }}
-                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="absolute bottom-0 left-0 right-0 bg-background rounded-t-[3rem] z-[50] flex flex-col lg:hidden border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.15)] overflow-hidden pb-[calc(1rem+env(safe-area-inset-bottom))]"
-                    >
-                        {/* Drag/Click Handle */}
-                        <button
-                            onClick={() => setIsSheetExpanded(!isSheetExpanded)}
-                            className="w-full flex flex-col items-center py-4 shrink-0 group"
-                        >
-                            <div className="w-12 h-1.5 bg-foreground/10 rounded-full mb-2 transition-colors group-hover:bg-foreground/20" />
-                        </button>
-
-                        <div className="flex-1 overflow-y-auto px-8 scrollbar-none pb-20">
-                            {isSheetExpanded ? (
-                                <TimelineContent
-                                    displayOrder={displayOrder}
-                                    activeStatus={activeStatus}
-                                    currentStepIndex={currentStepIndex}
-                                    isDemoMode={isDemoMode}
-                                />
-                            ) : (
-                                <SummaryContent
-                                    displayOrder={displayOrder}
-                                    activeStatus={activeStatus}
-                                    ActiveIcon={ActiveIcon}
-                                    statusLabel={statusSteps[currentStepIndex]?.label}
-                                />
-                            )}
-                        </div>
-                    </motion.div>
                 </div>
 
-                {/* Desktop Panel */}
+                <DiscoveryMap
+                    center={activeCenter}
+                    zoom={14}
+                    markers={markers}
+                    route={route}
+                    className="absolute inset-0 h-full w-full"
+                />
+
+                {/* Mobile Dynamic Bottom Sheet */}
                 <motion.div
                     initial={false}
-                    animate={{ width: isDesktopPanelCollapsed ? 0 : 420, opacity: isDesktopPanelCollapsed ? 0 : 1 }}
-                    className="hidden lg:flex lg:h-full lg:border-l lg:border-foreground/5 glass-heavy lg:bg-background/80 lg:backdrop-blur-3xl flex-col shadow-2xl lg:shadow-none z-20 overflow-hidden relative"
+                    animate={{ height: isSheetExpanded ? "85vh" : "33vh" }}
+                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                    className="absolute bottom-0 left-0 right-0 bg-background rounded-t-[3rem] z-[50] flex flex-col lg:hidden border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.15)] overflow-hidden pb-[calc(1rem+env(safe-area-inset-bottom))]"
                 >
-                    <div className="flex-1 overflow-y-auto p-10 scrollbar-none min-w-[420px]">
-                        <TimelineContent
-                            displayOrder={displayOrder}
-                            activeStatus={activeStatus}
-                            currentStepIndex={currentStepIndex}
-                            isDemoMode={isDemoMode}
-                        />
-                    </div>
-                    <div className="p-10 pt-4 border-t border-foreground/5 bg-background/50 min-w-[420px]">
-                        <Button className="w-full h-14 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/10">
-                            Contact Courier
-                        </Button>
+                    {/* Drag/Click Handle */}
+                    <button
+                        onClick={() => setIsSheetExpanded(!isSheetExpanded)}
+                        className="w-full flex flex-col items-center py-4 shrink-0 group"
+                    >
+                        <div className="w-12 h-1.5 bg-foreground/10 rounded-full mb-2 transition-colors group-hover:bg-foreground/20" />
+                    </button>
+
+                    <div className="flex-1 overflow-y-auto px-8 scrollbar-none pb-20">
+                        {isSheetExpanded ? (
+                            <TimelineContent
+                                displayOrder={displayOrder}
+                                activeStatus={activeStatus}
+                                currentStepIndex={currentStepIndex}
+                                isDemoMode={isDemoMode}
+                            />
+                        ) : (
+                            <SummaryContent
+                                displayOrder={displayOrder}
+                                activeStatus={activeStatus}
+                                ActiveIcon={ActiveIcon}
+                                statusLabel={statusSteps[currentStepIndex]?.label}
+                            />
+                        )}
                     </div>
                 </motion.div>
             </div>
