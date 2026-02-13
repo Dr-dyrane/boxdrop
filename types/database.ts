@@ -4,7 +4,7 @@
    Run `npx supabase gen types typescript` to regenerate.
    ───────────────────────────────────────────────────── */
 
-export type UserRole = "user" | "vendor" | "courier";
+export type UserRole = "user" | "vendor" | "courier" | "admin" | "support";
 
 export type OrderStatus =
     | "pending"
@@ -102,38 +102,38 @@ export type Database = {
         Tables: {
             profiles: {
                 Row: Profile;
-                Insert: any;
-                Update: any;
+                Insert: Partial<Profile>;
+                Update: Partial<Profile>;
                 Relationships: any[];
             };
             vendors: {
                 Row: Vendor;
-                Insert: any;
-                Update: any;
+                Insert: Partial<Vendor>;
+                Update: Partial<Vendor>;
                 Relationships: any[];
             };
             products: {
                 Row: Product;
-                Insert: any;
-                Update: any;
+                Insert: Partial<Product>;
+                Update: Partial<Product>;
                 Relationships: any[];
             };
             orders: {
                 Row: Order;
-                Insert: any;
-                Update: any;
+                Insert: Partial<Order>;
+                Update: Partial<Order>;
                 Relationships: any[];
             };
             order_items: {
                 Row: OrderItem;
-                Insert: any;
-                Update: any;
+                Insert: Partial<OrderItem>;
+                Update: Partial<OrderItem>;
                 Relationships: any[];
             };
             addresses: {
                 Row: UserAddress;
-                Insert: any;
-                Update: any;
+                Insert: Partial<UserAddress>;
+                Update: Partial<UserAddress>;
                 Relationships: [
                     {
                         foreignKeyName: "addresses_user_id_fkey";

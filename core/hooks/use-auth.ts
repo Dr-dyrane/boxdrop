@@ -50,6 +50,12 @@ export function useAuth() {
 
     const loading = loadingSession || isLoadingProfile;
 
+    const role = profile?.role;
+    const isAdmin = role === "admin";
+    const isVendor = role === "vendor";
+    const isCourier = role === "courier";
+    const isSupport = role === "support";
+
     const signOut = useCallback(async () => {
         await authService.signOut();
         router.push("/");
@@ -73,5 +79,18 @@ export function useAuth() {
         []
     );
 
-    return { user, profile, loading, signOut, signInWithOtp, signInWithGoogle, signUp };
+    return {
+        user,
+        profile,
+        role,
+        isAdmin,
+        isVendor,
+        isCourier,
+        isSupport,
+        loading,
+        signOut,
+        signInWithOtp,
+        signInWithGoogle,
+        signUp
+    };
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard, Sun, Moon, Bell, Settings, MapPin } from "lucide-react";
+import { Home, Compass, ShoppingBag, Package, Search, User, ChevronLeft, ArrowRight, CreditCard, Sun, Moon, Bell, Settings, MapPin, Shield } from "lucide-react";
 import { useScrollDirection } from "@/core/hooks/use-scroll-direction";
 import { useAuth } from "@/core/hooks";
 import { useCartStore, useThemeStore } from "@/core/store";
@@ -47,7 +47,7 @@ export default function MainLayout({
     const { theme, setTheme } = useThemeStore();
     const router = useRouter();
     const { direction, isScrolled } = useScrollDirection(10);
-    const { profile, user } = useAuth();
+    const { profile, user, isAdmin } = useAuth();
     const cartCount = useCartStore((s) => s.items.length);
     const isCollapsed = direction === "down" && isScrolled;
     const [showLocation, setShowLocation] = useState(false);
@@ -94,8 +94,12 @@ export default function MainLayout({
         const settingsTab: NavTab = { href: "/dashboard/settings", label: "Settings", icon: Settings };
         const alertsTab: NavTab = { href: "/dashboard/notifications", label: "Alerts", icon: Bell, count: alertCount };
         const cartTab: NavTab = { href: "/dashboard/cart", label: "Bag", icon: ShoppingBag, count: cartCount };
+        const adminTab: NavTab = { href: "/dashboard/admin", label: "Oversight", icon: Shield };
 
-        // Home Page Context
+        // ── Admin Override ───────────────────────────
+        if (isAdmin && pathname.startsWith("/dashboard/admin")) {
+            return [shopTab, adminTab, profileTab];
+        }
         if (pathname === "/dashboard") {
             return [shopTab, searchTab, ordersTab];
         }
@@ -128,6 +132,11 @@ export default function MainLayout({
             return [shopTab, cartTab, ordersTab];
         }
 
+        // Add Oversight to defaults if Admin
+        if (isAdmin && pathname === "/dashboard") {
+            return [shopTab, adminTab, searchTab];
+        }
+
         // Fallback
         return [shopTab, searchTab, ordersTab];
     };
@@ -144,6 +153,7 @@ export default function MainLayout({
         if (pathname.startsWith("/dashboard/profile")) return "Profile";
         if (pathname.startsWith("/dashboard/settings")) return "Settings";
         if (pathname.startsWith("/dashboard/notifications")) return "Notifications";
+        if (pathname.startsWith("/dashboard/admin")) return "Oversight";
         if (pathname.startsWith("/dashboard/vendor/")) return "Vendor";
         return "BoxDrop";
     };
