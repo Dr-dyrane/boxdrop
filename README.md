@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| **Status** | Phase 3 — Real-time & Delivery Tracking |
+| **Status** | **Phase 3 — High-Fidelity Logistics Simulation** 🟢 |
 | **Type** | Progressive Web App (PWA) |
-| **Stack** | Next.js 15 · Supabase · Mapbox · Zustand |
+| **Stack** | Next.js 14 · Supabase · Mapbox · Zustand · Framer Motion |
 | **License** | Proprietary |
 
 ---
@@ -14,17 +14,18 @@
 ## Table of Contents
 
 - [Vision](#-vision)
-- [Design System — The BoxDrop Law](#-design-system--the-boxdrop-law)
+- [Design System — The Alexander Canon](#-design-system--the-alexander-canon)
 - [Tech Stack](#-tech-stack)
 - [Architecture & Data Flow](#-architecture--data-flow)
 - [File Structure](#-file-structure)
-- [Database Schema](#-database-schema)
+- [Database & Seed Ecosystem](#-database--seed-ecosystem)
 - [Auth & Security](#-auth--security)
 - [Core Features](#-core-features)
 - [Getting Started](#-getting-started)
 - [Environment Variables](#-environment-variables)
 - [Roadmap](#-roadmap)
 - [Documentation Hub](./docs/index.md) 🏛️
+- *Source Code includes comprehensive JSDoc inline documentation.*
 
 ---
 
@@ -32,18 +33,18 @@
 
 BoxDrop is a **three-sided logistics marketplace** connecting **Users**, **Vendors**, and **Couriers** through a single, premium interface.
 
-Unlike standard delivery utilities, BoxDrop treats visual quality as infrastructure — not decoration. Every screen, every interaction, every loading state is intentionally designed. The product should feel **expensive, calm, and effortless**.
+Unlike standard delivery utilities, BoxDrop treats visual quality as infrastructure. Every screen, from the **"Immersive Cinema"** vendor headers to the **"Floating Glass"** cart pill, is designed to feel **expensive, calm, and effortless**.
 
 ### Core Principles
 
-1. **Premium First** — The UI must feel high-end before it feels feature-rich.
-2. **PWA Native** — Web-first, but indistinguishable from a native app on mobile.
-3. **Real-time by Default** — Order tracking, status updates, and courier positions are live.
-4. **Modular Architecture** — Every layer has a single responsibility. Nothing leaks.
+1.  **Premium First** — The UI must feel high-end before it feels feature-rich.
+2.  **Simulation Grade** — The app runs a full logistics engine (courier movement, ETA calculation) even in demo mode.
+3.  **Real-time by Default** — Order tracking, status updates, and courier positions are live.
+4.  **Modular Architecture** — Every layer has a single responsibility. Nothing leaks.
 
 ---
 
-## 🎨 Design System — The BoxDrop Law
+## 🎨 Design System — The BoxDrop Law & Alexander Canon
 
 **These rules are immutable. No exceptions.**
 
@@ -55,52 +56,52 @@ Visual separation is achieved exclusively through:
 
 | Technique | Implementation |
 |---|---|
-| **Frosted Glass** | `backdrop-blur-md`, `bg-white/10`, `bg-black/5` |
-| **Depth & Elevation** | `shadow-sm` for subtle lift, `shadow-lg` for floating elements |
-| **Opacity Layers** | `bg-card/20`, `bg-background/80` with `backdrop-filter` |
+| **Frosted Glass** | `backdrop-blur-md`, `bg-white/10` (Light), `bg-black/5` (Dark) |
+| **Depth & Elevation** | `shadow-sm` for subtle lift, `shadow-2xl` for floating elements |
+| **Opacity Layers** | `bg-card/20`, dynamic scrims for text readability |
 | **Whitespace** | Generous padding and margins — silence is luxury |
 
 ### 2. Aesthetic
 
-- **Palette:** Black & White monochrome. High contrast. Minimalist.
-- **Color Rule:** Color = state, not decoration. If it doesn't change meaning, remove it.
-- **Typography:** Size, weight, and spacing communicate hierarchy. Weak type = cheap product.
-- **White Space:** Intentional silence. Noise is expensive.
+-   **Palette:** Black & White monochrome. High contrast. Minimalist.
+-   **Imagery:** High-fidelity, curated Unsplash collections for each category.
+-   **Typography:** Inter / SF Pro. Size, weight, and spacing communicate hierarchy.
+-   **Motion:** Spring physics (stiffness 300, damping 30) for all interactions.
 
 ### 3. Interaction & Motion
 
 | Element | Behavior |
 |---|---|
 | **Buttons** | Slight scale-down on press. Never bounce. |
-| **Cards** | Glide up on hover/focus. |
-| **Modals** | Slide up from bottom (mobile) or fade in with blur (desktop). |
-| **Page Transitions** | Preserve spatial memory — show where you came from. |
+| **Cards** | Glide up on hover/focus (`y: -8px`). |
+| **Modals** | AnimatePresence pop-layout with backdrop blur. |
+| **Page Transitions** | Staggered fade-ins for content sections. |
 | **Loading** | Shimmer skeletons that match exact layout. Never spinners. |
 
 ### 4. Progressive Disclosure
 
-- Show only what's needed *now*.
-- Secondary actions (Edit, Details, Delete) appear on `hover` (desktop) or `tap` (mobile).
-- Search bars expand on focus.
-- Forms reveal one input at a time.
+-   Show only what's needed *now*.
+-   Secondary actions (Edit, Details, Delete) appear on `hover` (desktop) or `tap` (mobile).
+-   Search bars expand on focus.
+-   Forms reveal one input at a time.
 
 ### 5. State is Design
 
 Every possible state is intentionally designed:
 
-- **Loading** → Shimmer skeletons matching content layout
-- **Empty** → Clear, useful empty states with a next step
-- **Error** → Composed, never panicked. Always recoverable.
-- **Partial** → Gracefully handled. No broken layouts.
+-   **Loading** → Shimmer skeletons matching content layout
+-   **Empty** → Clear, useful empty states with a next step
+-   **Error** → Composed, never panicked. Always recoverable.
+-   **Partial** → Gracefully handled. No broken layouts.
 
 ### 6. The Pure UI Rule
 
 > You are **strictly forbidden** from calling Supabase or any direct data-fetching logic inside a UI Component (`app/**/*` or `components/**/*`).
 
 The UI must remain "logic-free." All data interactions must follow this mandate:
-- **UI** calls a **Custom Hook**.
-- **Hook** calls a **Service**.
-- **Service** calls **Supabase**.
+-   **UI** calls a **Custom Hook**.
+-   **Hook** calls a **Service**.
+-   **Service** calls **Supabase**.
 
 This ensures components are reusable, testable, and the architecture remains predictable.
 
@@ -112,17 +113,17 @@ This ensures components are reusable, testable, and the architecture remains pre
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| **Framework** | Next.js 15 (App Router) | SSR, routing, API routes |
+| **Framework** | Next.js 14 (App Router) | SSR, routing, API routes |
 | **Language** | TypeScript (strict) | Type safety across the stack |
-| **UI Library** | Gluestack UI | Cross-platform Web/Expo compatibility |
-| **Styling** | Tailwind CSS + NativeWind v4 | Utility-first CSS, future Expo support |
+| **Motion** | Framer Motion | Complex spring animations, layout transitions |
+| **Styling** | Tailwind CSS | Utility-first CSS |
 | **Icons** | Lucide React | Consistent, tree-shakeable icon set |
 
 ### State Management
 
 | Type | Technology | Use Case |
 |---|---|---|
-| **Server State** | TanStack Query (React Query) | Caching, optimistic updates, background refetching |
+| **Server State** | React Query | Caching, optimistic updates, background refetching |
 | **Client State** | Zustand | Cart, user preferences, session data |
 
 ### Backend (Supabase)
@@ -134,14 +135,6 @@ This ensures components are reusable, testable, and the architecture remains pre
 | **Realtime** | Live order tracking subscriptions |
 | **Storage** | Product images, avatars |
 | **RLS** | Row Level Security on every table |
-
-### Infrastructure (Future)
-
-| Service | Purpose |
-|---|---|
-| **Mapbox / Google Maps** | Route calculation, delivery tracking, distance-based fees |
-| **Stripe** | Payment processing, vendor payouts |
-| **Twilio / Resend** | SMS notifications, email receipts |
 
 ---
 
@@ -155,99 +148,77 @@ Provider → UI Component → Custom Hook → Service Layer → Zustand Store �
 
 | Layer | Responsibility | Example |
 |---|---|---|
-| **Provider** | Wraps the app with context | `ThemeProvider`, `AuthProvider`, `QueryProvider` |
-| **UI Component** | Renders data. No logic. | `ProductCard`, `OrderRow` |
+| **Provider** | Wraps the app with context | `ThemeProvider`, `AuthProvider` |
+| **UI Component** | Renders data. No logic. | `GlassCard`, `OrderRow` |
 | **Custom Hook** | Connects UI to services. Local logic. | `useCart`, `useAuth`, `useOrders` |
-| **Service Layer** | Pure functions that call Supabase. No UI. | `fetchProducts()`, `createOrder()` |
-| **Store (Zustand)** | Global client state. | `useCartStore`, `useUserStore` |
+| **Service Layer** | Pure functions that call Supabase. | `fetchProducts()`, `createOrder()` |
+| **Store (Zustand)** | Global client state. | `useCartStore` |
 | **Database** | Source of truth. | Supabase PostgreSQL |
-
-### Why `app/api` Still Exists
-
-While Supabase handles most data access directly, `app/api` routes are required for:
-
-1. **Webhooks** — Stripe payment confirmations, delivery status callbacks
-2. **Admin Operations** — Service Role access (bypasses RLS) for batch operations, payouts
-3. **Third-Party Integrations** — Secure SMS/Email dispatch via server-side keys
 
 ---
 
 ## 📂 File Structure
 
-Root-level structure. **No `/src` directory.** Next.js 15 App Router conventions.
+Root-level structure. **No `/src` directory.** Next.js 14 App Router conventions.
 
 ```
 /
 ├── app/                           # Next.js App Router
 │   ├── (auth)/                    # Authentication Routes
 │   │   ├── login/page.tsx         # Login screen
-│   │   ├── signup/page.tsx        # Signup screen
 │   │   └── layout.tsx            # Auth layout (clean, no tabs)
 │   │
 │   ├── (main)/                    # Protected App Routes
-│   │   ├── (tabs)/               # Main Tab Navigation
-│   │   │   ├── page.tsx          # Home / Marketplace
-│   │   │   ├── search/page.tsx   # Explore
-│   │   │   ├── orders/page.tsx   # Active Orders
-│   │   │   ├── profile/page.tsx  # User Profile
-│   │   │   └── layout.tsx       # Tab bar layout (Glassmorphism)
+│   │   ├── dashboard/             # Main Tab Navigation
+│   │   │   ├── page.tsx          # Bento Marketplace
+│   │   │   ├── search/           # Discovery Engine
+│   │   │   ├── cart/             # High-Fidelity Cart
+│   │   │   ├── orders/           # Real-time Tracking
+│   │   │   └── vendor/[id]/      # Immersive Vendor Detail
 │   │   │
-│   │   └── product/[id]/         # Product Detail (Stack Screen)
-│   │       └── page.tsx
+│   │   └── layout.tsx            # Shell Layout (Fonts, Providers)
 │   │
 │   ├── api/                       # Server-side (Webhooks, Admin)
-│   ├── layout.tsx                 # Root Layout (Fonts, Providers)
 │   └── globals.css                # Tailwind + design token imports
 │
 ├── components/                    # React Components
-│   ├── ui/                        # Gluestack/Primitive UI (Button, Input)
-│   ├── shared/                    # Business Components (GlassCard, OrderRow, DiscoveryMap)
-│   ├── layout/                    # Layout wrappers (ScreenShell, KeyboardAvoid)
-│   └── animations/                # Animation wrappers (Framer Motion)
+│   ├── ui/                        # Low-level primitives (Button, Input)
+│   ├── shared/                    # High-Level Business Components
+│   ├── layout/                    # Layout wrappers (ScreenShell)
+│   └── animations/                # Animation wrappers
 │
 ├── core/                          # Business Logic (Non-UI)
-│   ├── services/                  # Supabase Data Layer (fetchProducts, createOrder)
-│   ├── store/                     # Zustand Stores (useCartStore, useUserStore)
-│   ├── hooks/                     # Custom Hooks (useAuth, useOrders, useCart)
-│   └── utils/                     # Formatters, Validators, Constants
+│   ├── services/                  # Supabase Data Layer
+│   ├── store/                     # Zustand Stores
+│   ├── hooks/                     # Custom Hooks
+│   └── utils/                     # Formatters (Currency, Time, Distance)
 │
-├── lib/                           # Configuration
-│   └── supabase.ts                # Supabase Client (server + client)
+├── scripts/                       # DevOps & Seeding
+│   └── db_seed.ts                 # Unified High-Fidelity Seeker
+│   └── logistics_engine.ts        # Simulation logic
 │
-├── types/                         # TypeScript Interfaces (DB Schema, Props)
-│
-└── public/                        # Static Assets (Images, Icons, PWA Manifest)
+└── types/                         # TypeScript Interfaces
 ```
 
 ---
 
-## 📦 Database Schema
+## 📦 Database & Seed Ecosystem
 
-The schema supports a **three-sided marketplace** from Day 1: Users, Vendors, and Couriers.
+The schema supports a **three-sided marketplace** from Day 1.
 
-### Tables
+### Unified Seed Script (`scripts/db_seed.ts`)
+We have built a sophisticated seed engine that populates the database with:
+-   **120+ Vendors**: Spread geographically around a target centroid (Hemet, CA).
+-   **Curated Imagery**: Unsplash collections mapped to specific categories (Sushi, Coffee, Retail).
+-   **Smart Products**: prices, descriptions, and stock levels generated with variance.
 
-| Table | Purpose | Key Columns |
-|---|---|---|
-| `profiles` | All user accounts | `id`, `role` (user/vendor/courier), `phone`, `email`, `avatar_url`, `full_name` |
-| `vendors` | Business entities | `id`, `owner_id` → profiles, `name`, `location`, `rating`, `is_featured`, `logo_url` |
-| `products` | Vendor inventory | `id`, `vendor_id` → vendors, `name`, `price`, `image_url`, `stock`, `category` |
-| `orders` | Transaction records | `id`, `user_id` → profiles, `vendor_id`, `courier_id`, `status`, `total`, `delivery_location` |
-| `order_items` | Line items per order | `id`, `order_id` → orders, `product_id` → products, `quantity`, `unit_price` |
+### Schema Highlights
 
-### Order Status Flow
-
-```
-pending → confirmed → preparing → picked_up → in_transit → delivered
-                                                          → cancelled
-```
-
-### Security
-
-- **RLS enabled on every table.**
-- Users can only read/write their own data.
-- Vendors can only manage their own products and orders.
-- Couriers can only see orders assigned to them.
+| Table | Key Features |
+|---|---|
+| `vendors` | `location` (PostGIS Geography), `cover_url`, `category` |
+| `orders` | `courier_lat/lng` (Real-time tracking), `status` (Enum flow) |
+| `products` | `is_available`, `image_url` |
 
 ---
 
@@ -255,47 +226,29 @@ pending → confirmed → preparing → picked_up → in_transit → delivered
 
 | Aspect | Implementation |
 |---|---|
-| **Provider** | Supabase Auth |
-| **Methods** | Email OTP, Phone OTP |
-| **Flow** | Progressive profiling — signup creates a minimal profile, enriched on first order |
-| **Protection** | `useAuth` hook redirects unauthenticated users away from `(main)` routes |
-| **RLS** | Strict Row Level Security on all tables |
+| **Provider** | Supabase Auth (Email/Phone OTP) |
+| **Protection** | `useAuth` hook redirects unauthenticated users |
+| **RLS** | Strict Row Level Security. Public read access to Vendors/Products. Private access to Orders. |
 
 ---
 
 ## ⚡ Core Features
 
-### Smart App Shell
+### 1. Immersive Discovery (Marketplace)
+-   **Bento Grid Layout**: Category tiles using `GlassCard` architecture.
+-   **Spotlight Engine**: Featured vendors appear in large, cinema-style cards.
+-   **Smart Search**: Real-time filtering by category and text.
 
-- **Glassmorphism Tab Bar** — Frosted glass bottom navigation, hidden on auth and detail screens
-- **ScreenShell** — Unified wrapper handling SafeArea, padding, skeleton loading states
-- **Responsive** — Touch-action manipulation prevents pull-to-refresh on web mobile. Smart viewport meta tags handle notches.
+### 2. High-Fidelity Commerce (Cart & Checkout)
+-   **Floating Cart Pill**: Apple-style persistent summary that follows the user.
+-   **Smart Currency**: Locale-aware formatting (USD/EN-US).
+-   **Optimistic UI**: Instant "Add to Cart" animations with spring physics.
 
-### Marketplace (Home)
-
-- Vendor grid rendered with `GlassCard` components
-- Progressive disclosure search bar (expands on focus)
-- Category filtering with horizontal scroll chips
-
-### Cart & Ordering
-
-- Zustand-powered cart with optimistic updates
-- Order creation through Service Layer → Supabase
-- Real-time order status via Supabase Realtime subscriptions
-- Order Search & Geocoding (Mapbox integration)
-
-### Real-time Tracking & Map (Phase 3)
-
-- **Theme-Sensitive Maps** — Adaptive styles (`light-v11` / `dark-v11`) syncing with system/user theme.
-- **Street-Level Logistics** — Zoom level 15+ focus with high-resolution telemetry.
-- **Responsive Telemetry** — Vertical timeline and split-panel tracking on desktop.
-- **Geocoding Hub** — Predictive address search via Mapbox/Google APIs.
-
-### Live Tracking (Planned)
-
-- Map-based courier tracking
-- Distance/fee calculation via mapping API
-- Push notifications for status transitions
+### 3. Real-time Logistics Engine (Tracking)
+-   **Discovery Map**: Mapbox integration with dynamic zoom and entity snapping.
+-   **Visual Courier**: Simulated courier movement (`courier_lat`/`lng`) interpolated along routes.
+-   **Status Timeline**: Animated vertical timeline showing precise order states.
+-   **Smart Geocoding**: Address resolution and distance verification.
 
 ---
 
@@ -303,9 +256,8 @@ pending → confirmed → preparing → picked_up → in_transit → delivered
 
 ### Prerequisites
 
-- **Node.js** ≥ 18
-- **pnpm** (preferred package manager)
-- **Supabase** project (free tier works)
+-   **Node.js** ≥ 18
+-   **Supabase** project (free tier works)
 
 ### Setup
 
@@ -315,69 +267,47 @@ git clone https://github.com/Dyrane/boxdrop.git
 cd boxdrop
 
 # 2. Install dependencies
-pnpm install
+npm install
 
-# 3. Copy environment template
+# 3. Environment Setup
 cp .env.example .env.local
+# Add your NEXT_PUBLIC_SUPABASE_URL and ANON_KEY
 
-# 4. Start development server
-pnpm dev
-```
+# 4. Hydrate Database (The Magic Step)
+npx tsx scripts/db_seed.ts
 
----
-
-## 🔑 Environment Variables
-
-Create a `.env.local` file in the project root:
-
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# Mapping (when implemented)
-# NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token
-
-# Payments (when implemented)
-# STRIPE_SECRET_KEY=your_stripe_secret
-# STRIPE_WEBHOOK_SECRET=your_webhook_secret
+# 5. Start development server
+npm run dev
 ```
 
 ---
 
 ## 🗺 Roadmap
 
-### Phase 1 — Foundation
-
-- [x] Project setup (Next.js 15, Tailwind, Gluestack, Supabase)
-- [x] Design system implementation (GlassCard, ScreenShell, theme tokens)
-- [x] Auth flow (Email/Phone OTP, protected routes)
-- [x] Database schema + seed data (5 vendors, 20 products)
+### Phase 1 — Foundation ✅
+- [x] Project setup (Next.js 14, Tailwind, Supabase)
+- [x] Design system implementation (Alexander Canon)
+- [x] Auth flow (Email/Phone OTP)
+- [x] Database schema + RLS policies
 
 ### Phase 2 — Core Experience ✅
+- [x] Marketplace home (Bento Grid, Spotlight)
+- [x] Vendor Detail (Immersive Header, Parallax)
+- [x] Cart management (Zustand, Persistent Pill)
+- [x] High-Fidelity Seed Data (120+ Vendors, Imagery)
 
-- [x] Marketplace home (adaptive navigation, search droplet, categories)
-- [x] Product detail view (premium glide-up interaction)
-- [x] Cart management (Zustand store, optimistic UI)
-- [x] Order creation and confirmation flow (Success interactions)
+### Phase 3 — Logistics Simulation ✅
+- [x] Real-time Order Tracking (Mapbox)
+- [x] Visual Courier Simulation
+- [x] Distance & ETA Calculation
+- [x] Smart Currency & Localization
 
-### Phase 3 — Real-time & Delivery ✅ (In Progress)
-
-- [x] Order status tracking (Supabase Realtime)
-- [x] Map integration (Mapbox Navigation & standard styles)
-- [x] Theme-aware Map styles (Grayscale Light/Dark)
-- [x] Responsive Tracking Panel (Desktop split-view)
-- [ ] Courier assignment and tracking
-- [ ] Distance-based delivery fee calculation
-
-### Phase 4 — Monetization & Scale
-
-- [ ] Stripe payment integration
-- [ ] Vendor dashboard
-- [ ] Courier app view
-- [ ] Push notifications (SMS/Email)
-- [ ] PWA optimization (offline support, install prompt)
+### Phase 4 — Monetization & Scale (Next)
+- [ ] Stripe Payment Integration
+- [ ] Dedicated Courier App (PWA)
+- [ ] Vendor Dashboard (Admin)
+- [ ] Push Notifications (OneSignal/Twilio)
+- [ ] PWA Optimization (Offline Support, Install Prompt)
 
 ---
 
