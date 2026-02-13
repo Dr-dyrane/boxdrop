@@ -15,7 +15,7 @@ export type OrderStatus =
     | "delivered"
     | "cancelled";
 
-export interface Profile {
+export type Profile = {
     id: string;
     role: UserRole;
     full_name: string | null;
@@ -24,35 +24,37 @@ export interface Profile {
     avatar_url: string | null;
     created_at: string;
     updated_at: string;
-}
+};
 
-export interface UserAddress {
+export type UserAddress = any;
+
+export type Notification = {
     id: string;
     user_id: string;
-    label: string;      // e.g., "Home", "Work", "Gym"
-    address: string;    // Full text address
-    lat: number;
-    lng: number;
-    is_default: boolean;
+    type: string;
+    title: string;
+    message: string;
+    is_read: boolean;
+    metadata: any;
     created_at: string;
-}
+};
 
-export interface Vendor {
+export type Vendor = {
     id: string;
     owner_id: string;
     name: string;
     description: string | null;
-    address: string | null;     // Physical address text
-    location: any;               // ST_Point geography
+    address: string | null;
+    location: any;
     rating: number;
     category: string | null;
     is_featured: boolean;
     logo_url: string | null;
     cover_url: string | null;
     created_at: string;
-}
+};
 
-export interface Product {
+export type Product = {
     id: string;
     vendor_id: string;
     name: string;
@@ -63,9 +65,9 @@ export interface Product {
     category: string | null;
     is_available: boolean;
     created_at: string;
-}
+};
 
-export interface Order {
+export type Order = {
     id: string;
     user_id: string;
     vendor_id: string;
@@ -82,15 +84,9 @@ export interface Order {
 
     created_at: string;
     updated_at: string;
-}
+};
 
-export interface OrderItem {
-    id: string;
-    order_id: string;
-    product_id: string;
-    quantity: number;
-    unit_price: number;
-}
+export type OrderItem = any; // Placeholders for now
 
 /* ─────────────────────────────────────────────────────
    SUPABASE DATABASE TYPE (placeholder)
@@ -102,41 +98,200 @@ export type Database = {
         Tables: {
             profiles: {
                 Row: Profile;
-                Insert: Partial<Profile>;
-                Update: Partial<Profile>;
+                Insert: {
+                    id: string;
+                    role?: UserRole;
+                    full_name?: string | null;
+                    phone?: string | null;
+                    email?: string | null;
+                    avatar_url?: string | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    role?: UserRole;
+                    full_name?: string | null;
+                    phone?: string | null;
+                    email?: string | null;
+                    avatar_url?: string | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
                 Relationships: any[];
             };
             vendors: {
                 Row: Vendor;
-                Insert: Partial<Vendor>;
-                Update: Partial<Vendor>;
+                Insert: {
+                    id?: string;
+                    owner_id?: string;
+                    name: string;
+                    description?: string | null;
+                    address?: string | null;
+                    location?: any;
+                    rating?: number;
+                    category?: string | null;
+                    is_featured?: boolean;
+                    logo_url?: string | null;
+                    cover_url?: string | null;
+                    created_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    owner_id?: string;
+                    name?: string;
+                    description?: string | null;
+                    address?: string | null;
+                    location?: any;
+                    rating?: number;
+                    category?: string | null;
+                    is_featured?: boolean;
+                    logo_url?: string | null;
+                    cover_url?: string | null;
+                    created_at?: string;
+                };
                 Relationships: any[];
             };
             products: {
                 Row: Product;
-                Insert: Partial<Product>;
-                Update: Partial<Product>;
+                Insert: {
+                    id?: string;
+                    vendor_id: string;
+                    name: string;
+                    description?: string | null;
+                    price: number;
+                    image_url?: string | null;
+                    stock?: number;
+                    category?: string | null;
+                    is_available?: boolean;
+                    created_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    vendor_id?: string;
+                    name?: string;
+                    description?: string | null;
+                    price?: number;
+                    image_url?: string | null;
+                    stock?: number;
+                    category?: string | null;
+                    is_available?: boolean;
+                    created_at?: string;
+                };
                 Relationships: any[];
             };
             orders: {
                 Row: Order;
-                Insert: Partial<Order>;
-                Update: Partial<Order>;
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    vendor_id: string;
+                    courier_id?: string | null;
+                    courier_lat?: number | null;
+                    courier_lng?: number | null;
+                    status?: OrderStatus;
+                    total: number;
+                    delivery_location?: string | null;
+                    delivery_lat?: number | null;
+                    delivery_lng?: number | null;
+                    progress?: number | null;
+                    notes?: string | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    vendor_id?: string;
+                    courier_id?: string | null;
+                    courier_lat?: number | null;
+                    courier_lng?: number | null;
+                    status?: OrderStatus;
+                    total?: number;
+                    delivery_location?: string | null;
+                    delivery_lat?: number | null;
+                    delivery_lng?: number | null;
+                    progress?: number | null;
+                    notes?: string | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
                 Relationships: any[];
             };
             order_items: {
                 Row: OrderItem;
-                Insert: Partial<OrderItem>;
-                Update: Partial<OrderItem>;
+                Insert: {
+                    id?: string;
+                    order_id: string;
+                    product_id: string;
+                    quantity?: number;
+                    unit_price: number;
+                };
+                Update: {
+                    id?: string;
+                    order_id?: string;
+                    product_id?: string;
+                    quantity?: number;
+                    unit_price?: number;
+                };
                 Relationships: any[];
             };
             addresses: {
                 Row: UserAddress;
-                Insert: Partial<UserAddress>;
-                Update: Partial<UserAddress>;
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    label: string;
+                    address: string;
+                    lat: number;
+                    lng: number;
+                    is_default?: boolean;
+                    created_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    label?: string;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                    is_default?: boolean;
+                    created_at?: string;
+                };
                 Relationships: [
                     {
                         foreignKeyName: "addresses_user_id_fkey";
+                        columns: ["user_id"];
+                        referencedRelation: "profiles";
+                        referencedColumns: ["id"];
+                    }
+                ];
+            };
+            notifications: {
+                Row: Notification;
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    type: string;
+                    title: string;
+                    message: string;
+                    is_read?: boolean;
+                    metadata?: any;
+                    created_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    type?: string;
+                    title?: string;
+                    message?: string;
+                    is_read?: boolean;
+                    metadata?: any;
+                    created_at?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: "notifications_user_id_fkey";
                         columns: ["user_id"];
                         referencedRelation: "profiles";
                         referencedColumns: ["id"];

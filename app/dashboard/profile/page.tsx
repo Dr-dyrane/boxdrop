@@ -26,7 +26,7 @@ const item = {
 };
 
 export default function ProfilePage() {
-    const { profile, user, loading } = useAuth();
+    const { profile, user, loading, isAdmin } = useAuth();
     const { addresses, deleteAddress } = useAddresses(user?.id);
 
     if (loading) return <ScreenShell>Loading Profile...</ScreenShell>;
@@ -70,8 +70,10 @@ export default function ProfilePage() {
                             <div className="space-y-2">
                                 <h2 className="text-2xl font-black tracking-tight">{profile?.email?.split('@')[0] || "User"}</h2>
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/5">
-                                    <Shield className="h-3 w-3 text-primary" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Premium Member</span>
+                                    <Shield className={`h-3 w-3 ${isAdmin ? 'text-purple-400' : 'text-primary'}`} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                        {isAdmin ? 'BoxDrop Administrator' : 'Premium Member'}
+                                    </span>
                                 </div>
                             </div>
                         </motion.div>
@@ -209,6 +211,16 @@ export default function ProfilePage() {
                                 >
                                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Alerts</span>
                                 </Button>
+                                {isAdmin && (
+                                    <Button
+                                        variant="ghost"
+                                        className="h-16 col-span-2 rounded-[1.5rem] border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 flex flex-col items-center justify-center gap-1 group"
+                                        onClick={() => window.location.href = '/dashboard/admin'}
+                                    >
+                                        <Shield className="h-4 w-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-purple-400">Oversight Hub</span>
+                                    </Button>
+                                )}
                             </div>
                         </motion.div>
                     </div>

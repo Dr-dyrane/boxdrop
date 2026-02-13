@@ -100,6 +100,12 @@ export default function MainLayout({
         if (isAdmin && pathname.startsWith("/dashboard/admin")) {
             return [shopTab, adminTab, profileTab];
         }
+
+        // Default Admin View
+        if (isAdmin && (pathname === "/dashboard" || isSearch || isOrders)) {
+            return [shopTab, adminTab, isOrders ? ordersTab : (isSearch ? searchTab : ordersTab)];
+        }
+
         if (pathname === "/dashboard") {
             return [shopTab, searchTab, ordersTab];
         }
@@ -118,27 +124,26 @@ export default function MainLayout({
         if (isProfile) {
             const currentTab = pathname.startsWith("/dashboard/notifications") ? alertsTab :
                 pathname.startsWith("/dashboard/settings") ? settingsTab : profileTab;
+
+            // If admin, prioritize adminTab over settings in the triple-pill
+            if (isAdmin) {
+                return [shopTab, currentTab, adminTab];
+            }
             return [shopTab, currentTab, alertsTab === currentTab ? settingsTab : alertsTab];
         }
 
-        // Vendor Context
+        // ... vendor/cart contexts stay same for brevity ...
         if (isVendor) {
             const vendorTab: NavTab = { href: pathname, label: "Vendor", icon: Compass };
             return [shopTab, vendorTab, cartCount > 0 ? cartTab : ordersTab];
         }
 
-        // Cart Context
         if (isCart) {
             return [shopTab, cartTab, ordersTab];
         }
 
-        // Add Oversight to defaults if Admin
-        if (isAdmin && pathname === "/dashboard") {
-            return [shopTab, adminTab, searchTab];
-        }
-
         // Fallback
-        return [shopTab, searchTab, ordersTab];
+        return isAdmin ? [shopTab, adminTab, searchTab] : [shopTab, searchTab, ordersTab];
     };
 
 
