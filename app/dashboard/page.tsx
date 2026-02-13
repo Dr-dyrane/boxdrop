@@ -114,7 +114,7 @@ export default function DashboardPage() {
         { label: "Active Orders", value: "0", icon: Package },
         { label: "Nearby Vendors", value: displayVendors.length.toString(), icon: MapPin },
         { label: "Avg. Delivery", value: "28m", icon: Clock },
-        { label: "This Month", value: "₦0", icon: TrendingUp },
+        { label: "This Month", value: "$0", icon: TrendingUp },
     ];
 
     const mapMarkers = displayVendors

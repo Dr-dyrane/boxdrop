@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/core/store";
 import { useRouter, usePathname } from "next/navigation";
+import { formatCurrency } from "@/core/utils";
 
 /* ─────────────────────────────────────────────────────
    PERSISTENT CART PILL
@@ -54,7 +55,7 @@ export function PersistentCart() {
                             <div className="text-left">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">View Bag</p>
                                 <p className="text-sm font-black tracking-tight leading-none mt-0.5">
-                                    ₦{cartTotal.toLocaleString()}
+                                    {formatCurrency(cartTotal)}
                                 </p>
                             </div>
                         </div>
@@ -67,7 +68,8 @@ export function PersistentCart() {
                         </div>
                     </button>
                 </motion.div>
-            )}
-        </AnimatePresence>
+            )
+            }
+        </AnimatePresence >
     );
 }

@@ -2,11 +2,11 @@
    UTILITY: Currency Formatter
    ───────────────────────────────────────────────────── */
 
-export function formatCurrency(amount: number, currency = "NGN"): string {
-    return new Intl.NumberFormat("en-NG", {
+export function formatCurrency(amount: number, currency = "USD"): string {
+    return new Intl.NumberFormat("en-US", {
         style: "currency",
         currency,
-        minimumFractionDigits: 0,
+        minimumFractionDigits: 2,
     }).format(amount);
 }
 
@@ -26,7 +26,7 @@ export function timeAgo(dateString: string): string {
     if (diffHours < 24) return `${diffHours}h ago`;
     const diffDays = Math.floor(diffHours / 24);
     if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString("en-NG", { month: "short", day: "numeric" });
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 /* ─────────────────────────────────────────────────────
