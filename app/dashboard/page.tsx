@@ -339,9 +339,9 @@ export default function DashboardPage() {
                                 className="group glass-heavy p-6 rounded-[2.5rem] flex items-center gap-6 cursor-pointer hover:bg-foreground/5 transition-all duration-300"
                             >
                                 <div className="h-20 w-20 rounded-[1.8rem] overflow-hidden glass shrink-0 relative">
-                                    {vendor.logo_url ? (
+                                    {vendor.cover_url ? (
                                         <Image
-                                            src={vendor.logo_url}
+                                            src={vendor.cover_url}
                                             alt={vendor.name}
                                             width={80}
                                             height={80}
