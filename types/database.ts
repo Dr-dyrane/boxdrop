@@ -26,6 +26,17 @@ export interface Profile {
     updated_at: string;
 }
 
+export interface UserAddress {
+    id: string;
+    user_id: string;
+    label: string;      // e.g., "Home", "Work", "Gym"
+    address: string;    // Full text address
+    lat: number;
+    lng: number;
+    is_default: boolean;
+    created_at: string;
+}
+
 export interface Vendor {
     id: string;
     owner_id: string;
@@ -118,6 +129,19 @@ export type Database = {
                 Insert: any;
                 Update: any;
                 Relationships: any[];
+            };
+            addresses: {
+                Row: UserAddress;
+                Insert: Omit<UserAddress, "id" | "created_at">;
+                Update: Partial<Omit<UserAddress, "id" | "created_at">>;
+                Relationships: [
+                    {
+                        foreignKeyName: "addresses_user_id_fkey";
+                        columns: ["user_id"];
+                        referencedRelation: "profiles";
+                        referencedColumns: ["id"];
+                    }
+                ];
             };
         };
         Views: Record<string, any>;

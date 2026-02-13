@@ -137,7 +137,8 @@ export default function OrderTrackingPage() {
      * [PRODUCTION]: Remove this entire block when a real logistics backend is active.
      */
     useEffect(() => {
-        if (!displayOrder || !displayVendor || displayOrder.status === 'delivered' || isDemoMode) return;
+        // [PRODUCTION SAFETY]: Ensure simulation ONLY runs if explicitly in demo mode or if no backend courier exists
+        if (!displayOrder || !displayVendor || displayOrder.status === 'delivered' || !isDemoMode) return;
 
         const isSimulatable = ['pending', 'confirmed', 'preparing', 'picked_up'].includes(displayOrder.status);
         const hasVendorLoc = (displayVendor.location as any)?.coordinates;

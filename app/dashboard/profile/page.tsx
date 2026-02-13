@@ -1,9 +1,9 @@
 "use client";
 
 import { ScreenShell } from "@/components/layout/screen-shell";
-import { useAuth } from "@/core/hooks";
+import { useAuth, useAddresses } from "@/core/hooks";
 import { motion } from "framer-motion";
-import { User, Mail, Phone, Calendar, Shield, CreditCard, ChevronRight } from "lucide-react";
+import { User, Mail, Phone, Calendar, Shield, CreditCard, ChevronRight, X, Star } from "lucide-react";
 import { GlassCard, Button } from "@/components/ui";
 
 /* ─────────────────────────────────────────────────────
@@ -26,7 +26,8 @@ const item = {
 };
 
 export default function ProfilePage() {
-    const { profile, loading } = useAuth();
+    const { profile, user, loading } = useAuth();
+    const { addresses, deleteAddress } = useAddresses(user?.id);
 
     if (loading) return <ScreenShell>Loading Profile...</ScreenShell>;
 
@@ -84,7 +85,7 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5">
                                     <span className="text-xs font-bold">Saved Places</span>
-                                    <span className="text-lg font-black">3</span>
+                                    <span className="text-lg font-black">{addresses.length}</span>
                                 </div>
                             </div>
                         </motion.div>
@@ -126,6 +127,52 @@ export default function ProfilePage() {
                                         <p className="text-sm font-bold truncate">Oct 24, 2024</p>
                                     </div>
                                 </GlassCard>
+                            </div>
+                        </motion.div>
+
+                        <motion.div variants={item} className="pt-8">
+                            <div className="flex items-center justify-between px-2 mb-6">
+                                <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Saved Places</h3>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/5"
+                                    onClick={() => window.dispatchEvent(new CustomEvent("boxdrop-open-location"))}
+                                >
+                                    Add New
+                                </Button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {addresses.length > 0 ? (
+                                    addresses.map((addr) => (
+                                        <GlassCard key={addr.id} className="p-6 rounded-[2rem] space-y-4 group relative overflow-hidden">
+                                            <div className="flex items-start justify-between">
+                                                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                                    <Star className="h-4 w-4 fill-primary/20" />
+                                                </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10"
+                                                    onClick={() => deleteAddress(addr.id)}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">{addr.label}</p>
+                                                <p className="text-sm font-bold truncate">{addr.address.split(',')[0]}</p>
+                                                <p className="text-[10px] text-muted-foreground truncate opacity-60 leading-tight mt-1">{addr.address.split(',').slice(1).join(',').trim()}</p>
+                                            </div>
+                                        </GlassCard>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full py-12 text-center glass rounded-[2.5rem] border border-dashed border-white/5">
+                                        <p className="text-sm text-muted-foreground font-medium">No saved places yet.</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary mt-2 cursor-pointer hover:underline" onClick={() => window.dispatchEvent(new CustomEvent("boxdrop-open-location"))}>Set your first destination</p>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
 

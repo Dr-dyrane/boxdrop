@@ -7,3 +7,5 @@ export { useLocation } from "./use-location";
 export * from "./use-orders";
 export * from "./use-notifications";
 export * from "./use-scroll-direction";
+export { useRecentLocations } from "./use-recent-locations";
+export { useAddresses } from "./use-addresses";

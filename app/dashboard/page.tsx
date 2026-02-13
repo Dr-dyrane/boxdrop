@@ -198,19 +198,21 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Network Status</p>
                     <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-success">Optimal</span>
+                        <div className={cn("h-1.5 w-1.5 rounded-full animate-pulse", new Date().getHours() > 8 && new Date().getHours() < 22 ? "bg-success" : "bg-warning")} />
+                        <span className={cn("text-[9px] font-black uppercase tracking-widest", new Date().getHours() > 8 && new Date().getHours() < 22 ? "text-success" : "text-warning")}>
+                            {new Date().getHours() > 8 && new Date().getHours() < 22 ? "Optimal" : "Off-Peak"}
+                        </span>
                     </div>
                 </div>
                 <div className="space-y-3">
                     <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
                         <span>Active Couriers</span>
-                        <span className="text-foreground">{Math.max(12, activeOrdersCount * 2 + 5)} Units</span>
+                        <span className="text-foreground">{Math.max(12, activeOrdersCount * 3 + Math.floor(Math.random() * 5))} Units</span>
                     </div>
                     <div className="h-1 w-full bg-foreground/5 rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
-                            animate={{ width: "65%" }}
+                            animate={{ width: `${Math.min(100, Math.max(30, activeOrdersCount * 5))}%` }}
                             className="h-full bg-primary"
                         />
                     </div>
@@ -218,8 +220,8 @@ export default function DashboardPage() {
                         <span>Avg. Prep Time</span>
                         <span className="text-foreground">
                             {orders && orders.length > 0
-                                ? (orders.reduce((acc, o) => acc + (o.total > 5000 ? 15 : 8), 0) / orders.length).toFixed(1)
-                                : "8.4"}m
+                                ? (orders.reduce((acc, o) => acc + (o.total > 5000 ? 12 : 6), 0) / orders.length).toFixed(1)
+                                : "6.2"}m
                         </span>
                     </div>
                 </div>

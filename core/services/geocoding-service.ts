@@ -21,7 +21,7 @@ export const geocodingService = {
         if (!query || query.length < 3) return [];
 
         try {
-            const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&autocomplete=true&limit=${limit}&country=NG`; // Focused on Nigeria
+            const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&autocomplete=true&limit=${limit}`; // Global search
 
             const response = await fetch(url);
             if (!response.ok) throw new Error("Mapbox search failed");
