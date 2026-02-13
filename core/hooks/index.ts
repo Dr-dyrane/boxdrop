@@ -9,3 +9,4 @@ export * from "./use-notifications";
 export * from "./use-scroll-direction";
 export { useRecentLocations } from "./use-recent-locations";
 export { useAddresses } from "./use-addresses";
+export { useMediaQuery } from "./use-media-query";

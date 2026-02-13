@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Package, Truck, CheckCircle, Zap, AlertTriangle, Play, Pause, RefreshCw } from "lucide-react";
 import { GlassCard, Button } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
+import { triggerSimulationOrder } from "@/core/actions/admin-actions";
+import { useMediaQuery } from "@/core/hooks";
 
 /* ─────────────────────────────────────────────────────
    HELPER: RELATIVE TIME
@@ -75,10 +77,10 @@ export function LogisticsPulse() {
     const triggerRandomDrop = async () => {
         setIsTriggering(true);
         try {
-            // This would call an API route or server action to trigger the seed logic
-            // For now, we simulate the effect by hitting an edge case or specific endpoint if it existed
-            console.log("Triggering Random Drop...");
-            // In a real app, this would be: await fetch('/api/admin/trigger-drop', { method: 'POST' });
+            await triggerSimulationOrder();
+            console.log("Simulation Drop Triggered successfully.");
+        } catch (err) {
+            console.error("Failed to trigger simulation:", err);
         } finally {
             setTimeout(() => setIsTriggering(false), 1000);
         }
@@ -93,79 +95,93 @@ export function LogisticsPulse() {
         }
     };
 
+    const isMobile = useMediaQuery("(max-width: 768px)");
+
     return (
-        <GlassCard className="p-6 overflow-hidden border-white/5 bg-black/40">
-            <div className="flex items-center justify-between mb-6">
+        <GlassCard className={`p-6 overflow-hidden border-foreground/5 ${isMobile ? 'rounded-[2rem]' : ''}`}>
+            <div className={`flex ${isMobile ? 'flex-col gap-4' : 'items-center justify-between'} mb-6`}>
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        <Activity className="w-5 h-5 text-emerald-400" />
-                        <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <Activity className="w-5 h-5 text-emerald-500" />
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-medium text-white">Logistics Pulse</h3>
-                        <p className="text-xs text-zinc-500 uppercase tracking-widest">Network Vital Signs</p>
+                        <h3 className="text-lg font-black tracking-tighter text-foreground leading-none">Logistics Pulse</h3>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Real-time Activity</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <Button
-                        variant="ghost"
+                        variant="secondary"
                         size="sm"
-                        className="text-zinc-400 hover:text-white"
                         onClick={triggerRandomDrop}
                         disabled={isTriggering}
+                        className={`h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest border-foreground/5 ${isTriggering ? 'opacity-50' : ''}`}
                     >
-                        <Zap className={`w-4 h-4 mr-2 ${isTriggering ? 'animate-bounce' : ''}`} />
-                        Random Drop
-                    </Button>
-                    <div className="h-4 w-[1px] bg-white/10 mx-1" />
-                    <Button variant="secondary" size="sm" className="border-white/10">
-                        <Activity className="w-4 h-4 mr-2" />
-                        Metrics
+                        {isTriggering ? 'Simulating...' : 'Trigger Simulation'}
                     </Button>
                 </div>
             </div>
 
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                <AnimatePresence initial={false}>
-                    {events.length === 0 ? (
-                        <div className="py-12 text-center">
-                            <RefreshCw className="w-8 h-8 text-zinc-700 mx-auto mb-3 animate-spin" />
-                            <p className="text-sm text-zinc-500">Awaiting Signal...</p>
-                        </div>
-                    ) : (
-                        events.map((event) => (
-                            <motion.div
-                                key={event.id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                className="flex items-start gap-4 p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.05] transition-colors"
-                            >
-                                <div className="mt-1 p-2 rounded-md bg-black/40 border border-white/10">
-                                    {getStatusIcon(event.type === 'order' ? event.title.toLowerCase().split(' ').pop() : 'default')}
+            <div className={`space-y-3 ${isMobile ? 'max-h-[300px]' : 'max-h-[400px]'} overflow-y-auto pr-2 custom-scrollbar`}>
+                <AnimatePresence initial={false} mode="popLayout">
+                    {events.map((event) => (
+                        <motion.div
+                            key={event.id}
+                            initial={{ opacity: 0, x: -20, height: 0 }}
+                            animate={{ opacity: 1, x: 0, height: 'auto' }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="group"
+                        >
+                            <div className="flex gap-4 p-4 rounded-2xl bg-foreground/[0.03] border border-transparent group-hover:border-foreground/5 transition-all">
+                                <div className={`mt-1 p-2 rounded-xl bg-opacity-10 shrink-0 ${event.type === 'order' ? 'bg-blue-500 text-blue-500' :
+                                        event.type === 'alert' ? 'bg-amber-500 text-amber-500' :
+                                            'bg-purple-500 text-purple-500'
+                                    }`}>
+                                    {event.type === 'order' ? <Package className="w-3.5 h-3.5" /> :
+                                        event.type === 'alert' ? <AlertTriangle className="w-3.5 h-3.5" /> :
+                                            <Activity className="w-3.5 h-3.5" />}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <p className="text-sm font-medium text-white truncate">{event.title}</p>
-                                        <span className="text-[10px] text-zinc-500 whitespace-nowrap">
+                                    <p className="text-xs font-bold text-foreground leading-relaxed">
+                                        {event.message}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-1.5">
+                                        <span className="text-[10px] font-black tabular-nums text-muted-foreground opacity-60">
                                             {getRelativeTime(event.created_at)}
                                         </span>
+                                        <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                                        <span className="text-[9px] uppercase tracking-widest font-black text-muted-foreground/50">
+                                            {event.type}
+                                        </span>
                                     </div>
-                                    <p className="text-xs text-zinc-400 truncate">{event.message}</p>
                                 </div>
-                            </motion.div>
-                        ))
-                    )}
+                            </div>
+                        </motion.div>
+                    ))}
                 </AnimatePresence>
+
+                {events.length === 0 && (
+                    <div className="py-12 flex flex-col items-center justify-center text-center">
+                        <div className="p-4 rounded-full bg-foreground/5 mb-4">
+                            <Activity className="w-8 h-8 text-muted-foreground/20" />
+                        </div>
+                        <p className="text-xs font-medium text-muted-foreground italic">Awaiting network signals...</p>
+                    </div>
+                )}
             </div>
 
-            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[10px] text-zinc-500 uppercase tracking-tighter">
-                <span>Active Cycles: {events.length}</span>
-                <span className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    Engine Synchronized
-                </span>
+            <div className="mt-6 pt-6 border-t border-foreground/5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="flex flex-col">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground leading-none">Status</span>
+                        <span className="text-[11px] font-black text-emerald-500 mt-1">Operational</span>
+                    </div>
+                </div>
+                <div className="text-[10px] font-medium text-muted-foreground/40 italic">
+                    v1.0.4 Oversight
+                </div>
             </div>
         </GlassCard>
     );
