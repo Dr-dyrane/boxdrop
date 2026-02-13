@@ -157,7 +157,9 @@ export default function DashboardPage() {
         );
     }
 
-    const featuredVendors = allVendors?.filter((v) => v.is_featured).slice(0, 6) ?? [];
+    const featuredVendors = lat !== undefined && lng !== undefined
+        ? nearbyVendors?.filter((v) => v.is_featured).slice(0, 6) ?? []
+        : allVendors?.filter((v) => v.is_featured).slice(0, 6) ?? [];
 
     const displayVendors = lat !== undefined && lng !== undefined
         ? nearbyVendors?.filter(v => !v.is_featured) ?? []
@@ -333,12 +335,14 @@ export default function DashboardPage() {
                 </motion.div>
 
                 {/* ── Featured Spotlight ─────────────────────── */}
-                {!lat && featuredVendors.length > 0 && (
+                {featuredVendors.length > 0 && (
                     <motion.div variants={staggerItem} className="space-y-6">
                         <div className="flex items-center justify-between px-1">
-                            <h2 className="text-2xl font-black tracking-tighter">Spotlight</h2>
+                            <h2 className="text-2xl font-black tracking-tighter">
+                                {lat ? "Featured Nearby" : "Spotlight"}
+                            </h2>
                             <button
-                                onClick={() => router.push('/dashboard/search?featured=true')}
+                                onClick={() => router.push(`/dashboard/search?featured=true${lat ? `&lat=${lat}&lng=${lng}` : ''}`)}
                                 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all flex items-center gap-2 group"
                             >
                                 Browse All
