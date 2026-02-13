@@ -132,8 +132,8 @@ export type Database = {
             };
             addresses: {
                 Row: UserAddress;
-                Insert: Omit<UserAddress, "id" | "created_at">;
-                Update: Partial<Omit<UserAddress, "id" | "created_at">>;
+                Insert: any;
+                Update: any;
                 Relationships: [
                     {
                         foreignKeyName: "addresses_user_id_fkey";

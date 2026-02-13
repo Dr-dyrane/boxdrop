@@ -145,7 +145,7 @@ export default function ProfilePage() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {addresses.length > 0 ? (
-                                    addresses.map((addr) => (
+                                    addresses.map((addr: any) => (
                                         <GlassCard key={addr.id} className="p-6 rounded-[2rem] space-y-4 group relative overflow-hidden">
                                             <div className="flex items-start justify-between">
                                                 <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">

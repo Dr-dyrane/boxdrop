@@ -7,7 +7,7 @@ import type { UserAddress } from "@/types/database";
    ───────────────────────────────────────────────────── */
 
 export async function fetchUserAddresses(userId: string): Promise<UserAddress[]> {
-    const supabase = createClient();
+    const supabase = createClient() as any;
     const { data, error } = await supabase
         .from("addresses")
         .select("*")
@@ -19,7 +19,7 @@ export async function fetchUserAddresses(userId: string): Promise<UserAddress[]>
 }
 
 export async function saveAddress(address: Omit<UserAddress, "id" | "created_at">): Promise<UserAddress> {
-    const supabase = createClient();
+    const supabase = createClient() as any;
     const { data, error } = await supabase
         .from("addresses")
         .insert(address as any)
@@ -31,7 +31,7 @@ export async function saveAddress(address: Omit<UserAddress, "id" | "created_at"
 }
 
 export async function deleteAddress(addressId: string): Promise<void> {
-    const supabase = createClient();
+    const supabase = createClient() as any;
     const { error } = await supabase
         .from("addresses")
         .delete()
@@ -41,18 +41,18 @@ export async function deleteAddress(addressId: string): Promise<void> {
 }
 
 export async function setDefaultAddress(userId: string, addressId: string): Promise<void> {
-    const supabase = createClient();
+    const supabase = createClient() as any;
 
     // First, unset all default addresses for this user
     await supabase
         .from("addresses")
-        .update({ is_default: false } as any)
+        .update({ is_default: false })
         .eq("user_id", userId);
 
     // Then set the specific one
     const { error } = await supabase
         .from("addresses")
-        .update({ is_default: true } as any)
+        .update({ is_default: true })
         .eq("id", addressId);
 
     if (error) throw error;
